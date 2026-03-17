@@ -5,22 +5,34 @@ dotenv.config();
 const connectDB = require('./config/db');
 const app = require('./app');
 
+// Validate critical environment variables
+const requiredEnv = ['JWT_SECRET', 'MONGO_URI'];
+const missing = requiredEnv.filter(k => !process.env[k]);
+if (missing.length > 0) {
+  console.error(`FATAL: Missing required environment variables: ${missing.join(', ')}`);
+  process.exit(1);
+}
+
 // Connect to database
 connectDB();
-
-console.log('JWT_SECRET Loaded:', !!process.env.JWT_SECRET);
-console.log('JWT_EXPIRES_IN:', process.env.JWT_EXPIRES_IN);
-if (!process.env.JWT_SECRET) console.error('FATAL: JWT_SECRET is missing!');
 
 const PORT = process.env.PORT || 4000;
 
 const server = app.listen(PORT, () => {
-  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  console.log(`✅ Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-  console.log(`Error: ${err.message}`);
-  // Close server & exit process
+process.on('unhandledRejection', (err) => {
+  console.error(`Unhandled Rejection: ${err.message}`);
   server.close(() => process.exit(1));
+});
+
+// Handle graceful shutdown (Render sends SIGTERM on deploy)
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed.');
+    process.exit(0);
+  });
 });

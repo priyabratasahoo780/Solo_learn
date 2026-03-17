@@ -1,12 +1,9 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: process.env.EMAIL_PORT == 465,
-  pool: true, // Enable connection pooling
-  maxConnections: 5, // Limit concurrent connections
-  maxMessages: 100, // Limit messages per connection
+  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.EMAIL_PORT) || 587,
+  secure: parseInt(process.env.EMAIL_PORT) === 465,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
@@ -16,17 +13,17 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-// Verify connection configuration
-transporter.verify(function (error, success) {
-  if (error) {
-    console.log('❌ SMTP Connection Error:', error.message);
-    if (error.message.includes('Username and Password not accepted')) {
-      console.log('👉 TIP: If using Gmail, you MUST use an "App Password", not your login password.');
-      console.log('   Go to: Google Account > Security > 2-Step Verification > App Passwords');
+// Non-fatal connection check (does not block startup)
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+  transporter.verify(function (error) {
+    if (error) {
+      console.warn('⚠️ SMTP Warning: Email service unavailable -', error.message);
+    } else {
+      console.log('✅ SMTP Server connected and ready');
     }
-  } else {
-    console.log('✅ SMTP Server is ready to take our messages');
-  }
-});
+  });
+} else {
+  console.warn('⚠️ SMTP Warning: EMAIL_USER or EMAIL_PASS not set. Email features will be disabled.');
+}
 
 module.exports = transporter;

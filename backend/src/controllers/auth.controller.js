@@ -122,9 +122,10 @@ exports.sendOtp = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: emailSent ? `OTP sent to ${email}` : `OTP ready (Email service unavailable)`,
+    message: emailSent ? `OTP sent to ${email}` : `OTP ready (check server logs if email unavailable)`,
     emailSent,
-    otp: otp // Return for dev/mock mode
+    // Only expose OTP in development mode to avoid security leaks in production
+    otp: process.env.NODE_ENV !== 'production' ? otp : undefined
   });
 });
 

@@ -11,9 +11,7 @@ exports.askTutor = asyncHandler(async (req, res, next) => {
     return next(new ApiError(400, 'Please provide a question'));
   }
 
-  // MOCK LOGIC - In production, replace this with a call to OpenAI/Gemini/Anthropic
-  await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate thinking time
-
+  // MOCK LOGIC - Replace with OpenAI/Gemini integration for full AI capability
   let answer = `I'm an AI Tutor (currently in simulated mode). I can help you with **JavaScript**, **React**, **CSS**, and **APIs**. Try asking about "loops" or "components"!`;
   
   const lowerQ = question.toLowerCase();
