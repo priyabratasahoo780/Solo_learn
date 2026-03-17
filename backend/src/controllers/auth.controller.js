@@ -101,16 +101,8 @@ exports.sendOtp = asyncHandler(async (req, res, next) => {
     otp: hashedOtp
   });
 
-  // 🔥 FIRE AND FORGET: Send Email asynchronously in the background
-  // This ensures the user gets a sub-10ms response without waiting for Gmail!
-  sendOtpEmail(email, otp).then(result => {
-    const emailSent = result?.success || false;
-    if (!emailSent) {
-      console.warn(`⚠️ Background Email delivery failed for ${email}:`, result?.error);
-    }
-  }).catch(err => {
-    console.error(`Email service background crash for ${email}:`, err.message);
-  });
+  // Client will handle sending the email via EmailJS.
+  // We simply return the generated OTP back to the frontend.
 
   // FORCE LOG OTP FOR USER VISIBILITY
   console.log('\n\n==================================================');
@@ -121,10 +113,10 @@ exports.sendOtp = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
-    message: `OTP is being dispatched to ${email}`,
-    emailSent: true, // Optimistically assume true for instant UX
-    // Only expose OTP in development mode to avoid security leaks in production
-    otp: process.env.NODE_ENV !== 'production' ? otp : undefined
+    message: `OTP generated. Frontend will dispatch.`,
+    emailSent: true, // Mocked for frontend logic
+    // Expose OTP so client can send it via EmailJS
+    otp: otp 
   });
 });
 

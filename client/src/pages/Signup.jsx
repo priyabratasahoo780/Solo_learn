@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
 import { UserPlus, Mail, Key, CheckCircle, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import emailjs from '@emailjs/browser';
 
 const Signup = () => {
   const [step, setStep] = useState('details'); // 'details' | 'otp'
@@ -28,15 +29,36 @@ const Signup = () => {
     setIsLoading(true);
     
     try {
+      // 1. Tell backend to generate and store OTP. It will return the plain OTP.
       const res = await sendOtp(email);
-      if (res.success) {
-        setStep('otp');
-        if (res.otp) {
-          setVisibleOtp(res.otp);
+      
+      if (res.success && res.otp) {
+        // 2. Send the OTP email directly from the frontend using EmailJS
+        try {
+          // Replace with your actual EmailJS Service ID and Template ID
+          // The public key used here is: -TH9C7WmG2BeJ5O4l
+          await emailjs.send(
+            'default_service', // Replace with your Service ID
+            'template_otp',    // Replace with your Template ID
+            {
+              to_name: name || 'User',
+              to_email: email,
+              otp: res.otp,
+            },
+            '-TH9C7WmG2BeJ5O4l'
+          );
+
+          setStep('otp');
+          toast.success(`OTP sent to ${email} instantly!`);
+        } catch (emailErr) {
+          console.error('EmailJS Error:', emailErr);
+          setError('Failed to send email via EmailJS. Please check your EmailJS Service/Template configuration.');
+          // Fallback to show OTP in UI for development
+          if (res.otp) setVisibleOtp(res.otp);
+          setStep('otp');
         }
-        toast.success(`OTP sent to ${email}`);
       } else {
-        setError(res.error);
+        setError(res.error || 'Failed to generate OTP.');
       }
     } catch (err) {
       setError('Failed to send OTP. Please try again.');
