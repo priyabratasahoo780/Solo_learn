@@ -1,7 +1,14 @@
 import axios from 'axios';
 
 // Create axios instance
-const apiURL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+let apiURL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+
+// Auto-fix for Vercel deployment: if they provided the Render URL without /api, add it
+if (import.meta.env.PROD && !apiURL.endsWith('/api')) {
+  // Trim trailing slash if present before appending /api
+  apiURL = apiURL.replace(/\/$/, '') + '/api';
+}
+
 if (import.meta.env.DEV) console.log('🌐 API Target:', apiURL);
 
 const api = axios.create({
