@@ -85,10 +85,11 @@ Create a `.env` in the `backend/` directory:
 PORT=5000
 MONGO_URI=your_mongodb_uri
 JWT_SECRET=your_super_secret_key
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_USER=your_email@gmail.com
-SMTP_PASS=your_app_password
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASS=your_app_password
+EMAIL_FROM=your_email@gmail.com
 ```
 
 ### 3. Launch the Platform
