@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Key, ArrowRight, CheckCircle, Loader } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import emailjs from '@emailjs/browser';
 
 const Login = () => {
   const [step, setStep] = useState('email'); // 'email' | 'otp'
@@ -29,13 +30,27 @@ const Login = () => {
 
     try {
       const res = await sendOtp(email);
-      if (res.success) {
-        setStep('otp');
-        if (res.otp) {
-          setVisibleOtp(res.otp);
+      if (res.success && res.otp) {
+        try {
+          await emailjs.send(
+            'default_service',
+            'template_otp',
+            {
+              to_name: 'User',
+              to_email: email,
+              otp: res.otp,
+            },
+            '-TH9C7WmG2BeJ5O4l'
+          );
+          setStep('otp');
+        } catch (emailErr) {
+          console.error('EmailJS Error:', emailErr);
+          setError('Failed to send email via EmailJS.');
+          if (res.otp) setVisibleOtp(res.otp);
+          setStep('otp');
         }
       } else {
-        setError(res.error);
+        setError(res.error || 'Failed to generate OTP.');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -73,12 +88,25 @@ const Login = () => {
     setIsLoading(true);
     try {
       const res = await sendOtp(email);
-      if (res.success) {
-        if (res.otp) {
-          setVisibleOtp(res.otp);
+      if (res.success && res.otp) {
+        try {
+          await emailjs.send(
+            'default_service',
+            'template_otp',
+            {
+              to_name: 'User',
+              to_email: email,
+              otp: res.otp,
+            },
+            '-TH9C7WmG2BeJ5O4l'
+          );
+        } catch (emailErr) {
+          console.error('EmailJS Error:', emailErr);
+          setError('Failed to resend email via EmailJS.');
+          if (res.otp) setVisibleOtp(res.otp);
         }
       } else {
-        setError(res.error);
+        setError(res.error || 'Failed to generate OTP.');
       }
     } catch (err) {
       setError('Failed to resend OTP');

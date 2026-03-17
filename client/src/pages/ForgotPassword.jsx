@@ -3,12 +3,14 @@ import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Card3D } from '../components/Card3D';
+import { useAuth } from '../context/AuthContext';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState('');
+  const { forgotPassword } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,10 +18,14 @@ const ForgotPassword = () => {
     setError('');
 
     try {
-      await api.post('/auth/forgotpassword', { email });
-      setIsSent(true);
+      const res = await forgotPassword(email);
+      if (res.success) {
+        setIsSent(true);
+      } else {
+        setError(res.error);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send reset email');
+      setError('Failed to send reset email');
     } finally {
       setIsLoading(false);
     }

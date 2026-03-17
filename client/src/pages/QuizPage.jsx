@@ -7,6 +7,8 @@ import { Heart, ArrowRight, RefreshCw, Trophy, Home } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useEffect, useState, useRef } from 'react';
 import api from '../services/api';
+import emailService from '../services/emailService';
+import { useAuth } from '../context/AuthContext';
 
 const QuizPage = () => {
   const { id } = useParams();
@@ -41,6 +43,7 @@ const GameInterface = ({ quiz, navigate }) => {
   const [isLocked, setIsLocked] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const { user } = useAuth();
 
   const {
     currentQuestionIndex,
@@ -87,6 +90,19 @@ const GameInterface = ({ quiz, navigate }) => {
       if (data.success) {
         setAttemptId(data.data.attemptId);
         setHasStarted(true);
+
+        // Handle EmailJS dispatch for Quiz Start
+        if (data.data.shouldSendEmail && data.data.emailData) {
+          emailService.sendQuizReport(
+            user?.name || 'User',
+            user?.email,
+            {
+              quizTitle: data.data.emailData.quizTitle,
+              category: data.data.emailData.category,
+              type: 'START_NOTIFICATION' // You can customize this in your EmailJS template
+            }
+          );
+        }
       } else {
         throw new Error('Failed to start quiz attempt on server');
       }

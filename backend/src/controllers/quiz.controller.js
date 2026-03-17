@@ -236,15 +236,17 @@ exports.startQuiz = asyncHandler(async (req, res, next) => {
     status: 'started'
   });
 
-  // Send Start Email (Async)
-  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
-  sendStartEmail(req.user, quiz, clientUrl).catch(err => console.error(err));
-
+  // Client will handle sending the "Quiz Started" email via EmailJS
   res.status(200).json({
     success: true,
     data: {
       attemptId: attempt._id,
-      message: 'Quiz started successfully'
+      message: 'Quiz started successfully',
+      shouldSendEmail: true,
+      emailData: {
+        quizTitle: quiz.title,
+        category: quiz.category
+      }
     }
   });
 });
@@ -400,9 +402,8 @@ exports.submitQuiz = asyncHandler(async (req, res, next) => {
 
   await user.save();
 
-  // Send Scorecard Email (With Points)
-  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
-  sendScorecardEmail(user, {
+  // Scorecard data for frontend EmailJS dispatch
+  const scorecardData = {
     quizTitle: quiz.title,
     category: quiz.category,
     scorePercent,
@@ -411,11 +412,13 @@ exports.submitQuiz = asyncHandler(async (req, res, next) => {
     correctAnswers: correctCount,
     wrongAnswers: wrongCount,
     totalQuestions,
-    badgesUnlocked: badgesUnlocked || [] // Assuming badges are calculated somewhere, pass as needed
-  }, clientUrl).catch(err => console.error('Email send failed:', err));
+    badgesUnlocked: badgesUnlocked || []
+  };
 
   res.status(200).json({
-    message: "Quiz submitted successfully. Scorecard emailed ✅",
+    message: "Quiz submitted successfully.",
+    shouldSendEmail: true,
+    emailData: scorecardData,
     result: { 
       totalQuestions,
       correctAnswers: correctCount,

@@ -186,16 +186,40 @@ exports.verifyOtp = asyncHandler(async (req, res, next) => {
 
       const pdfBuffer = await generateCertificate(user, 'Authentication Success', certificateId);
       
-      // Send Certificate Email
-      await sendCertificateEmail(user, pdfBuffer);
+      // Signal frontend to send Certificate Email via EmailJS
+      // (The PDF buffer can be sent or we can assume frontend has the template)
+      req.sendCertificate = true;
+      req.certData = { title: 'Authentication Success', code: certificateId };
     }
     
   } catch (err) {
-    console.error('Certificate generation/sending failed:', err);
-    // Don't fail login if certificate fails
+    console.error('Certificate generation failed:', err);
   }
 
-  sendTokenResponse(user, 200, res);
+  // Update response to include certificate signal
+  const token = user.getSignedJwtToken();
+  const refreshToken = user.getRefreshToken();
+  await updateStreak(user);
+
+  res.status(200).cookie('token', refreshToken, {
+    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production'
+  }).json({
+    success: true,
+    token,
+    sendCertificate: !!req.sendCertificate,
+    certData: req.certData,
+    data: {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      coins: user.coins,
+      totalPoints: user.totalPoints,
+      badges: user.badges
+    }
+  });
 });
 
 // @desc    Resend OTP
@@ -326,26 +350,17 @@ exports.forgotPassword = asyncHandler(async (req, res, next) => {
   const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
 
   try {
-    await sendResetEmail(user, resetUrl);
-
+    // Instead of sending email from backend, we return the resetUrl
+    // so the frontend can send it via EmailJS instantly.
     res.status(200).json({
       success: true,
-      data: 'Email sent'
+      message: 'Reset URL generated. Frontend will dispatch email.',
+      resetUrl,
+      data: 'Email data ready'
     });
   } catch (err) {
-    console.log('❌ Email service failed, falling back to manual mock log:', err.message);
-    
-    // FAIL-SAFE: If email crashes, log the link manually so user can still proceed
-    console.log('---------------------------------------------------');
-    console.log(`📧 [MANUAL FALLBACK] Password Reset Link:`);
-    console.log(resetUrl);
-    console.log('---------------------------------------------------');
-
-    // Return success to frontend so user sees "Check Email" screen
-    res.status(200).json({
-      success: true,
-      data: 'Email sent (Mock Mode)'
-    });
+    console.log('❌ Reset URL generation failed:', err.message);
+    return next(new ApiError(500, 'Could not generate reset URL'));
   }
 });
 

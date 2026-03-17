@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import api from '../services/api';
 import LoadingSpinner from '../components/LoadingSpinner';
+import emailService from '../services/emailService';
 
 const AuthContext = createContext(null);
 
@@ -120,11 +121,42 @@ export const AuthProvider = ({ children }) => {
       const { data } = await api.post('/auth/verify-otp', { email, otp, name });
       setUser(data.data);
       localStorage.setItem('token', data.token);
+
+      // Handle Certificate Email dispatch via EmailJS
+      if (data.sendCertificate && data.certData) {
+        emailService.sendCertificate(
+          data.data.name,
+          data.data.email,
+          data.certData.title,
+          data.certData.code
+        );
+      }
+
       return { success: true };
     } catch (err) {
       return {
         success: false,
         error: err.response?.data?.message || 'Invalid OTP'
+      };
+    }
+  };
+
+  const forgotPassword = async (email) => {
+    try {
+      const { data } = await api.post('/auth/forgotpassword', { email });
+      
+      // Dispatch Reset Link via EmailJS instantly
+      if (data.resetUrl) {
+        // Find user name if possible, or use 'User'
+        const userName = user?.name || email.split('@')[0];
+        emailService.sendPasswordReset(userName, email, data.resetUrl);
+      }
+
+      return { success: true, data: data.data };
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.message || 'Failed to request reset'
       };
     }
   };
@@ -143,7 +175,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading, refreshUser, sendOtp, verifyOtp, updateProfile }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, loading, refreshUser, sendOtp, verifyOtp, forgotPassword, updateProfile }}>
       {loading ? (
         <LoadingSpinner fullScreen />
       ) : (

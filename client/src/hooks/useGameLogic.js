@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
+import emailService from '../services/emailService';
 
 export const useGameLogic = (quiz) => {
   const { user } = useAuth();
@@ -78,9 +79,17 @@ export const useGameLogic = (quiz) => {
       if (status === 'completed') {
         toast.success(`You earned ${data.result.pointsEarned} points!`, { icon: '🏆' });
       }
+
+      // Handle EmailJS dispatch from Frontend
+      if (data.shouldSendEmail && data.emailData) {
+        emailService.sendQuizReport(
+          user?.name || 'User',
+          user?.email,
+          data.emailData
+        );
+      }
     } catch (err) {
       console.error('Failed to submit quiz', err);
-      // toast.error('Check console for details');
     }
 
   }, [quiz, isCompleted]);
