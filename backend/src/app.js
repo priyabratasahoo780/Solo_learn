@@ -30,15 +30,26 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+
+    const isAllowed = allowedOrigins.includes(origin) || 
+                     (process.env.NODE_ENV === 'production' && origin.endsWith('.vercel.app'));
+
+    if (isAllowed) {
       callback(null, true);
     } else {
-      console.warn(`Blocked by CORS: ${origin}`);
+      console.warn(`🚫 CORS Blocked: origin ${origin} is not in allowed list:`, allowedOrigins);
       callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true
 }));
+
+// Health Check
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'active', message: 'SoloLearn API is running smoothly' });
+});
 
 // Body parser
 app.use(express.json({ limit: '10kb' }));

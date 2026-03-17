@@ -1,9 +1,12 @@
 import axios from 'axios';
 
 // Create axios instance
+const apiURL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+console.log('🌐 API Target:', apiURL);
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api', // Uses Vercel environment variable in production
-  withCredentials: true, // Important for Refresh Token Cookie
+  baseURL: apiURL,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -52,6 +55,12 @@ api.interceptors.response.use(
         return Promise.reject(refreshError);
       }
     }
+    console.error('❌ API Global Error:', {
+      url: error.config?.url,
+      method: error.config?.method,
+      status: error.response?.status,
+      message: error.message
+    });
     return Promise.reject(error);
   }
 );
