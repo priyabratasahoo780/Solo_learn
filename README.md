@@ -31,7 +31,7 @@ The **AI Code Tutor** is integrated directly into your learning flow. It's not j
 - **Multi-lingual Support**: Expert knowledge in **JavaScript, React, Python, SQL, Git, and CSS**.
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Objects/Robot.png" alt="Robot" width="100" />
+  <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Robot.png" alt="Robot" width="100" />
 </div>
 
 ---
@@ -112,5 +112,5 @@ This project is licensed under the **ISC License**.
 
 <div align="center">
   <p>Built with ❤️ by the SoloLearn Team</p>
-  <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Hand%20gestures/Rocket.png" alt="Rocket" width="50" />
+  <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Travel%20and%20places/Rocket.png" alt="Rocket" width="50" />
 </div>
