@@ -3,62 +3,60 @@ import { motion } from 'framer-motion';
 const CelestialBackground = () => {
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-[-1] bg-[#020617]">
-      {/* Dynamic Glow Orbs */}
+      {/* Advanced Dynamic Background - Orbs */}
       <motion.div 
         animate={{ 
-          x: [0, 100, -50, 0],
-          y: [0, -100, 50, 0],
-          scale: [1, 1.2, 0.8, 1]
+          x: [0, 80, -40, 0],
+          y: [0, -80, 40, 0],
+          scale: [1, 1.15, 0.9, 1],
+          opacity: [0.3, 0.5, 0.3]
         }}
-        transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-        className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-indigo-600/10 blur-[120px] rounded-full"
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-0 left-0 w-[60vw] h-[60vw] bg-indigo-600/10 blur-[150px] rounded-full"
       />
       <motion.div 
         animate={{ 
-          x: [0, -150, 100, 0],
-          y: [0, 150, -50, 0],
-          scale: [1, 0.7, 1.3, 1]
+          x: [0, -60, 80, 0],
+          y: [0, 60, -80, 0],
+          scale: [1.1, 0.85, 1.1, 1],
+          opacity: [0.2, 0.4, 0.2]
         }}
-        transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-        className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-purple-600/10 blur-[140px] rounded-full"
-      />
-      <motion.div 
-        animate={{ 
-          x: [0, 50, -100, 0],
-          y: [0, 100, -150, 0]
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-blue-600/5 blur-[100px] rounded-full"
+        transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-0 right-0 w-[50vw] h-[50vw] bg-purple-600/10 blur-[150px] rounded-full"
       />
 
-      {/* SVG Starfield */}
-      <svg className="absolute inset-0 w-full h-full opacity-30">
+      {/* Starfield & Intelligence Particles */}
+      <svg className="absolute inset-0 w-full h-full opacity-60">
         <defs>
-          <radialGradient id="starGradient">
+          <radialGradient id="starGlow">
             <stop offset="0%" stopColor="white" />
+            <stop offset="30%" stopColor="rgba(255,255,255,0.4)" />
             <stop offset="100%" stopColor="transparent" />
           </radialGradient>
         </defs>
-        {[...Array(50)].map((_, i) => (
+        {[...Array(150)].map((_, i) => (
           <motion.circle
             key={i}
             cx={`${Math.random() * 100}%`}
             cy={`${Math.random() * 100}%`}
-            r={Math.random() * 1.5}
-            fill="url(#starGradient)"
-            initial={{ opacity: Math.random() }}
-            animate={{ opacity: [0.2, 1, 0.2] }}
+            r={Math.random() * 1}
+            fill="url(#starGlow)"
+            animate={{ 
+              opacity: [0.1, 0.8, 0.1],
+              scale: [1, 1.5, 1] 
+            }}
             transition={{ 
-              duration: Math.random() * 3 + 2, 
+              duration: Math.random() * 4 + 3, 
               repeat: Infinity,
-              delay: Math.random() * 5
+              delay: Math.random() * 10
             }}
           />
         ))}
       </svg>
 
-      {/* Grid Texture Overlay */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] contrast-150 brightness-150" />
+      {/* Fine-Grained Texture Overlay */}
+      <div className="absolute inset-0 bg-noise opacity-[0.02] mix-blend-overlay pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#020617] via-transparent to-[#020617] opacity-80" />
     </div>
   );
 };

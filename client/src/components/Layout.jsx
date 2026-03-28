@@ -14,12 +14,24 @@ const Layout = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen font-sans text-gray-900 dark:text-gray-100 selection:bg-indigo-500/30 transition-colors duration-300">
+    <div className="min-h-screen bg-[#05060b] font-sans text-gray-900 dark:text-gray-100 selection:bg-indigo-500/30 transition-colors duration-300 flex">
+      {/* Fixed Sidebar */}
       <Navbar />
-      <div className="pt-24 sm:pt-28 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        {children}
-      </div>
-      <Toaster position="bottom-right" toastOptions={{ style: toastStyle }} />
+      
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col min-w-0 lg:pl-72 transition-all duration-300">
+        <div className="flex-1 py-8 sm:py-12 px-4 sm:px-6 lg:px-12 w-full max-w-[1600px] mx-auto">
+          {children}
+        </div>
+      </main>
+
+      <Toaster 
+        position="bottom-right" 
+        toastOptions={{ 
+          style: toastStyle,
+          className: 'glass-panel border-white/10 text-white rounded-2xl font-bold text-xs' 
+        }} 
+      />
       <GlobalSearch isOpen={isSearchOpen} onClose={setIsSearchOpen} />
     </div>
   );

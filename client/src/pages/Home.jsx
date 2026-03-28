@@ -1,155 +1,201 @@
 import { Link } from 'react-router-dom';
-import { Terminal, Code2, Users, Trophy, Zap, Shield, ArrowRight } from 'lucide-react';
+import { Terminal, Code2, Users, Trophy, Zap, Shield, ArrowRight, Sparkles, Cpu, Globe, Rocket, ShieldCheck } from 'lucide-react';
 import { Card3D } from '../components/Card3D';
 import ReviewsCarousel from '../components/ReviewsCarousel';
-
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 
 const Home = () => {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end start"]
+  });
+
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -200]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, -500]);
+
   return (
-    <div className="space-y-24 pb-12 overflow-hidden">
-      {/* Hero Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: "easeOut" }}
-        className="text-center space-y-10 py-12 sm:py-24 relative"
-      >
-        {/* Advanced Dynamic Background */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 pointer-events-none">
-          <motion.div 
-            animate={{ 
-              scale: [1, 1.2, 1],
-              x: [-20, 20, -20],
-              y: [-20, 20, -20],
-              opacity: [0.3, 0.5, 0.3] 
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-0 left-1/4 w-[250px] sm:w-[400px] h-[250px] sm:h-[400px] bg-indigo-600/20 blur-[80px] sm:blur-[130px] rounded-full" 
-          />
-          <motion.div 
-            animate={{ 
-              scale: [1.2, 1, 1.2],
-              x: [20, -20, 20],
-              y: [20, -20, 20],
-              opacity: [0.2, 0.4, 0.2] 
-            }}
-            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-0 right-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-purple-600/15 blur-[80px] sm:blur-[130px] rounded-full" 
-          />
-        </div>
+    <div ref={containerRef} className="relative space-y-32 pb-32 overflow-hidden">
+      {/* Cinematic Hero Section */}
+      <section className="relative min-h-[90vh] flex flex-col items-center justify-center text-center px-6 pt-20">
+        <motion.div 
+          style={{ y: y1 }}
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[80vw] h-[80vw] bg-indigo-600/10 blur-[180px] rounded-full -z-10" 
+        />
         
-        <div className="space-y-6 px-4">
-          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tight text-gray-900 dark:text-white mb-4 sm:mb-8 leading-[1.1] sm:leading-[0.9]">
-            Master Coding<br />
+        <div className="max-w-6xl mx-auto space-y-12">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="inline-flex items-center gap-2 px-6 py-2 rounded-full glass-panel border-white/10 text-indigo-400 text-xs font-black uppercase tracking-[0.3em] mb-4"
+          >
+            <Sparkles className="w-4 h-4" />
+            V2.0 Elite Intelligence
+          </motion.div>
+
+          <h1 className="text-5xl sm:text-7xl md:text-9xl font-black tracking-tighter text-white leading-[0.85] italic">
             <motion.span 
-              animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
-              className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-[length:200%_auto] filter drop-shadow-[0_0_15px_rgba(129,140,248,0.3)]"
+               initial={{ opacity: 0, x: -50 }}
+               animate={{ opacity: 1, x: 0 }}
+               transition={{ duration: 1, delay: 0.2 }}
+               className="block"
             >
-              The Premium Way
+              ENGINEER
+            </motion.span>
+            <motion.span 
+               initial={{ opacity: 0, x: 50 }}
+               animate={{ opacity: 1, x: 0 }}
+               transition={{ duration: 1, delay: 0.4 }}
+               className="text-gradient drop-shadow-[0_0_30px_rgba(99,102,241,0.3)]"
+            >
+              YOUR FUTURE
             </motion.span>
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-gray-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed sm:leading-[1.6] px-2 font-medium">
-            Experience the next generation of learning. Interactive 3D quizzes, 
-            gamified progress, and a community of elite developers.
-          </p>
+
+          <motion.p 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.8 }}
+            className="text-lg sm:text-2xl text-gray-400 max-w-3xl mx-auto font-medium leading-relaxed uppercase tracking-wide"
+          >
+            The world's most immersive platform for technical mastery. 
+            3D Simulations, Real-time BattleGrounds, and AI-Powered Career Growth.
+          </motion.p>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1 }}
+            className="flex flex-col sm:flex-row justify-center gap-8 pt-8"
+          >
+            <Link
+              to="/signup"
+              className="group relative px-12 py-6 rounded-2xl bg-indigo-600 text-white font-black text-xs uppercase tracking-[0.4em] overflow-hidden shadow-[0_0_50px_rgba(79,70,229,0.4)] transition-all hover:scale-105 hover:-translate-y-1"
+            >
+              <span className="relative z-10 flex items-center gap-3">
+                Deploy Account <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+            </Link>
+            <Link
+              to="/quizzes"
+              className="px-12 py-6 rounded-2xl glass-panel border-white/5 text-white font-black text-xs uppercase tracking-[0.4em] hover:bg-white/5 hover:border-indigo-500/50 transition-all hover:-translate-y-1"
+            >
+              Explore Labs
+            </Link>
+          </motion.div>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-center items-stretch sm:items-center gap-4 sm:gap-6 pt-6 sm:pt-8 px-6 sm:px-0">
+        <motion.div 
+          style={{ y: y2 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 opacity-50"
+        >
+          <div className="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500">Scroll to Explore</div>
+          <motion.div 
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="w-px h-12 bg-gradient-to-b from-indigo-500 to-transparent" 
+          />
+        </motion.div>
+      </section>
+
+      {/* Feature Architecture */}
+      <section className="container mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <FeatureCard 
+            icon={Cpu}
+            title="3D BattleGrounds"
+            desc="Step into an interactive arena where coding challenges come to life through real-time simulations."
+            tag="Next-Gen"
+          />
+          <FeatureCard 
+            icon={Trophy}
+            title="Prestige Leaderboard"
+            desc="Climb the global ranks. Earn distinguished badges and showcase your technical dominance."
+            tag="Global"
+          />
+          <FeatureCard 
+            icon={Globe}
+            title="Elite Community"
+            desc="Collaborate with world-class engineers. Share knowledge, create challenges, and grow together."
+            tag="Social"
+          />
+        </div>
+      </section>
+      
+      {/* Social Proof Intelligence */}
+      <section className="space-y-16">
+        <div className="text-center space-y-4">
+          <h2 className="text-3xl sm:text-5xl font-black text-white italic uppercase tracking-tighter">OPERATIONAL <span className="text-gradient">TESTIMONIALS</span></h2>
+          <p className="text-xs text-gray-500 font-black uppercase tracking-[0.3em]">User Intelligence Reports</p>
+        </div>
+        <div className="px-6">
+          <ReviewsCarousel />
+        </div>
+      </section>
+
+      {/* Global Metrics */}
+      <section className="container mx-auto px-6">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="glass-panel p-12 sm:p-20 rounded-[60px] border border-white/5 relative overflow-hidden"
+        >
+          <div className="absolute top-0 right-0 p-12 opacity-5"><ShieldCheck className="w-64 h-64" /></div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-16 text-center relative z-10">
+            <Stat value="100K+" label="Active Units" />
+            <Stat value="45+" label="Tech Sectors" />
+            <Stat value="5M+" label="Labs Completed" />
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Final Directive */}
+      <section className="text-center py-20 px-6">
+        <div className="max-w-4xl mx-auto glass-panel p-16 sm:p-24 rounded-[60px] space-y-10 border border-white/5 hover:border-indigo-500/30 transition-all group">
+          <h2 className="text-4xl sm:text-6xl font-black text-white italic tracking-tighter">READY TO <span className="text-gradient">INITIALIZE?</span></h2>
+          <p className="text-gray-400 font-medium uppercase tracking-[0.1em] max-w-xl mx-auto">Join the elite ranks today. Start your journey toward technical supremacy.</p>
           <Link
             to="/signup"
-            className="group relative px-8 sm:px-10 py-4 sm:py-5 rounded-2xl bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-700 text-white font-black text-lg sm:text-xl overflow-hidden shadow-[0_20px_50px_rgba(79,70,229,0.4)] transition-all hover:scale-105 hover:-translate-y-1 hover:shadow-[0_25px_60px_rgba(79,70,229,0.5)] text-center flex items-center justify-center gap-3"
+            className="inline-flex items-center gap-4 px-12 py-6 rounded-2xl bg-white text-indigo-900 font-black text-xs uppercase tracking-[0.4em] hover:bg-indigo-50 transition-all active:scale-95"
           >
-            <span className="relative z-10">Get Started Free</span>
-            <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 relative z-10 group-hover:translate-x-1 transition-transform" />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-          </Link>
-          <Link
-            to="/quizzes"
-            className="px-8 sm:px-10 py-4 sm:py-5 rounded-2xl bg-white/5 text-white font-black text-lg sm:text-xl hover:bg-white/10 backdrop-blur-xl transition-all border border-white/10 hover:border-indigo-500/40 hover:scale-105 hover:-translate-y-1 shadow-2xl text-center"
-          >
-            Explore Quizzes
+            Start Now <Rocket className="w-5 h-5" />
           </Link>
         </div>
-      </motion.div>
-
-      {/* Feature Grid */}
-      <motion.div 
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 px-4 sm:px-0"
-      >
-        <FeatureCard 
-          icon={Terminal}
-          color="text-green-400"
-          title="Interactive Quizzes"
-          desc="Test your knowledge with thousands of community-curated questions across 10+ tech stacks."
-        />
-        <FeatureCard 
-          icon={Trophy}
-          color="text-yellow-400"
-          title="Global Leaderboards"
-          desc="Compete with developers worldwide. Earn prestige, climb the ranks, and showcase your badges."
-        />
-        <FeatureCard 
-          icon={Users}
-          color="text-blue-400"
-          title="Community Driven"
-          desc="Create your own challenges, share knowledge, and learn from the best in the industry."
-        />
-      </motion.div>
-      
-      {/* Reviews Carousel */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 1 }}
-        className="space-y-8 px-4 sm:px-0"
-      >
-        <h2 className="text-2xl sm:text-3xl font-black text-center text-gray-900 dark:text-white">What Our Learners Say</h2>
-        <ReviewsCarousel />
-      </motion.div>
-
-      {/* Stats / Trust */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95 }}
-        whileInView={{ opacity: 1, scale: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8 }}
-        className="glass-panel p-8 sm:p-12 rounded-3xl border-t border-gray-200 dark:border-white/10 mx-4 sm:mx-0"
-      >
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 sm:gap-12 text-center">
-          <Stat value="10k+" label="Active Learners" />
-          <Stat value="50+" label="Tech Categories" />
-          <Stat value="1M+" label="Quizzes Taken" />
-        </div>
-      </motion.div>
+      </section>
     </div>
   );
 };
 
-const FeatureCard = ({ icon: Icon, color, title, desc }) => (
-  <Card3D className="group p-8 bg-white dark:bg-[#0f172a]/60 border border-gray-200 dark:border-indigo-500/20 h-full hover:border-indigo-500/50 transition-all duration-500 hover:shadow-2xl hover:shadow-indigo-500/10">
-    <div className={`w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center mb-6 shadow-lg ${color} group-hover:scale-110 transition-transform duration-300`}>
-      <Icon className="w-7 h-7" />
-    </div>
-    <h3 className="text-xl font-bold text-gray-900 dark:text-indigo-50 mb-3 group-hover:text-indigo-400 transition-colors">{title}</h3>
-    <p className="text-gray-600 dark:text-slate-300 leading-relaxed">
-      {desc}
-    </p>
-  </Card3D>
+const FeatureCard = ({ icon: Icon, title, desc, tag }) => (
+  <motion.div
+    whileHover={{ y: -10 }}
+    transition={{ type: 'spring', damping: 15 }}
+  >
+    <Card3D className="group p-10 glass-panel rounded-[40px] border border-white/5 h-full hover:border-indigo-500/50 transition-all duration-500 shadow-3xl">
+      <div className="flex justify-between items-start mb-8">
+        <div className="w-16 h-16 rounded-3xl bg-indigo-500/10 flex items-center justify-center border border-indigo-500/20 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-2xl">
+          <Icon className="w-8 h-8 text-indigo-400" />
+        </div>
+        <div className="px-3 py-1 rounded-full bg-white/5 text-[8px] font-black uppercase tracking-[0.2em] text-gray-500 border border-white/10">{tag}</div>
+      </div>
+      <h3 className="text-2xl font-black text-white italic uppercase tracking-tight mb-4 group-hover:text-indigo-400 transition-colors">{title}</h3>
+      <p className="text-gray-500 font-medium leading-relaxed text-sm">
+        {desc}
+      </p>
+    </Card3D>
+  </motion.div>
 );
 
 const Stat = ({ value, label }) => (
-  <div className="space-y-2">
-    <div className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-900 to-indigo-500 dark:from-white dark:to-gray-500">
+  <div className="space-y-4">
+    <div className="text-5xl sm:text-7xl font-black italic tracking-tighter text-white">
       {value}
     </div>
-    <div className="text-sm font-bold text-indigo-400 uppercase tracking-widest">{label}</div>
+    <div className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.5em]">{label}</div>
   </div>
 );
 

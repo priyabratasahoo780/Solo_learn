@@ -56,6 +56,8 @@ exports.toggleLike = asyncHandler(async (req, res, next) => {
     return next(new ApiError(404, 'Post not found'));
   }
 
+  const isLiked = post.likes.includes(req.user.id);
+
   if (!isLiked) {
     post.likes.push(req.user.id);
     

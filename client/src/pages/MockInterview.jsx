@@ -19,6 +19,10 @@ const MockInterview = () => {
   const [scorecard, setScorecard] = useState(null);
   const [selectedCompany, setSelectedCompany] = useState(null);
   const chatEndRef = useRef(null);
+  const videoRef = useRef(null);
+  const [stream, setStream] = useState(null);
+  const [isVideoOn, setIsVideoOn] = useState(true);
+  const [isMicOn, setIsMicOn] = useState(true);
 
   const companies = [
     { id: 'Google', name: 'Google', color: 'from-blue-500 to-red-500', recruiter: 'Sarah (Staff Engineer)' },
@@ -30,6 +34,54 @@ const MockInterview = () => {
   useEffect(() => {
     scrollToBottom();
   }, [session?.transcript]);
+
+  useEffect(() => {
+    if (session && isVideoOn && !stream) {
+      startMedia();
+    }
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [session]);
+
+  const startMedia = async () => {
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ 
+        video: true, 
+        audio: true 
+      });
+      setStream(s);
+      if (videoRef.current) videoRef.current.srcObject = s;
+    } catch (err) {
+      console.error('Media error:', err);
+      setIsVideoOn(false);
+      setIsMicOn(false);
+    }
+  };
+
+  const toggleCamera = () => {
+    if (stream) {
+      const videoTrack = stream.getVideoTracks()[0];
+      if (videoTrack) {
+        videoTrack.enabled = !videoTrack.enabled;
+        setIsVideoOn(videoTrack.enabled);
+      }
+    } else {
+      startMedia();
+    }
+  };
+
+  const toggleMic = () => {
+    if (stream) {
+      const audioTrack = stream.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        setIsMicOn(audioTrack.enabled);
+      }
+    }
+  };
 
   const scrollToBottom = () => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -189,20 +241,20 @@ const MockInterview = () => {
               <motion.div
                 key={comp.id}
                 whileHover={{ y: -10 }}
-                className="glass-panel p-8 rounded-[2.5rem] border-white/5 cursor-pointer group relative overflow-hidden"
+                className="glass-panel p-10 rounded-[40px] border border-white/5 cursor-pointer group relative overflow-hidden shadow-3xl"
                 onClick={() => startInterview(comp.id)}
               >
                 <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${comp.color} opacity-0 group-hover:opacity-10 blur-3xl transition-opacity animate-pulse`} />
                 
-                <div className={`w-14 h-14 bg-gradient-to-br ${comp.color} rounded-2xl mb-6 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-                   <User className="w-7 h-7 text-white" />
+                <div className={`w-16 h-16 bg-gradient-to-br ${comp.color} rounded-2xl mb-8 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+                   <User className="w-8 h-8 text-white" />
                 </div>
                 
-                <h3 className="text-xl font-bold text-white mb-2">{comp.name}</h3>
-                <p className="text-xs text-gray-500 font-bold uppercase tracking-widest mb-6">{comp.recruiter}</p>
+                <h3 className="text-2xl font-black text-white italic uppercase tracking-tight mb-2 group-hover:text-indigo-400 transition-colors">{comp.name}</h3>
+                <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.3em] mb-8">{comp.recruiter}</p>
                 
-                <div className="flex items-center gap-2 text-indigo-400 text-xs font-black uppercase tracking-widest">
-                   Enter Boardroom <ArrowRight className="w-4 h-4" />
+                <div className="flex items-center gap-3 text-indigo-400 text-[10px] font-black uppercase tracking-[0.4em] group-hover:translate-x-2 transition-transform">
+                   Enter Boardroom <ArrowRight className="w-5 h-5" />
                 </div>
               </motion.div>
             ))}
@@ -224,29 +276,61 @@ const MockInterview = () => {
         >
           {/* Virtual Background / Recruiter Feed placeholder */}
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-purple-500/10 flex items-center justify-center">
-             <div className="text-center">
-                <div className="w-32 h-32 bg-white/5 rounded-full flex items-center justify-center mb-6 mx-auto border border-white/5">
-                   <User className="w-16 h-16 text-indigo-400/50" />
+             <div className="text-center z-10 px-8">
+                <div className="w-40 h-40 bg-white/5 rounded-full flex items-center justify-center mb-8 mx-auto border border-white/5 shadow-2xl">
+                   <User className="w-20 h-20 text-indigo-400" />
                 </div>
-                <div className="text-white font-black text-xl italic">{session.recruiterPersona}</div>
-                <div className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.2em] mt-2">Active Technical Dialogue</div>
+                <div className="bg-black/20 backdrop-blur-md px-10 py-4 rounded-3xl border border-white/5 inline-block">
+                   <div className="text-white font-black text-2xl italic tracking-tight">{session.recruiterPersona}</div>
+                   <div className="text-[10px] text-indigo-400 font-black uppercase tracking-[0.3em] mt-2">Active Technical Dialogue</div>
+                </div>
              </div>
           </div>
 
-          {/* User Small Feed */}
-          <div className="absolute bottom-10 right-10 w-48 aspect-video bg-black/60 rounded-3xl border border-white/10 backdrop-blur-xl flex items-center justify-center shadow-2xl">
-             <User className="w-8 h-8 text-gray-700" />
-             <div className="absolute bottom-2 left-3 text-[8px] text-white/50 font-bold uppercase">Candidate (You)</div>
+          {/* User Small Feed (Moved to TOP-RIGHT to prevent overlap) */}
+          <div className="absolute top-10 right-10 w-40 sm:w-56 aspect-video bg-black/60 rounded-3xl border border-white/10 backdrop-blur-xl flex items-center justify-center shadow-2xl z-20 overflow-hidden">
+             {isVideoOn ? (
+                <video 
+                  ref={videoRef} 
+                  autoPlay 
+                  muted 
+                  playsInline 
+                  className="w-full h-full object-cover mirror"
+                  onLoadedMetadata={(e) => e.target.play()}
+                />
+             ) : (
+                <div className="flex flex-col items-center gap-2">
+                   <VideoOff className="w-8 h-8 text-rose-500/50" />
+                   <span className="text-[8px] text-gray-500 font-bold uppercase tracking-widest">Feed Blocked</span>
+                </div>
+             )}
+             <div className="absolute bottom-3 left-4 text-[8px] text-white/50 font-black uppercase tracking-widest bg-black/40 px-2 py-0.5 rounded-md backdrop-blur-sm">Candidate (You)</div>
           </div>
 
           {/* Control Bar */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-4 px-8 py-4 bg-black/40 backdrop-blur-3xl rounded-3xl border border-white/5 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-             <button className="p-3 bg-white/5 rounded-2xl hover:bg-emerald-500/20 text-emerald-400 transition-all"><Video className="w-5 h-5" /></button>
-             <button className="p-3 bg-white/5 rounded-2xl hover:bg-emerald-500/20 text-emerald-400 transition-all"><Mic className="w-5 h-5" /></button>
-             <div className="h-6 w-px bg-white/10 mx-2"></div>
+          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex items-center gap-6 px-10 py-5 bg-black/60 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 group-hover:opacity-100 transition-all z-20 shadow-2xl">
+             <div className="flex items-center gap-4">
+               <button 
+                onClick={toggleCamera}
+                className={`p-3 rounded-2xl transition-all border border-white/5 ${
+                  isVideoOn ? 'bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white' : 'bg-rose-500/10 text-rose-500'
+                }`}
+               >
+                 {isVideoOn ? <Video className="w-5 h-5" /> : <VideoOff className="w-5 h-5" />}
+               </button>
+               <button 
+                onClick={toggleMic}
+                className={`p-3 rounded-2xl transition-all border border-white/5 ${
+                  isMicOn ? 'bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500 hover:text-white' : 'bg-rose-500/10 text-rose-500'
+                }`}
+               >
+                 {isMicOn ? <Mic className="w-5 h-5" /> : <MicOff className="w-5 h-5" />}
+               </button>
+             </div>
+             <div className="h-8 w-px bg-white/10 mx-2"></div>
              <button 
               onClick={finishInterview}
-              className="px-6 py-2 bg-rose-600 hover:bg-rose-500 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-xl shadow-rose-600/20"
+              className="px-8 py-3 bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-black text-[11px] uppercase tracking-[0.2em] rounded-2xl shadow-xl shadow-rose-600/30 transition-all hover:scale-105 active:scale-95"
              >
                End Interview
              </button>

@@ -1,21 +1,19 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { 
   Menu, X, User, LogOut, Code2, Trophy, Award, 
-  LayoutDashboard, FileText, Globe, Settings,
-  Briefcase, Video, Zap, Compass 
+  FileText, Globe, Settings, Briefcase, Video, 
+  Zap, Compass, LayoutDashboard, ChevronRight
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
-  const { theme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const { t, language, setLanguage } = useLanguage();
 
   const handleLogout = () => {
@@ -30,231 +28,181 @@ const Navbar = () => {
     setLanguage(langs[nextIndex]);
   };
 
-  const navLinks = [
-    { path: '/', label: t('home'), icon: null },
-    { path: '/quizzes', label: t('quizzes'), icon: null },
-    { path: '/feed', label: 'Feed', icon: Globe },
-    { path: '/leaderboard', label: t('leaderboard'), icon: Trophy },
-    { path: '/rewards', label: t('rewards'), icon: Award },
-    { path: '/certificates', label: t('certificates'), icon: FileText },
-    { path: '/interview-prep', label: 'Prep Hub', icon: Briefcase },
-    { path: '/mock-interview', label: 'AI Mock', icon: Video },
-    { path: '/battleground', label: 'Battles', icon: Zap },
-    { path: '/architect', label: 'AI Architect', icon: Compass },
-    { path: '/sandbox', label: 'Sandbox', icon: Code2 },
+  const navGroups = [
+    {
+      name: 'Training',
+      links: [
+        { path: '/', label: t('home'), icon: LayoutDashboard },
+        { path: '/quizzes', label: 'Quizzes', icon: Code2 },
+        { path: '/sandbox', label: 'Sandbox', icon: Code2 },
+      ]
+    },
+    {
+      name: 'Battleground',
+      links: [
+        { path: '/battleground', label: 'Battles', icon: Zap },
+        { path: '/leaderboard', label: t('leaderboard'), icon: Trophy },
+        { path: '/rewards', label: t('rewards'), icon: Award },
+      ]
+    },
+    {
+      name: 'Recruitment Hub',
+      links: [
+        { path: '/interview-prep', label: 'Prep Hub', icon: Briefcase },
+        { path: '/mock-interview', label: 'AI Mock', icon: Video },
+        { path: '/architect', label: 'AI Architect', icon: Compass },
+      ]
+    },
+    {
+      name: 'Community',
+      links: [
+        { path: '/feed', label: 'Universal Feed', icon: Globe },
+        { path: '/certificates', label: 'My Wallet', icon: FileText },
+      ]
+    }
   ];
 
-  if (user) {
-    navLinks.push({ path: '/create-quiz', label: t('create'), icon: null });
-  }
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full p-6">
+      {/* Brand Section */}
+      <Link to="/" className="flex items-center gap-3 mb-12 group cursor-pointer">
+        <div className="bg-gradient-to-tr from-indigo-500 to-purple-600 p-2 rounded-2xl shadow-xl shadow-indigo-500/20 group-hover:scale-110 transition-transform duration-300">
+          <Code2 className="h-6 w-6 text-white" />
+        </div>
+        <div className="flex flex-col">
+          <span className="font-black text-xl tracking-tight text-white italic">SoloLearn</span>
+          <span className="text-[8px] text-gray-500 font-bold uppercase tracking-[0.3em] -mt-1">Engineer OS</span>
+        </div>
+      </Link>
 
-  return (
-    <nav className="fixed top-0 w-full z-50 transition-all duration-300">
-      <div className="mx-2 sm:mx-4 mt-2 sm:mt-4">
-        <div className="glass-panel rounded-2xl px-4 sm:px-6 lg:px-8 border border-white/10 dark:border-white/5 shadow-2xl">
-          <div className="flex justify-between h-14 sm:h-16 items-center">
-            <div className="flex items-center gap-4 lg:gap-8">
-              <Link to="/" className="flex-shrink-0 flex items-center gap-2 group">
-                <div className="bg-gradient-to-tr from-indigo-500 to-purple-500 p-1.5 sm:p-2 rounded-lg shadow-lg group-hover:shadow-indigo-500/50 transition-all duration-300">
-                  <Code2 className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                </div>
-                <span className="font-bold text-lg sm:text-xl tracking-tight text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors">
-                  SoloLearn
-                </span>
-              </Link>
-              
-              <div className="hidden lg:flex space-x-1">
-                {navLinks.map((link) => {
-                  const isActive = location.pathname === link.path;
-                  return (
+      {/* Navigation Groups */}
+      <div className="flex-1 space-y-10 overflow-y-auto scrollbar-hide">
+        {navGroups.map((group) => (
+          <div key={group.name}>
+             <h4 className="text-[10px] text-gray-600 font-bold uppercase tracking-[0.2em] mb-4 pl-4">{group.name}</h4>
+             <div className="space-y-1">
+               {group.links.map((link) => {
+                 const isActive = location.pathname === link.path;
+                 return (
                     <Link
                       key={link.path}
                       to={link.path}
-                      className={`relative px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-1.5
-                        ${isActive ? 'text-indigo-600 dark:text-white bg-indigo-50/50 dark:bg-white/10' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5'}
+                      onClick={() => setIsMobileOpen(false)}
+                      className={`flex items-center justify-between group px-4 py-3 rounded-2xl transition-all duration-300 border
+                        ${isActive 
+                          ? 'bg-indigo-600/10 border-indigo-500/20 text-white shadow-[inset_0_0_20px_rgba(99,102,241,0.1)]' 
+                          : 'text-gray-500 border-transparent hover:text-white hover:bg-white/5 hover:border-white/5'}
                       `}
                     >
-                      {link.icon && <link.icon className="w-4 h-4" />}
-                      {link.label}
-                      {isActive && (
-                        <motion.div
-                          layoutId="navbar-indicator"
-                          className="absolute inset-0 bg-indigo-500/5 dark:bg-white/10 rounded-md -z-10 border border-indigo-500/10 dark:border-white/5"
-                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                        />
-                      )}
+                      <div className="flex items-center gap-3">
+                         <link.icon className={`w-5 h-5 ${isActive ? 'text-indigo-400 drop-shadow-[0_0_8px_rgba(129,140,248,0.5)]' : 'text-gray-600 group-hover:text-indigo-400'} transition-colors`} />
+                         <span className={`text-sm font-bold tracking-tight ${isActive ? 'text-white' : 'group-hover:text-white'}`}>{link.label}</span>
+                      </div>
+                      {isActive && <motion.div layoutId="active-nav" className="w-1.5 h-1.5 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)]" />}
                     </Link>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="hidden lg:flex items-center gap-4">
-              <button
-                onClick={toggleLanguage}
-                className="p-2 rounded-xl text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors relative group"
-                title="Switch Language"
-              >
-                <Globe className="w-5 h-5" />
-                <span className="absolute -top-1 -right-1 flex h-3 w-3 items-center justify-center rounded-full bg-indigo-500 text-[8px] text-white font-bold">
-                  {language.toUpperCase()}
-                </span>
-              </button>
-
-              {user ? (
-                <div className="flex items-center gap-4">
-                  <Link to="/dashboard" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-white dark:ring-white/20">
-                      {user?.name?.charAt(0).toUpperCase() || 'U'}
-                    </div>
-                    <span className="hidden xl:block">{user?.name}</span>
-                  </Link>
-                  <Link
-                    to="/profile"
-                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-full transition-colors"
-                    title="Profile Settings"
-                  >
-                    <Settings className="h-5 w-5" />
-                  </Link>
-                  <button
-                    onClick={handleLogout}
-                    className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-full transition-colors"
-                    title="Logout"
-                  >
-                    <LogOut className="h-5 w-5" />
-                  </button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <Link to="/login" className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 text-sm font-medium transition-colors">
-                    Log in
-                  </Link>
-                  <Link to="/signup" className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-lg hover:shadow-indigo-500/25 transform hover:-translate-y-0.5">
-                    Sign up
-                  </Link>
-                </div>
-              )}
-            </div>
-            
-            <div className="lg:hidden flex items-center gap-2">
-              <button
-                onClick={toggleLanguage}
-                className="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-all mr-1"
-              >
-                <span className="text-[10px] font-black">{language.toUpperCase()}</span>
-              </button>
-              <button
-                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:text-indigo-300 transition-all transform hover:scale-105 active:scale-95"
-                aria-label="Toggle Menu"
-              >
-                {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </button>
-            </div>
+                 );
+               })}
+             </div>
           </div>
-        </div>
+        ))}
       </div>
 
+      {/* Profile Section */}
+      <div className="mt-auto pt-6 border-t border-white/5 space-y-4">
+        <button 
+          onClick={toggleLanguage}
+          className="w-full flex items-center justify-between px-4 py-3 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all text-xs text-gray-400 font-bold"
+        >
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4" />
+            <span>Region: {language.toUpperCase()}</span>
+          </div>
+          <ChevronRight className="w-3 h-3" />
+        </button>
+
+        {user ? (
+          <div className="space-y-3">
+             <Link 
+              to="/profile" 
+              className="flex items-center gap-3 p-3 bg-gradient-to-r from-indigo-600/10 to-transparent rounded-2xl border border-indigo-500/10 group overflow-hidden relative"
+             >
+                <div className="w-10 h-10 bg-gradient-to-tr from-pink-500 to-rose-500 rounded-xl flex items-center justify-center text-white font-black shadow-lg">
+                   {user.name?.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                   <div className="text-xs font-black text-white truncate">{user.name}</div>
+                   <div className="text-[8px] text-gray-500 uppercase tracking-widest mt-0.5">Premium Sub</div>
+                </div>
+                <Settings className="w-4 h-4 text-gray-700 group-hover:text-white transition-colors" />
+             </Link>
+             <button 
+              onClick={handleLogout}
+              className="w-full py-3 bg-rose-600/10 hover:bg-rose-600 text-rose-500 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-rose-600/20"
+             >
+                Shutdown Session
+             </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+             <Link to="/login" className="py-3 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest text-center rounded-2xl transition-all">Login</Link>
+             <Link to="/signup" className="py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest text-center rounded-2xl transition-all shadow-lg shadow-indigo-600/10">Sign Up</Link>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Mobile Trigger */}
+      <div className="lg:hidden fixed top-0 w-full z-[80] p-4 flex justify-between items-center glass-panel bg-black/60 border-b border-white/5">
+        <Link to="/" className="flex items-center gap-2">
+          <div className="bg-indigo-600 p-1.5 rounded-lg"><Code2 className="h-5 w-5 text-white" /></div>
+          <span className="font-black text-white text-base">SoloLearn</span>
+        </Link>
+        <button 
+          onClick={() => setIsMobileOpen(true)}
+          className="p-2 bg-white/5 rounded-xl border border-white/10 text-white"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Desktop Sidebar Container */}
+      <aside className="hidden lg:block fixed left-0 top-0 h-screen w-72 bg-[#0a0b14] border-r border-white/5 z-50">
+         <SidebarContent />
+      </aside>
+
+      {/* Mobile Drawer */}
       <AnimatePresence>
-        {isMenuOpen && (
+        {isMobileOpen && (
           <>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsMenuOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] lg:hidden"
+              onClick={() => setIsMobileOpen(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-md z-[90]"
             />
             <motion.div
-              initial={{ opacity: 0, x: '100%' }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: '100%' }}
-              className="lg:hidden fixed top-0 right-0 h-full w-[280px] bg-[#0f1020] border-l border-white/10 shadow-2xl z-[100] p-6 pt-24"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-y-0 left-0 w-80 bg-[#0a0b14] shadow-2xl z-[100]"
             >
-              <div className="space-y-2">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold transition-all
-                      ${location.pathname === link.path ? 'bg-indigo-500/10 text-indigo-400' : 'text-gray-400 hover:text-white hover:bg-white/5'}
-                    `}
-                  >
-                    {link.icon && <link.icon className="w-5 h-5" />}
-                    {link.label}
-                  </Link>
-                ))}
-                
-                {user && (
-                  <div className="pt-4 mt-4 border-t border-white/5 flex flex-col gap-2">
-                    <Link
-                      to="/dashboard"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold text-gray-400 hover:text-white hover:bg-white/5"
-                    >
-                      <LayoutDashboard className="w-5 h-5" />
-                      Dashboard
-                    </Link>
-                    <Link
-                      to="/profile"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 rounded-xl text-base font-bold text-gray-400 hover:text-white hover:bg-white/5"
-                    >
-                      <Settings className="w-5 h-5" />
-                      Profile Settings
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              <div className="absolute bottom-10 left-6 right-6">
-                {user ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center text-white font-black">
-                        {user.name?.charAt(0).toUpperCase() || 'U'}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-sm font-black text-white truncate">{user.name}</div>
-                        <div className="text-[10px] text-gray-500 uppercase tracking-widest">Premium Member</div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        handleLogout();
-                        setIsMenuOpen(false);
-                      }}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 text-red-400 font-bold hover:bg-red-500/20 transition-all border border-red-500/20"
-                    >
-                      <LogOut className="h-5 w-5" />
-                      Logout
-                    </button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-3">
-                    <Link
-                      to="/login"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center justify-center px-4 py-3 rounded-xl bg-white/5 text-white font-bold hover:bg-white/10 transition-all border border-white/10"
-                    >
-                      Log in
-                    </Link>
-                    <Link
-                      to="/signup"
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center justify-center px-4 py-4 rounded-xl bg-indigo-600 text-white font-black hover:bg-indigo-500 shadow-xl shadow-indigo-600/20 transition-all"
-                    >
-                      Sign up
-                    </Link>
-                  </div>
-                )}
-              </div>
+              <SidebarContent />
+              <button 
+                onClick={() => setIsMobileOpen(false)}
+                className="absolute top-6 right-6 p-2 bg-white/5 rounded-xl text-white border border-white/10"
+              >
+                <X className="w-6 h-6" />
+              </button>
             </motion.div>
           </>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 };
 

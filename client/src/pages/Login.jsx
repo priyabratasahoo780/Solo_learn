@@ -40,78 +40,70 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-[90vh] flex items-center justify-center py-12 px-4 relative z-10">
-      <div className="max-w-md w-full glass-panel p-10 rounded-[2.5rem] relative overflow-hidden group border-white/10">
-        
-        {/* Animated Background Accents */}
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-[100px] -mr-32 -mt-32 transition-all duration-700 group-hover:bg-primary/30" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] -ml-32 -mb-32 transition-all duration-700 group-hover:bg-secondary/20" />
+    <div className="min-h-[90vh] flex items-center justify-center py-20 px-6 relative z-10">
+      <motion.div 
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        className="max-w-md w-full glass-panel p-10 sm:p-14 rounded-[48px] border border-white/10 shadow-3xl relative group overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 blur-[100px] -mr-32 -mt-32" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-600/10 blur-[100px] -ml-32 -mb-32" />
 
-        <div className="text-center mb-10 relative z-10">
+        <div className="text-center mb-12 relative z-10">
           <motion.div 
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="mx-auto h-20 w-20 bg-white shadow-2xl shadow-primary/20 rounded-3xl flex items-center justify-center mb-8 transform hover:scale-110 active:scale-95 transition-all cursor-pointer"
+            initial={{ rotate: -10, opacity: 0 }}
+            animate={{ rotate: 0, opacity: 1 }}
+            transition={{ type: 'spring', damping: 10 }}
+            className="mx-auto h-24 w-24 glass-panel border-white/10 rounded-[32px] flex items-center justify-center mb-8 shadow-2xl group-hover:scale-110 transition-transform duration-500"
           >
-            <LogIn className="h-10 w-10 text-primary" strokeWidth={2.5} />
+            <ShieldCheck className="h-12 w-12 text-indigo-400" strokeWidth={1.5} />
           </motion.div>
-          <h2 className="text-4xl font-extrabold text-white mb-3 tracking-tighter">
-            Welcome Back
+          <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-3">
+            AUTH <span className="text-gradient">GATEWAY</span>
           </h2>
-          <p className="text-slate-400 font-medium tracking-wide">
-            Sign in to continue your learning journey
+          <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.4em]">
+            Identity Verification Required
           </p>
         </div>
 
         <motion.form
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="space-y-6 relative z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className="space-y-8 relative z-10"
           onSubmit={handleLogin}
         >
-          <div className="space-y-2">
-            <label htmlFor="email" className="block text-sm font-bold text-slate-200 ml-1">
-              EMAIL ADDRESS
-            </label>
+          <div className="space-y-3">
+            <label className="block text-[10px] font-black text-gray-500 tracking-[0.3em] ml-2 uppercase">Command Email</label>
             <div className="relative group/input">
-              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                <Mail className="h-5 w-5 text-slate-500 group-focus-within/input:text-primary transition-colors" />
+              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-gray-400 group-focus-within/input:text-indigo-400 transition-colors">
+                <Mail className="h-5 w-5" />
               </div>
               <input
-                id="email"
                 type="email"
                 required
-                className="appearance-none block w-full px-5 py-4 pl-14 border border-white/5 placeholder-slate-600 text-white bg-slate-900/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 focus:bg-slate-900/90 sm:text-sm transition-all shadow-inner"
-                placeholder="Enter your email"
+                className="w-full bg-white/5 border border-white/5 text-white px-6 py-5 pl-16 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 focus:bg-white/10 transition-all font-medium placeholder-gray-600"
+                placeholder="engineer@sololearn.v2"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between ml-1">
-              <label htmlFor="password" throws className="block text-sm font-bold text-slate-200">
-                PASSWORD
-              </label>
-              <Link 
-                to="/forgot-password" 
-                className="text-xs font-black text-primary hover:text-white transition-colors"
-              >
-                FORGOT PASSWORD?
-              </Link>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center ml-2">
+              <label className="block text-[10px] font-black text-gray-500 tracking-[0.3em] uppercase">Access Code</label>
+              <Link to="/forgot-password" size="xs" className="text-[9px] font-black text-indigo-400 hover:text-white transition-colors tracking-widest uppercase">Lost Code?</Link>
             </div>
             <div className="relative group/input">
-              <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
-                <Lock className="h-5 w-5 text-slate-500 group-focus-within/input:text-primary transition-colors" />
+              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-gray-400 group-focus-within/input:text-indigo-400 transition-colors">
+                <Lock className="h-5 w-5" />
               </div>
               <input
-                id="password"
                 type="password"
                 required
-                className="appearance-none block w-full px-5 py-4 pl-14 border border-white/5 placeholder-slate-600 text-white bg-slate-900/60 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 focus:bg-slate-900/90 sm:text-sm transition-all shadow-inner"
-                placeholder="Enter your password"
+                className="w-full bg-white/5 border border-white/5 text-white px-6 py-5 pl-16 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 focus:bg-white/10 transition-all font-medium placeholder-gray-600"
+                placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -120,56 +112,35 @@ const Login = () => {
 
           {error && (
             <motion.div 
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-red-300 text-xs sm:text-sm bg-red-500/10 p-5 rounded-2xl border border-red-500/30 backdrop-blur-xl shadow-lg ring-1 ring-red-500/20"
+              initial={{ x: -10, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              className="p-5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-200 text-xs font-bold flex items-center gap-4"
             >
-              <div className="flex space-x-4 items-start">
-                <div className="bg-red-500/20 p-2 rounded-lg">
-                  <span className="w-1.5 h-1.5 block rounded-full bg-red-500 animate-pulse" />
-                </div>
-                <div className="flex-1 leading-relaxed">
-                  {error.includes('previously used OTP') ? (
-                    <div className="space-y-1">
-                      <p className="font-black text-red-200 uppercase tracking-tighter text-[0.7rem]">Old Account Migration Required</p>
-                      <p className="opacity-90">{error}</p>
-                    </div>
-                  ) : (
-                    error
-                  )}
-                </div>
-              </div>
+              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+              {error}
             </motion.div>
           )}
 
           <button
             type="submit"
             disabled={isLoading}
-            className="group relative w-full flex justify-center py-5 px-8 border-none text-lg font-black rounded-2xl text-white bg-primary hover:bg-primary/90 focus:outline-none shadow-[0_15px_30px_-10px_rgba(108,99,255,0.6)] transition-all transform hover:-translate-y-1 active:translate-y-0 disabled:opacity-70 disabled:grayscale disabled:cursor-not-allowed overflow-hidden active:shadow-inner"
+            className="w-full relative py-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-[0.5em] shadow-[0_20px_40px_rgba(79,70,229,0.3)] transition-all active:scale-95 disabled:opacity-50 group/btn overflow-hidden"
           >
-            {isLoading ? (
-              <Loader className="animate-spin h-6 w-6" />
-            ) : (
-              <span className="flex items-center tracking-tighter">
-                SIGN IN
-                <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-2 transition-transform duration-300" strokeWidth={3} />
+            {isLoading ? <Loader className="animate-spin h-5 w-5 mx-auto" /> : (
+              <span className="flex items-center justify-center gap-3">
+                Initialize System <ArrowRight className="h-5 w-5 group-hover/btn:translate-x-2 transition-transform" />
               </span>
             )}
-            
-            {/* Liquid Shine Effect */}
-            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[110%] group-hover:translate-x-[110%] transition-transform duration-1000 ease-in-out pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
           </button>
         </motion.form>
 
         <div className="mt-12 text-center relative z-10 pt-10 border-t border-white/10">
-          <p className="text-slate-500 font-bold tracking-wide">
-            Don't have an account?{' '}
-            <Link to="/signup" className="ml-2 font-black text-white hover:text-primary transition-all uppercase tracking-widest text-xs border-b-2 border-primary/30 hover:border-primary">
-              Create Account
-            </Link>
+          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">
+            New Engineer? <Link to="/signup" className="text-white hover:text-indigo-400 ml-2 border-b border-indigo-500/30">Create Profile</Link>
           </p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

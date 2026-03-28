@@ -18,9 +18,10 @@
 
 @layer base {
   body {
-    @apply antialiased transition-colors duration-300;
-    @apply bg-[#020617] text-slate-100; /* Deeper obsidian background */
+    @apply antialiased transition-colors duration-500 selection:bg-indigo-500/30;
+    @apply bg-[#020617] text-slate-100;
     font-family: 'Outfit', sans-serif;
+    letter-spacing: -0.01em;
     
     background-image: 
       radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%), 
@@ -55,31 +56,55 @@
   }
 
   /* Utilities */
+  /* Utilities Expansion */
   .glass-panel {
-    @apply bg-[#0f172a]/60 backdrop-blur-xl transition-all duration-300;
-    @apply border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.37)];
+    @apply bg-[#0a0b14]/60 backdrop-blur-2xl transition-all duration-500 ease-out;
+    @apply border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)];
   }
   .glass-panel:hover {
-    @apply bg-[#0f172a]/80 shadow-[0_8px_32px_0_rgba(0,0,0,0.5)];
+    @apply bg-[#0a0b14]/80 shadow-[0_12px_48px_0_rgba(79,70,229,0.15)];
     @apply border-white/10;
   }
   
   .glass-card {
-    @apply bg-[#1e293b]/40 backdrop-blur-lg border border-white/5 transition-all duration-300 transform;
+    @apply bg-white/5 backdrop-blur-lg border border-white/5 transition-all duration-500 ease-out;
   }
   .glass-card:hover {
-    @apply border-indigo-500/30 shadow-[0_0_20px_rgba(99,102,241,0.1)];
+    @apply border-indigo-500/30 bg-white/10 shadow-[0_0_30px_rgba(99,102,241,0.2)];
+    @apply -translate-y-1;
+  }
+
+  .glow-border {
+    position: relative;
+    overflow: hidden;
+  }
+  .glow-border::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(to bottom right, rgba(255,255,255,0.15), transparent, rgba(99,102,241,0.4));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 font-bold;
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-indigo-400 to-purple-600;
   }
-  
-  .preserve-3d {
+
+  .perspective-elite {
+    perspective: 2000px;
     transform-style: preserve-3d;
   }
-  
-  .perspective-1000 {
-    perspective: 1000px;
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
   }
 }
