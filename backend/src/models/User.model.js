@@ -61,6 +61,44 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Quiz'
   }],
+  xp: {
+    type: Number,
+    default: 0
+  },
+  level: {
+    type: Number,
+    default: 1
+  },
+  skillPoints: {
+    type: Map,
+    of: Number,
+    default: {
+      'HTML': 0,
+      'CSS': 0,
+      'JavaScript': 0,
+      'ReactJS': 0,
+      'Node.js': 0,
+      'Python': 0,
+      'SQL': 0,
+      'Git': 0
+    }
+  },
+  isPro: {
+    type: Boolean,
+    default: false
+  },
+  referralCode: {
+    type: String,
+    unique: true
+  },
+  referredBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  referralCount: {
+    type: Number,
+    default: 0
+  },
   // Streak logic
 
 
@@ -73,6 +111,22 @@ const userSchema = new mongoose.Schema({
   lastLogin: {
     type: Date,
     default: Date.now
+  },
+  weeklyPoints: {
+    type: Number,
+    default: 0
+  },
+  monthlyPoints: {
+    type: Number,
+    default: 0
+  },
+  lastPointsReset: {
+    type: Date,
+    default: Date.now
+  },
+  lastDailyChallengeDate: {
+    type: Date,
+    default: null
   },
   quizzesAttempted: [attemptSchema],
   resetPasswordToken: String,

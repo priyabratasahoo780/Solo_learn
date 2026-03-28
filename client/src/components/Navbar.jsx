@@ -33,7 +33,13 @@ const Navbar = () => {
     { path: '/leaderboard', label: t('leaderboard'), icon: Trophy },
     { path: '/rewards', label: t('rewards'), icon: Award },
     { path: '/certificates', label: t('certificates'), icon: FileText },
+    { path: '/interview-prep', label: 'Prep Hub', icon: Briefcase },
+    { path: '/mock-interview', label: 'AI Mock', icon: Video },
+    { path: '/battleground', label: 'Battles', icon: Zap },
+    { path: '/architect', label: 'AI Architect', icon: Compass },
+    { path: '/sandbox', label: 'Sandbox', icon: Code2 },
   ];
+创新
 
   if (user) {
     navLinks.push({ path: '/create-quiz', label: t('create'), icon: null });

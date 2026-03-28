@@ -5,18 +5,23 @@ const User = require('../models/User.model');
 // @route   GET /api/leaderboard
 // @access  Public
 exports.getLeaderboard = asyncHandler(async (req, res, next) => {
-  // Sort rules: 1) totalPoints desc, 2) coins desc
-  // Getting top 10
+  const { timeframe = 'all' } = req.query;
+  
+  let sortField = 'totalPoints';
+  if (timeframe === 'weekly') sortField = 'weeklyPoints';
+  if (timeframe === 'monthly') sortField = 'monthlyPoints';
+
   const users = await User.find({})
-    .select('name totalPoints coins quizzesAttempted badges')
-    .sort({ totalPoints: -1, coins: -1 })
+    .select(`name totalPoints weeklyPoints monthlyPoints coins quizzesAttempted badges ${sortField}`)
+    .sort({ [sortField]: -1, coins: -1 })
     .limit(10);
 
-  // Add rank to response
+  // Add rank and localized points to response
   const rankedUsers = users.map((user, index) => ({
     rank: index + 1,
     id: user._id,
     name: user.name,
+    points: user[sortField], // Return the relevant points for the timeframe
     totalPoints: user.totalPoints,
     coins: user.coins,
     badges: user.badges,
@@ -25,6 +30,7 @@ exports.getLeaderboard = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({
     success: true,
+    timeframe,
     count: rankedUsers.length,
     data: rankedUsers
   });

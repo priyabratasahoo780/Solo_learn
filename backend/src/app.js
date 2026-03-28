@@ -15,6 +15,7 @@ const certificates = require('./routes/certificate.routes');
 const reviews = require('./routes/review.routes');
 const posts = require('./routes/post.routes');
 const ai = require('./routes/ai.routes');
+const interview = require('./routes/interview.routes');
 
 const app = express();
 
@@ -76,6 +77,11 @@ app.use('/api/certificates', certificates);
 app.use('/api/reviews', reviews);
 app.use('/api/posts', posts);
 app.use('/api/ai', ai);
+app.use('/api/interview', interview);
+app.use('/api/interview-daily', require('./routes/dailyInterview.routes'));
+app.use('/api/mock-interview', require('./routes/mockInterview.routes'));
+app.use('/api/challenges', require('./routes/challenge.routes'));
+app.use('/api/career', require('./routes/career.routes'));
 
 // 404 handler
 app.all('*', (req, res, next) => {

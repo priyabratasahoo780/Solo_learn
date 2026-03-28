@@ -18,6 +18,11 @@ import ForgotPassword from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
 import Certificates from '../pages/Certificates';
 import Profile from '../pages/Profile';
+import InterviewPrep from '../pages/InterviewPrep';
+import Sandbox from '../pages/Sandbox';
+import MockInterview from '../pages/MockInterview';
+import BattleGround from '../pages/BattleGround';
+import CareerArchitect from '../pages/CareerArchitect';
 
 const AnimatedRoutes = () => {
   const location = useLocation();
@@ -113,6 +118,41 @@ const AnimatedRoutes = () => {
           <ProtectedRoute>
             <PageTransition>
               <Profile />
+            </PageTransition>
+          </ProtectedRoute>
+        } />
+        <Route path="/interview-prep" element={
+          <ProtectedRoute>
+            <PageTransition>
+              <InterviewPrep />
+            </PageTransition>
+          </ProtectedRoute>
+        } />
+        <Route path="/sandbox" element={
+          <ProtectedRoute>
+            <PageTransition>
+              <Sandbox />
+            </PageTransition>
+          </ProtectedRoute>
+        } />
+        <Route path="/mock-interview" element={
+          <ProtectedRoute>
+            <PageTransition>
+              <MockInterview />
+            </PageTransition>
+          </ProtectedRoute>
+        } />
+        <Route path="/battleground" element={
+          <ProtectedRoute>
+            <PageTransition>
+              <BattleGround />
+            </PageTransition>
+          </ProtectedRoute>
+        } />
+        <Route path="/architect" element={
+          <ProtectedRoute>
+            <PageTransition>
+              <CareerArchitect />
             </PageTransition>
           </ProtectedRoute>
         } />

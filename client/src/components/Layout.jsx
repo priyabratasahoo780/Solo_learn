@@ -1,7 +1,11 @@
 import Navbar from './Navbar';
 import { Toaster } from 'react-hot-toast';
+import GlobalSearch from './GlobalSearch';
+import { useState } from 'react';
 
 const Layout = ({ children }) => {
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
   const toastStyle = {
     background: 'rgba(30, 41, 59, 0.9)',
     backdropFilter: 'blur(8px)',
@@ -16,6 +20,7 @@ const Layout = ({ children }) => {
         {children}
       </div>
       <Toaster position="bottom-right" toastOptions={{ style: toastStyle }} />
+      <GlobalSearch isOpen={isSearchOpen} onClose={setIsSearchOpen} />
     </div>
   );
 };

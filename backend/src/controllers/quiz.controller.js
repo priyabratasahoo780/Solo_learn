@@ -194,7 +194,8 @@ exports.unlockQuiz = asyncHandler(async (req, res, next) => {
 });
 
 const QuizAttempt = require('../models/QuizAttempt.model');
-const { sendStartEmail, sendScorecardEmail } = require('../utils/sendEmail');
+const { sendStartEmail, sendScorecardEmail, sendCertificateEmail } = require('../utils/sendEmail');
+const generateCertificate = require('../utils/generateCertificate');
 
 // ... existing imports ...
 
@@ -330,18 +331,71 @@ exports.submitQuiz = asyncHandler(async (req, res, next) => {
 
   // Rewards Calculation
   const basePoints = correctCount * 10;
+  
+  // High-Velocity Gamification: Streak Multipliers
+  let multiplier = 1.0;
+  if (user.streak >= 14) multiplier = 2.0;
+  else if (user.streak >= 7) multiplier = 1.5;
+  else if (user.streak >= 3) multiplier = 1.1;
+
   let bonusPoints = 0;
   if (scorePercent >= 80) bonusPoints += 50;
   if (scorePercent === 100) bonusPoints += 100;
-  const pointsEarned = basePoints + bonusPoints;
+  
+  const pointsEarned = Math.round((basePoints + bonusPoints) * multiplier);
 
   // Update User History
-  const user = await User.findById(req.user.id);
-
   const coinsEarned = Math.floor(pointsEarned / 10);
   
-  // Update coins
+  // Update points and coins
   user.coins = (user.coins || 0) + coinsEarned;
+  user.totalPoints = (user.totalPoints || 0) + pointsEarned;
+  user.weeklyPoints = (user.weeklyPoints || 0) + pointsEarned;
+  user.monthlyPoints = (user.monthlyPoints || 0) + pointsEarned;
+
+  // RPG Leveling System: Grant XP and check for Level Up
+  const xpEarned = pointsEarned; // 1 XP per Point
+  user.xp = (user.xp || 0) + xpEarned;
+  
+  // Level Formula: level = floor(sqrt(xp / 100)) + 1
+  const newLevel = Math.floor(Math.sqrt(user.xp / 100)) + 1;
+  const isLevelUp = newLevel > (user.level || 1);
+  
+  if (isLevelUp) {
+    user.level = newLevel;
+    // Auto-Post Level Up Achievement
+    try {
+      await Post.create({
+        user: user._id,
+        content: `I just reached Level ${newLevel} on SoloLearn! 🚀`,
+        type: 'achievement',
+        metadata: { level: newLevel, type: 'level_up' }
+      });
+    } catch (err) {
+      console.error('Level up post failed:', err);
+    }
+  }
+
+  // Skill Mastery: Update category-specific points
+  const category = quiz.category || 'General';
+  const currentCategoryPoints = user.skillPoints.get(category) || 0;
+  const newCategoryPoints = currentCategoryPoints + xpEarned;
+  user.skillPoints.set(category, newCategoryPoints);
+
+  // Auto-Post Category Mastery Milestone (Every 1000 points)
+  if (Math.floor(newCategoryPoints / 1000) > Math.floor(currentCategoryPoints / 1000)) {
+     const milestoneLevel = Math.floor(newCategoryPoints / 1000);
+     try {
+       await Post.create({
+         user: user._id,
+         content: `I am now a Level ${milestoneLevel} Expert in ${category}! 🏆`,
+         type: 'achievement',
+         metadata: { category, tier: milestoneLevel, type: 'category_mastery' }
+       });
+     } catch (err) {
+       console.error('Category mastery post failed:', err);
+     }
+  }
 
   // Check for Badges
   const badgesUnlocked = checkBadges(user, {
@@ -373,13 +427,22 @@ exports.submitQuiz = asyncHandler(async (req, res, next) => {
 
     if (!existingCert) {
       const certificateCode = crypto.randomBytes(8).toString('hex').toUpperCase();
-      await Certificate.create({
+      const cert = await Certificate.create({
         user: user._id,
         title: quiz.title,
         category: quiz.category,
         scorePercent,
         certificateCode
       });
+      
+      // Auto-Send Certificate PDF via Email
+      try {
+        const pdfBuffer = await generateCertificate(user, quiz.title, certificateCode);
+        await sendCertificateEmail(user, pdfBuffer, { title: quiz.title, category: quiz.category });
+        console.log(`✅ Certificate emailed to ${user.email} for ${quiz.title}`);
+      } catch (err) {
+        console.error('❌ Failed to email certificate:', err.message);
+      }
       // Optional: Add notification or include in response
     }
 

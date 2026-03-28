@@ -13,14 +13,24 @@ const postSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['status', 'achievement', 'quiz_completed', 'review'],
+    enum: ['status', 'achievement', 'quiz_completed', 'review', 'recommendation', 'interview_scorecard'],
     default: 'status'
   },
   metadata: {
     quizTitle: String,
     score: Number,
     percentage: Number,
-    category: String
+    category: String,
+    company: String,
+    verdict: String,
+    technical: Number,
+    communication: Number,
+    cultureFit: Number
+  },
+  referenceId: String, // Certificate Code or Quiz ID
+  achievementId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Certificate'
   },
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -45,4 +55,6 @@ const postSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('Post', postSchema);
+const Post = mongoose.model('Post', postSchema);
+Post.createIndexes(); // Ensure indices (user, type, createdAt)
+module.exports = Post;

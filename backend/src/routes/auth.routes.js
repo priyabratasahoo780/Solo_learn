@@ -8,18 +8,12 @@ const {
   refresh,
   forgotPassword,
   resetPassword,
-  sendOtp,
-  verifyOtp,
-  resendOtp,
   updateDetails
 } = require('../controllers/auth.controller');
 const { protect } = require('../middleware/auth.middleware');
 
 const router = express.Router();
 
-router.post('/send-otp', sendOtp);
-router.post('/verify-otp', verifyOtp);
-router.post('/resend-otp', resendOtp);
 router.put('/updatedetails', protect, updateDetails);
 router.post('/signup', signup);
 router.post('/login', login);

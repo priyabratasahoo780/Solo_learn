@@ -1,44 +1,44 @@
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const User = require('../models/User.model');
-const Otp = require('../models/Otp.model');
 const jwt = require('jsonwebtoken');
-const otpGenerator = require('otp-generator');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const generateCertificate = require('../utils/generateCertificate');
-const { sendOtpEmail, sendCertificateEmail, sendResetEmail } = require('../utils/sendEmail');
+const { sendCertificateEmail, sendResetEmail } = require('../utils/sendEmail');
 
 // Helper to check and update streak
 const updateStreak = async (user) => {
   const now = new Date();
-  const lastLogin = new Date(user.lastLogin || 0); // Handle missing lastLogin
+  const lastLogin = new Date(user.lastLogin || 0);
   
-  // Reset time to midnight for comparison
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const lastDate = new Date(lastLogin.getFullYear(), lastLogin.getMonth(), lastLogin.getDate()).getTime();
   const oneDay = 24 * 60 * 60 * 1000;
 
-  if (today === lastDate) {
-    // Already logged in today, do nothing
-    return false;
-  } else if (today - lastDate === oneDay) {
-    // Consecutive day
-    user.streak = (user.streak || 0) + 1;
-    user.lastLogin = now;
+  // Periodic points reset logic
+  const lastReset = new Date(user.lastPointsReset || user.createdAt);
+  const isNewWeek = today - new Date(lastReset.getFullYear(), lastReset.getMonth(), lastReset.getDate()).getTime() >= 7 * oneDay;
+  const isNewMonth = now.getMonth() !== lastReset.getMonth() || now.getFullYear() !== lastReset.getFullYear();
+
+  if (isNewWeek || isNewMonth) {
+    if (isNewWeek) user.weeklyPoints = 0;
+    if (isNewMonth) user.monthlyPoints = 0;
+    user.lastPointsReset = now;
     await user.save();
-    return true;
-  } else {
-    // Streak broken (or first login)
-    if (user.streak > 0 && today - lastDate > oneDay) {
-        user.streak = 1;
-    } else if (!user.streak) {
-        user.streak = 1;
-    }
-    user.lastLogin = now;
-    await user.save();
-    return true;
   }
+
+  if (today === lastDate) return false;
+
+  if (today - lastDate === oneDay) {
+    user.streak = (user.streak || 0) + 1;
+  } else {
+    user.streak = 1;
+  }
+  
+  user.lastLogin = now;
+  await user.save();
+  return true;
 };
 
 // Generate tokens and send response
@@ -74,180 +74,52 @@ const sendTokenResponse = async (user, statusCode, res) => {
     });
 };
 
-// @desc    Send OTP for Login
-// @route   POST /api/auth/send-otp
-// @access  Public
-exports.sendOtp = asyncHandler(async (req, res, next) => {
-  const { email } = req.body;
+// Removed OTP-related functions: sendOtp, verifyOtp, resendOtp
 
-  if (!email) {
-    return next(new ApiError(400, 'Please provide an email'));
-  }
-
-  // Generate OTP
-  const otp = otpGenerator.generate(6, { 
-    upperCaseAlphabets: false, 
-    specialChars: false,
-    lowerCaseAlphabets: false
-  });
-
-  // Hash OTP
-  const salt = await bcrypt.genSalt(10);
-  const hashedOtp = await bcrypt.hash(otp, salt);
-
-  // Create OTP document
-  await Otp.create({
-    email,
-    otp: hashedOtp
-  });
-
-  // Client will handle sending the email via EmailJS.
-  // We simply return the generated OTP back to the frontend.
-
-  // FORCE LOG OTP FOR USER VISIBILITY
-  console.log('\n\n==================================================');
-  console.log('🔑 OTP REQUESTED FOR:', email);
-  console.log('🔑 YOUR LOGIN OTP IS:', otp);
-  console.log('🔑 EMAIL STATUS: Dispatching in background... ⚡');
-  console.log('==================================================\n\n');
-
-  res.status(200).json({
-    success: true,
-    message: `OTP generated. Frontend will dispatch.`,
-    emailSent: true, // Mocked for frontend logic
-    // Expose OTP so client can send it via EmailJS
-    otp: otp 
-  });
-});
-
-// @desc    Verify OTP and Login/Signup
-// @route   POST /api/auth/verify-otp
-// @access  Public
-exports.verifyOtp = asyncHandler(async (req, res, next) => {
-  const { email, otp } = req.body;
-
-  if (!email || !otp) {
-    return next(new ApiError(400, 'Please provide email and OTP'));
-  }
-
-  // Find latest OTP
-  const otpRecord = await Otp.findOne({ email }).sort({ createdAt: -1 });
-
-  if (!otpRecord) {
-    return next(new ApiError(400, 'Invalid or expired OTP'));
-  }
-
-  // Verify OTP
-  const isMatch = await bcrypt.compare(otp, otpRecord.otp);
-  if (!isMatch) {
-    return next(new ApiError(400, 'Invalid OTP'));
-  }
-
-  // Check if user exists
-  let user = await User.findOne({ email });
-
-  if (!user) {
-    // Create new user
-    // Generate a random password since it's required by schema
-    const randomPassword = crypto.randomBytes(10).toString('hex');
-    // Use provided name or default to email prefix
-    const userName = req.body.name || email.split('@')[0];
-
-    user = await User.create({
-      name: userName,
-      email,
-      password: randomPassword
-    });
-  }
-
-  // Delete used OTPs for this email
-  await Otp.deleteMany({ email });
-
-  // Generate Certificate
-  try {
-    const certificateId = crypto.randomBytes(8).toString('hex').toUpperCase();
-    
-    // Store certificate in DB
-    const Certificate = require('../models/Certificate.model');
-    // Check if certificate already exists for "Authentication"
-    const existingCert = await Certificate.findOne({
-      user: user._id,
-      category: 'Authentication'
-    });
-
-    if (!existingCert) {
-      await Certificate.create({
-        user: user._id,
-        title: 'Authentication Success',
-        category: 'Authentication',
-        scorePercent: 100,
-        certificateCode: certificateId
-      });
-
-      const pdfBuffer = await generateCertificate(user, 'Authentication Success', certificateId);
-      
-      // Signal frontend to send Certificate Email via EmailJS
-      // (The PDF buffer can be sent or we can assume frontend has the template)
-      req.sendCertificate = true;
-      req.certData = { title: 'Authentication Success', code: certificateId };
-    }
-    
-  } catch (err) {
-    console.error('Certificate generation failed:', err);
-  }
-
-  // Update response to include certificate signal
-  const token = user.getSignedJwtToken();
-  const refreshToken = user.getRefreshToken();
-  await updateStreak(user);
-
-  res.status(200).cookie('token', refreshToken, {
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production'
-  }).json({
-    success: true,
-    token,
-    sendCertificate: !!req.sendCertificate,
-    certData: req.certData,
-    data: {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      coins: user.coins,
-      totalPoints: user.totalPoints,
-      badges: user.badges
-    }
-  });
-});
-
-// @desc    Resend OTP
-// @route   POST /api/auth/resend-otp
-// @access  Public
-exports.resendOtp = exports.sendOtp; // Reuse sendOtp logic
-
-// @desc    Register user (Legacy/Fallback)
+// @desc    Register user
 // @route   POST /api/auth/signup
 // @access  Public
 exports.signup = asyncHandler(async (req, res, next) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, referralCode: usedReferralCode } = req.body;
 
   const userExists = await User.findOne({ email });
   if (userExists) {
     return next(new ApiError(400, 'User already exists'));
   }
 
+  // Generate unique referral code for this user
+  const myReferralCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+
+  let referredBy = null;
+  let bonusCoins = 0;
+
+  // Process Referral
+  if (usedReferralCode) {
+    const referrer = await User.findOne({ referralCode: usedReferralCode });
+    if (referrer) {
+      referredBy = referrer._id;
+      bonusCoins = 500; // New user gets 500
+      
+      // Reward Referrer
+      referrer.coins = (referrer.coins || 0) + 500;
+      referrer.referralCount = (referrer.referralCount || 0) + 1;
+      await referrer.save();
+    }
+  }
+
   const user = await User.create({
     name,
     email,
-    password
+    password,
+    referralCode: myReferralCode,
+    referredBy,
+    coins: bonusCoins // Start with bonus if referred
   });
 
-  sendTokenResponse(user, 201, res);
+  await sendTokenResponse(user, 201, res);
 });
 
-// @desc    Login user (Legacy/Fallback)
+// @desc    Login user
 // @route   POST /api/auth/login
 // @access  Public
 exports.login = asyncHandler(async (req, res, next) => {
@@ -266,10 +138,10 @@ exports.login = asyncHandler(async (req, res, next) => {
   // Check if password matches
   const isMatch = await user.matchPassword(password);
   if (!isMatch) {
-    return next(new ApiError(401, 'Invalid credentials'));
+    return next(new ApiError(401, 'Invalid email or password. If you’ve previously used OTP, please use "Forgot Password" to set your account password.'));
   }
 
-  sendTokenResponse(user, 200, res);
+  await sendTokenResponse(user, 200, res);
 });
 
 // @desc    Log user out / clear cookie
@@ -412,5 +284,5 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
 
   await user.save();
 
-  sendTokenResponse(user, 200, res);
+  await sendTokenResponse(user, 200, res);
 });

@@ -283,6 +283,49 @@ const Feed = () => {
                     </div>
                   )}
 
+                  {post.type === 'interview_scorecard' && (
+                    <div className="mt-6 p-6 rounded-[2rem] bg-indigo-600/5 border border-indigo-500/20 relative overflow-hidden group/card shadow-inner">
+                      <div className="absolute top-0 right-0 p-4">
+                         <div className={`text-sm font-black italic ${post.metadata?.verdict === 'HIRE' ? 'text-emerald-500' : 'text-rose-500'}`}>
+                            {post.metadata?.verdict}
+                         </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-4 mb-6">
+                         <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10">
+                            <Briefcase className="w-6 h-6 text-indigo-400" />
+                         </div>
+                         <div>
+                            <p className="text-[10px] text-indigo-400 font-black uppercase tracking-widest">{post.metadata?.company} Assessment</p>
+                            <h5 className="text-white font-bold">AI Mock Interview</h5>
+                         </div>
+                      </div>
+
+                      <div className="space-y-4">
+                         {[
+                           { name: 'Technical', val: post.metadata?.technical || 0, color: 'bg-blue-400' },
+                           { name: 'Communcation', val: post.metadata?.communication || 0, color: 'bg-purple-400' },
+                           { name: 'Culture', val: post.metadata?.cultureFit || 0, color: 'bg-emerald-400' }
+                         ].map((skill, i) => (
+                            <div key={i}>
+                               <div className="flex justify-between text-[8px] font-black text-gray-500 uppercase tracking-widest mb-1.5">
+                                  <span>{skill.name}</span>
+                                  <span>{skill.val}%</span>
+                               </div>
+                               <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                                  <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${skill.val}%` }}
+                                    transition={{ duration: 1, delay: i * 0.1 }}
+                                    className={`h-full ${skill.color} shadow-lg shadow-indigo-500/50`}
+                                  />
+                               </div>
+                            </div>
+                         ))}
+                      </div>
+                    </div>
+                  )}
+
                   {post.type === 'review' && (
                     <div className="mt-4 flex gap-1">
                       {[...Array(5)].map((_, i) => (

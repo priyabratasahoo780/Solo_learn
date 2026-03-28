@@ -194,13 +194,43 @@ const sendOtpEmail = async (email, otp) => {
   });
 };
 
-const sendCertificateEmail = async (user, pdfBuffer) => {
-  const subject = 'Your Authentication Certificate';
+const sendCertificateEmail = async (user, pdfBuffer, quizData = {}) => {
+  const { title = 'Challenge', category = 'Achievement' } = quizData;
+  const subject = `🏆 Official Certification: ${title}`;
+  
   const html = `
-    <div style="font-family: sans-serif; padding: 20px; color: #333;">
-      <h2>Hello ${user.name || 'User'},</h2>
-      <p>Congratulations! You have successfully authenticated.</p>
-      <p>Please find your certificate attached.</p>
+    <div style="background-color: #030712; padding: 40px 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+      <div style="max-width: 600px; margin: 0 auto; background-color: #0f172a; border-radius: 24px; border: 1px solid #1e293b; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
+        <div style="background: linear-gradient(to right, #4f46e5, #7c3aed); padding: 50px 30px; text-align: center;">
+          <div style="background-color: rgba(255, 255, 255, 0.15); width: 80px; height: 80px; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 25px; backdrop-filter: blur(10px);">
+             <span style="font-size: 40px;">🎖️</span>
+          </div>
+          <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 800; letter-spacing: -0.025em;">Official Certification</h1>
+          <p style="color: #c4b5fd; margin-top: 12px; font-size: 18px;">Mastery achieved in ${category}</p>
+        </div>
+        
+        <div style="padding: 45px; color: #94a3b8; text-align: center;">
+          <h2 style="color: #ffffff; font-size: 24px; margin-top: 0;">Congratulations, ${user.name}!</h2>
+          <p style="font-size: 16px; line-height: 1.6; margin-bottom: 30px;">
+            You have successfully completed the <strong>${title}</strong> assessment with academic excellence. Your verified certificate of completion is attached to this email.
+          </p>
+          
+          <div style="background-color: #1e293b; padding: 25px; border-radius: 16px; border: 1px solid #334155; display: inline-block; margin-bottom: 35px;">
+             <p style="color: #64748b; font-size: 12px; font-weight: 700; text-transform: uppercase; margin: 0 0 8px;">Assessment Track</p>
+             <p style="color: #818cf8; font-size: 18px; font-weight: 800; margin: 0;">${title}</p>
+          </div>
+          
+          <p style="font-size: 14px; color: #64748b; font-style: italic;">
+            "Education is the most powerful weapon which you can use to change the world." &bull; Nelson Mandela
+          </p>
+        </div>
+        
+        <div style="background-color: #1e293b; padding: 30px; text-align: center; border-top: 1px solid #334155;">
+          <p style="color: #64748b; font-size: 11px; margin: 0; text-transform: uppercase; letter-spacing: 0.1em;">
+            &copy; ${new Date().getFullYear()} SoloLearn Academy &bull; Secure Digital Credential
+          </p>
+        </div>
+      </div>
     </div>
   `;
 
@@ -210,7 +240,7 @@ const sendCertificateEmail = async (user, pdfBuffer) => {
     html,
     attachments: [
       {
-        filename: 'certificate.pdf',
+        filename: `Certificate_${title.replace(/\s+/g, '_')}.pdf`,
         content: pdfBuffer,
         contentType: 'application/pdf'
       }

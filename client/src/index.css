@@ -1,6 +1,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #6C63FF;
+  --color-secondary: #4FC3F7;
+  --color-success: #4CAF50;
+  --color-warning: #FFB300;
+  --color-day-bg: #F5F7FB;
+  --color-card-bg: #FFFFFF;
+  
+  --animate-shimmer: shimmer 2s linear infinite;
+  @keyframes shimmer {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(100%); }
+  }
+}
+
 @layer base {
   body {
     @apply antialiased transition-colors duration-300;

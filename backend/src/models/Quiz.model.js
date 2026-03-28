@@ -37,12 +37,7 @@ const quizSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: [true, 'Please select a category'],
-    enum: [
-      'HTML', 'CSS', 'JavaScript', 'ReactJS', 
-      'SQL', 'NoSQL', 'Java', 'NextJs', 'AngularJS', 'General',
-      'Python', 'Git'
-    ]
+    required: [true, 'Please select a category']
   },
   difficulty: {
     type: String,
