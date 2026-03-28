@@ -1,3 +1,4 @@
+const express = require('express');
 const { getFeed, createPost, toggleLike, addComment, shareScorecard } = require('../controllers/post.controller');
 const { protect } = require('../middleware/auth.middleware');
 

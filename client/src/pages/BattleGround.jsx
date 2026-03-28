@@ -19,7 +19,7 @@ const BattleGround = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [quizzes, setQuizzes] = useState([]);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
-  const [wager, setWager] = useState(10);
+  const [wager, setWager] = useState(0);
   const [activeDuel, setActiveDuel] = useState(null);
   const [duelStep, setDuelStep] = useState('lobby'); // lobby, playing, result
 
@@ -335,7 +335,7 @@ const BattleGround = () => {
                    <div>
                       <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3 block text-center">Set Coin Wager</label>
                       <div className="flex justify-between gap-4">
-                         {[10, 50, 100, 500].map(amount => (
+                         {[0, 10, 50, 100, 500].map(amount => (
                             <button 
                               key={amount}
                               onClick={() => setWager(amount)}

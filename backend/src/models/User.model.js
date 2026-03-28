@@ -47,7 +47,7 @@ const userSchema = new mongoose.Schema({
   },
   coins: {
     type: Number,
-    default: 0
+    default: 100  // Signup bonus so new users can immediately duel
   },
   totalPoints: {
     type: Number,
@@ -77,7 +77,7 @@ const userSchema = new mongoose.Schema({
       'CSS': 0,
       'JavaScript': 0,
       'ReactJS': 0,
-      'Node.js': 0,
+      'NodeJS': 0,
       'Python': 0,
       'SQL': 0,
       'Git': 0

@@ -2,7 +2,11 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
-import { Menu, X, User, LogOut, Code2, Trophy, Award, LayoutDashboard, FileText, Globe, Settings } from 'lucide-react';
+import { 
+  Menu, X, User, LogOut, Code2, Trophy, Award, 
+  LayoutDashboard, FileText, Globe, Settings,
+  Briefcase, Video, Zap, Compass 
+} from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -39,7 +43,6 @@ const Navbar = () => {
     { path: '/architect', label: 'AI Architect', icon: Compass },
     { path: '/sandbox', label: 'Sandbox', icon: Code2 },
   ];
-创新
 
   if (user) {
     navLinks.push({ path: '/create-quiz', label: t('create'), icon: null });
@@ -60,7 +63,7 @@ const Navbar = () => {
                 </span>
               </Link>
               
-              <div className="hidden md:flex space-x-1">
+              <div className="hidden lg:flex space-x-1">
                 {navLinks.map((link) => {
                   const isActive = location.pathname === link.path;
                   return (
@@ -86,7 +89,7 @@ const Navbar = () => {
               </div>
             </div>
 
-            <div className="hidden md:flex items-center gap-4">
+            <div className="hidden lg:flex items-center gap-4">
               <button
                 onClick={toggleLanguage}
                 className="p-2 rounded-xl text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 transition-colors relative group"
@@ -102,9 +105,9 @@ const Navbar = () => {
                 <div className="flex items-center gap-4">
                   <Link to="/dashboard" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center text-white font-bold shadow-lg ring-2 ring-white dark:ring-white/20">
-                      {user.name.charAt(0).toUpperCase()}
+                      {user?.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
-                    <span className="hidden lg:block">{user.name}</span>
+                    <span className="hidden xl:block">{user?.name}</span>
                   </Link>
                   <Link
                     to="/profile"
@@ -133,7 +136,7 @@ const Navbar = () => {
               )}
             </div>
             
-            <div className="md:hidden flex items-center gap-2">
+            <div className="lg:hidden flex items-center gap-2">
               <button
                 onClick={toggleLanguage}
                 className="p-2 rounded-lg bg-white/5 border border-white/10 text-gray-400 hover:text-white transition-all mr-1"
@@ -160,13 +163,13 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMenuOpen(false)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] md:hidden"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] lg:hidden"
             />
             <motion.div
               initial={{ opacity: 0, x: '100%' }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: '100%' }}
-              className="md:hidden fixed top-0 right-0 h-full w-[280px] bg-[#0f1020] border-l border-white/10 shadow-2xl z-[100] p-6 pt-24"
+              className="lg:hidden fixed top-0 right-0 h-full w-[280px] bg-[#0f1020] border-l border-white/10 shadow-2xl z-[100] p-6 pt-24"
             >
               <div className="space-y-2">
                 {navLinks.map((link) => (
@@ -210,7 +213,7 @@ const Navbar = () => {
                   <div className="space-y-4">
                     <div className="flex items-center gap-3 p-3 bg-white/5 rounded-2xl border border-white/5">
                       <div className="w-10 h-10 rounded-full bg-gradient-to-r from-pink-500 to-rose-500 flex items-center justify-center text-white font-black">
-                        {user.name.charAt(0).toUpperCase()}
+                        {user.name?.charAt(0).toUpperCase() || 'U'}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-black text-white truncate">{user.name}</div>
@@ -224,7 +227,7 @@ const Navbar = () => {
                       }}
                       className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 text-red-400 font-bold hover:bg-red-500/20 transition-all border border-red-500/20"
                     >
-                      <LogOut className="w-5 h-5" />
+                      <LogOut className="h-5 w-5" />
                       Logout
                     </button>
                   </div>

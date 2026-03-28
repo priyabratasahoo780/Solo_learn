@@ -107,13 +107,15 @@ exports.signup = asyncHandler(async (req, res, next) => {
     }
   }
 
+  const BASE_SIGNUP_BONUS = 100; // Every new user gets 100 coins to duel immediately
+
   const user = await User.create({
     name,
     email,
     password,
     referralCode: myReferralCode,
     referredBy,
-    coins: bonusCoins // Start with bonus if referred
+    coins: BASE_SIGNUP_BONUS + bonusCoins // 100 base + 500 if referred
   });
 
   await sendTokenResponse(user, 201, res);

@@ -41,4 +41,3 @@ const careerRoadmapSchema = new mongoose.Schema({
 const CareerRoadmap = mongoose.model('CareerRoadmap', careerRoadmapSchema);
 CareerRoadmap.createIndexes(); // Ensure indices (user, dreamJob)
 module.exports = CareerRoadmap;
-创新

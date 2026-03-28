@@ -104,7 +104,7 @@ const MockInterview = () => {
       setLoading(false);
     }
   };
-创新
+
   if (scorecard) {
     return (
       <div className="min-h-screen pt-24 pb-12 px-4 bg-[#0a0b14] flex items-center justify-center">
