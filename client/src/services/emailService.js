@@ -35,7 +35,13 @@ export const sendEmailJS = async (templateKey, params) => {
     console.log(`✅ Email [${templateKey}] sent successfully:`, result.text);
     return { success: true };
   } catch (error) {
-    console.error(`❌ Email [${templateKey}] failed to send:`, error);
+    console.error(`❌ Email [${templateKey}] failed to send:`, {
+      error: error,
+      status: error?.status,
+      text: error?.text,
+      message: error?.message,
+      hint: 'Check your EmailJS Public Key, Service ID, and Template ID in the dashboard.'
+    });
     return { success: false, error: error.text || error.message };
   }
 };

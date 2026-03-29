@@ -18,66 +18,62 @@ const generateCertificate = (user, title = 'Quiz Certification', certificateId) 
     const pageWidth = doc.page.width;
     const pageHeight = doc.page.height;
 
-    // Background Color
-    doc.rect(0, 0, pageWidth, pageHeight).fill('#fafafa');
+    // Background Color (Academic Cream)
+    doc.rect(0, 0, pageWidth, pageHeight).fill('#FCFBF7');
 
-    // Outer Gold Border
-    doc.lineWidth(5);
-    doc.rect(20, 20, pageWidth - 40, pageHeight - 40).stroke('#C5A059');
+    // Outer Gold Border (Thick)
+    doc.lineWidth(15);
+    doc.rect(30, 30, pageWidth - 60, pageHeight - 60).stroke('#C5A059');
 
-    // Inner Decorative Border
+    // Inner Decorative Border (Thin)
+    doc.lineWidth(1);
+    doc.rect(50, 50, pageWidth - 100, pageHeight - 100).stroke('#1F2937');
+
+    // Header Badge / Logo Placeholder
     doc.lineWidth(2);
-    doc.rect(30, 30, pageWidth - 60, pageHeight - 60).stroke('#333');
-
-    // Corner Ornaments (Simple Lines for now)
-    doc.moveTo(30, 60).lineTo(60, 30).stroke();
-    doc.moveTo(pageWidth - 30, 60).lineTo(pageWidth - 60, 30).stroke();
-    doc.moveTo(30, pageHeight - 60).lineTo(60, pageHeight - 30).stroke();
-    doc.moveTo(pageWidth - 30, pageHeight - 60).lineTo(pageWidth - 60, pageHeight - 30).stroke();
-
-    // Header Badge / Icon Placeholder
-    // doc.image('path/to/logo.png', pageWidth / 2 - 25, 60, { width: 50 });
+    doc.circle(pageWidth / 2, 90, 40).stroke('#C5A059');
+    doc.font('Times-Bold').fontSize(14).fill('#C5A059').text('S', pageWidth / 2 - 5, 82);
     
     // Title
-    doc.moveDown(4);
-    doc.font('Helvetica-Bold').fontSize(40).fill('#1F2937').text('Certificate of Achievement', 0, 100, { align: 'center' });
+    doc.moveDown(5);
+    doc.font('Times-Bold').fontSize(38).fill('#002D72').text('Diploma of Excellence', 0, 140, { align: 'center' });
+    doc.fontSize(10).fill('#C5A059').text('VERIFIED PROFESSIONAL CREDENTIAL', { align: 'center', characterSpacing: 4 });
     
-    // Subtitle
-    doc.moveDown(0.5);
-    doc.font('Helvetica').fontSize(16).fill('#4B5563').text('This certificate is proudly presented to', { align: 'center' });
+    // Certification Statement
+    doc.moveDown(2);
+    doc.font('Times-Italic').fontSize(16).fill('#4B5563').text('This is to certify that', { align: 'center' });
 
-    // Name
+    // Student Name
     doc.moveDown(1);
-    doc.font('Helvetica-Bold').fontSize(36).fill('#C5A059').text(user.name || user.email, { align: 'center' });
-    doc.lineWidth(1).moveTo(pageWidth / 2 - 150, doc.y).lineTo(pageWidth / 2 + 150, doc.y).stroke('#C5A059');
-
-    // Description
-    doc.moveDown(1);
-    doc.font('Helvetica').fontSize(18).fill('#374151').text('for successfully completing the course', { align: 'center' });
+    doc.font('Times-Bold').fontSize(42).fill('#002D72').text(user.name || user.email, { align: 'center' });
     
-    // Course Title (Subject)
-    doc.moveDown(0.5);
-    doc.font('Helvetica-Bold').fontSize(28).fill('#111827').text(title || 'Course Title', { align: 'center' });
-
+    // Accomplishment
     doc.moveDown(1);
-    doc.font('Helvetica').fontSize(14).fill('#6B7280').text('Your commitment to excellence is appreciated.', { align: 'center' });
-
-    // Details Grid (Date & ID)
-    const bottomY = pageHeight - 150;
+    doc.font('Times-Italic').fontSize(16).fill('#4B5563').text('has demonstrated superior competence and successfully mastered', { align: 'center' });
     
-    // Left Side: Date
-    doc.fontSize(12).fill('#6B7280').text('Date Issued', 100, bottomY);
-    doc.fontSize(14).fill('#1F2937').text(new Date().toLocaleDateString(), 100, bottomY + 20);
+    // Course Title
+    doc.moveDown(1);
+    doc.font('Times-Bold').fontSize(28).fill('#C5A059').text(title || 'Core Intelligence Module', { align: 'center' });
 
-    // Right Side: Certificate ID
-    const rightX = pageWidth - 200;
-    doc.fontSize(12).fill('#6B7280').text('Certificate ID', rightX, bottomY);
-    doc.fontSize(14).fill('#1F2937').text(certificateId, rightX, bottomY + 20);
+    // Details Grid
+    const bottomY = pageHeight - 160;
+    
+    // Left: Formal Date
+    doc.font('Times-Bold').fontSize(14).fill('#1F2937').text(new Date().toLocaleDateString(), 100, bottomY);
+    doc.lineWidth(1).moveTo(80, bottomY + 18).lineTo(220, bottomY + 18).stroke('#D1D5DB');
+    doc.font('Times-Roman').fontSize(10).fill('#9CA3AF').text('DATE OF ATTAINMENT', 100, bottomY + 25);
 
-    // Signature (Center Bottom)
-    // Symbolic SP Signature
-    doc.font('Courier-Bold').fontSize(30).fill('#C5A059').text('S.P.', 0, bottomY, { align: 'center', oblique: true });
-    doc.fontSize(10).fill('#6B7280').text('Authorized Signature', 0, bottomY + 35, { align: 'center' });
+    // Center: Institutional Seal
+    doc.circle(pageWidth / 2, bottomY + 10, 30).fill('#C5A059');
+    doc.font('Times-Bold').fontSize(20).fill('#FFFFFF').text('✓', pageWidth / 2 - 8, bottomY - 3);
+
+    // Right: Provost Signature
+    doc.font('Times-Italic').fontSize(26).fill('#002D72').text('Sahoo Priyabrata', pageWidth - 290, bottomY - 10);
+    doc.lineWidth(1).moveTo(pageWidth - 300, bottomY + 18).lineTo(pageWidth - 60, bottomY + 18).stroke('#D1D5DB');
+    doc.font('Times-Roman').fontSize(10).fill('#9CA3AF').text('ACADEMY PROVOST', pageWidth - 240, bottomY + 25);
+
+    // Footer: Authenticity ID
+    doc.font('Courier').fontSize(8).fill('#D1D5DB').text(`Institutional ID: ${certificateId || 'SOLO-ACAD-VERIFIED'}`, 0, pageHeight - 40, { align: 'center' });
 
     doc.end();
   });

@@ -4,7 +4,8 @@ import { useLanguage } from '../context/LanguageContext';
 import { 
   Menu, X, User, LogOut, Code2, Trophy, Award, 
   FileText, Globe, Settings, Briefcase, Video, 
-  Zap, Compass, LayoutDashboard, ChevronRight
+  Zap, Compass, LayoutDashboard, ChevronRight,
+  BookOpen, Sparkles, ShieldCheck, ArrowRight
 } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -14,73 +15,68 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const { t, language, setLanguage } = useLanguage();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
-  const toggleLanguage = () => {
-    const langs = ['en', 'es', 'fr'];
-    const currentIndex = langs.indexOf(language);
-    const nextIndex = (currentIndex + 1) % langs.length;
-    setLanguage(langs[nextIndex]);
-  };
-
   const navGroups = [
     {
-      name: 'Training',
+      name: 'Learning Curriculum',
       links: [
-        { path: '/', label: t('home'), icon: LayoutDashboard },
-        { path: '/quizzes', label: 'Quizzes', icon: Code2 },
-        { path: '/sandbox', label: 'Sandbox', icon: Code2 },
+        { path: '/', label: 'Command Center', icon: LayoutDashboard },
+        { path: '/quizzes', label: 'Knowledge Labs', icon: BookOpen },
+        { path: '/sandbox', label: 'Neural Sandbox', icon: Code2 },
       ]
     },
     {
-      name: 'Battleground',
+      name: 'Elite Battleground',
       links: [
-        { path: '/battleground', label: 'Battles', icon: Zap },
-        { path: '/leaderboard', label: t('leaderboard'), icon: Trophy },
-        { path: '/rewards', label: t('rewards'), icon: Award },
+        { path: '/battleground', label: 'Skill Duels', icon: Zap },
+        { path: '/leaderboard', label: 'Global Rankings', icon: Trophy },
+        { path: '/certificates', label: 'My Diplomas', icon: Award },
+        { path: '/rewards', label: 'Asset Vault', icon: Sparkles },
       ]
     },
     {
-      name: 'Recruitment Hub',
+      name: 'Recruitment Intel',
       links: [
-        { path: '/interview-prep', label: 'Prep Hub', icon: Briefcase },
-        { path: '/mock-interview', label: 'AI Mock', icon: Video },
-        { path: '/architect', label: 'AI Architect', icon: Compass },
+        { path: '/interview-prep', label: 'Interview Mastery', icon: Briefcase },
+        { path: '/mock-interview', label: 'AI Mock Simulation', icon: Video },
+        { path: '/architect', label: 'Career Architect', icon: Compass },
       ]
     },
     {
-      name: 'Community',
+      name: 'Academy Administration',
+      adminOnly: true,
       links: [
-        { path: '/feed', label: 'Universal Feed', icon: Globe },
-        { path: '/certificates', label: 'My Wallet', icon: FileText },
+        { path: '/create-quiz', label: 'Create Quiz', icon: Sparkles },
       ]
     }
   ];
 
   const SidebarContent = () => (
-    <div className="flex flex-col h-full p-6">
-      {/* Brand Section */}
-      <Link to="/" className="flex items-center gap-3 mb-12 group cursor-pointer">
-        <div className="bg-gradient-to-tr from-indigo-500 to-purple-600 p-2 rounded-2xl shadow-xl shadow-indigo-500/20 group-hover:scale-110 transition-transform duration-300">
-          <Code2 className="h-6 w-6 text-white" />
+    <div className="flex flex-col h-full p-8 bg-white border-r-[3px] border-oxford-blue">
+      {/* Academy Brand */}
+      <Link to="/" className="flex items-center gap-4 mb-16 px-2 group">
+        <div className="icon-circle-sketch group-hover:bg-oxford-blue group-hover:text-white transition-all duration-300">
+          <BookOpen className="h-6 w-6" />
         </div>
         <div className="flex flex-col">
-          <span className="font-black text-xl tracking-tight text-white italic">SoloLearn</span>
-          <span className="text-[8px] text-gray-500 font-bold uppercase tracking-[0.3em] -mt-1">Engineer OS</span>
+          <span className="text-2xl font-black text-oxford-blue italic tracking-tighter leading-none">SOLO<span className="text-orange-500">LEARN</span></span>
+          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">Academy Sketch</span>
         </div>
       </Link>
 
-      {/* Navigation Groups */}
-      <div className="flex-1 space-y-10 overflow-y-auto scrollbar-hide">
-        {navGroups.map((group) => (
-          <div key={group.name}>
-             <h4 className="text-[10px] text-gray-600 font-bold uppercase tracking-[0.2em] mb-4 pl-4">{group.name}</h4>
-             <div className="space-y-1">
+      {/* Navigation Ecosystem */}
+      <div className="flex-1 space-y-10 overflow-y-auto pr-2 custom-scrollbar">
+        {navGroups.map((group) => {
+          if (group.adminOnly && user?.role !== 'admin') return null;
+          return (
+          <div key={group.name} className="space-y-4">
+             <h4 className="text-[11px] text-slate-400 font-black uppercase tracking-[0.2em] px-4">{group.name}</h4>
+             <div className="space-y-2">
                {group.links.map((link) => {
                  const isActive = location.pathname === link.path;
                  return (
@@ -88,64 +84,67 @@ const Navbar = () => {
                       key={link.path}
                       to={link.path}
                       onClick={() => setIsMobileOpen(false)}
-                      className={`flex items-center justify-between group px-4 py-3 rounded-2xl transition-all duration-300 border
+                      className={`flex items-center justify-between group px-5 py-3.5 rounded-2xl transition-all duration-300 border-[2px]
                         ${isActive 
-                          ? 'bg-indigo-600/10 border-indigo-500/20 text-white shadow-[inset_0_0_20px_rgba(99,102,241,0.1)]' 
-                          : 'text-gray-500 border-transparent hover:text-white hover:bg-white/5 hover:border-white/5'}
+                          ? 'bg-oxford-blue border-oxford-blue text-white shadow-[4px_4px_0px_0px_#FF5722]' 
+                          : 'text-oxford-blue border-transparent hover:bg-slate-50 hover:border-oxford-blue hover:translate-x-1'}
                       `}
                     >
-                      <div className="flex items-center gap-3">
-                         <link.icon className={`w-5 h-5 ${isActive ? 'text-indigo-400 drop-shadow-[0_0_8px_rgba(129,140,248,0.5)]' : 'text-gray-600 group-hover:text-indigo-400'} transition-colors`} />
-                         <span className={`text-sm font-bold tracking-tight ${isActive ? 'text-white' : 'group-hover:text-white'}`}>{link.label}</span>
+                      <div className="flex items-center gap-4">
+                         <link.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-oxford-blue'} transition-colors`} />
+                         <span className={`text-sm font-bold ${isActive ? 'text-white' : 'text-oxford-blue'} transition-colors`}>{link.label}</span>
                       </div>
-                      {isActive && <motion.div layoutId="active-nav" className="w-1.5 h-1.5 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)]" />}
+                      {isActive && <ChevronRight className="w-4 h-4 text-white" />}
                     </Link>
                  );
                })}
              </div>
           </div>
-        ))}
+        )})}
       </div>
 
-      {/* Profile Section */}
-      <div className="mt-auto pt-6 border-t border-white/5 space-y-4">
-        <button 
-          onClick={toggleLanguage}
-          className="w-full flex items-center justify-between px-4 py-3 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all text-xs text-gray-400 font-bold"
-        >
-          <div className="flex items-center gap-2">
-            <Globe className="w-4 h-4" />
-            <span>Region: {language.toUpperCase()}</span>
-          </div>
-          <ChevronRight className="w-3 h-3" />
-        </button>
-
+      {/* Student Profile Card (Sketch View) */}
+      <div className="mt-auto pt-8 border-t-[2px] border-dashed border-slate-200">
         {user ? (
-          <div className="space-y-3">
-             <Link 
-              to="/profile" 
-              className="flex items-center gap-3 p-3 bg-gradient-to-r from-indigo-600/10 to-transparent rounded-2xl border border-indigo-500/10 group overflow-hidden relative"
-             >
-                <div className="w-10 h-10 bg-gradient-to-tr from-pink-500 to-rose-500 rounded-xl flex items-center justify-center text-white font-black shadow-lg">
-                   {user.name?.charAt(0).toUpperCase()}
-                </div>
+          <div className="p-4 rounded-3xl bg-slate-50 border-[2px] border-oxford-blue relative overflow-hidden">
+             <div className="flex items-center gap-4 relative z-10">
+                {user.avatar ? (
+                  <img src={user.avatar} alt="Profile" className="w-12 h-12 rounded-2xl object-cover shadow-[3px_3px_0px_0px_#FF5722] border-[2px] border-white" />
+                ) : (
+                  <div className="w-12 h-12 bg-oxford-blue rounded-2xl flex items-center justify-center text-white font-black text-xl shadow-[3px_3px_0px_0px_#FF5722] border-[2px] border-white">
+                    {user.name?.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
-                   <div className="text-xs font-black text-white truncate">{user.name}</div>
-                   <div className="text-[8px] text-gray-500 uppercase tracking-widest mt-0.5">Premium Sub</div>
+                  <div className="text-sm font-black text-oxford-blue truncate uppercase">{user.name}</div>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Active Member</span>
+                  </div>
                 </div>
-                <Settings className="w-4 h-4 text-gray-700 group-hover:text-white transition-colors" />
-             </Link>
-             <button 
-              onClick={handleLogout}
-              className="w-full py-3 bg-rose-600/10 hover:bg-rose-600 text-rose-500 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-rose-600/20"
-             >
-                Shutdown Session
-             </button>
+             </div>
+             
+             <div className="flex gap-2 w-full mt-4">
+               <button 
+                onClick={() => navigate('/profile')}
+                className="flex-1 py-3 bg-white hover:bg-slate-50 text-oxford-blue rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-[2px] border-oxford-blue flex items-center justify-center gap-2"
+               >
+                  <Settings className="w-3 h-3" />
+                  Settings
+               </button>
+               <button 
+                onClick={handleLogout}
+                className="flex-1 py-3 bg-white hover:bg-orange-50 text-oxford-blue rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border-[2px] border-oxford-blue flex items-center justify-center gap-2"
+               >
+                  <LogOut className="w-3 h-3" />
+                  Sign Out
+               </button>
+             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-2">
-             <Link to="/login" className="py-3 bg-white/5 hover:bg-white/10 text-white text-[10px] font-black uppercase tracking-widest text-center rounded-2xl transition-all">Login</Link>
-             <Link to="/signup" className="py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest text-center rounded-2xl transition-all shadow-lg shadow-indigo-600/10">Sign Up</Link>
+          <div className="flex flex-col gap-3">
+             <Link to="/login" className="btn-sketch-outline text-center py-4">Portal Access</Link>
+             <Link to="/signup" className="btn-sketch text-center py-4">Enroll Free <ArrowRight className="w-4 h-4" /></Link>
           </div>
         )}
       </div>
@@ -154,26 +153,28 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Mobile Trigger */}
-      <div className="lg:hidden fixed top-0 w-full z-[80] p-4 flex justify-between items-center glass-panel bg-black/60 border-b border-white/5">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="bg-indigo-600 p-1.5 rounded-lg"><Code2 className="h-5 w-5 text-white" /></div>
-          <span className="font-black text-white text-base">SoloLearn</span>
+      {/* Mobile Top Command Hub */}
+      <div className="lg:hidden fixed top-0 w-full z-[80] p-4 flex justify-between items-center bg-white border-b-[3px] border-oxford-blue">
+        <Link to="/" className="flex items-center gap-3">
+          <div className="bg-oxford-blue p-2 rounded-xl h-9 w-9 flex items-center justify-center shadow-[2px_2px_0px_0px_#FF5722] border-[2px] border-white">
+            <BookOpen className="h-4 w-4 text-white" />
+          </div>
+          <span className="font-black text-oxford-blue text-lg italic tracking-tighter leading-none">SOLO<span className="text-orange-500">LEARN</span></span>
         </Link>
         <button 
           onClick={() => setIsMobileOpen(true)}
-          className="p-2 bg-white/5 rounded-xl border border-white/10 text-white"
+          className="p-2 bg-slate-50 rounded-xl border-[2px] border-oxford-blue text-oxford-blue active:translate-y-1 transition-all"
         >
           <Menu className="w-6 h-6" />
         </button>
       </div>
 
-      {/* Desktop Sidebar Container */}
-      <aside className="hidden lg:block fixed left-0 top-0 h-screen w-72 bg-[#0a0b14] border-r border-white/5 z-50">
+      {/* Desktop Persistent Workspace Sidebar */}
+      <aside className="hidden lg:block fixed left-0 top-0 h-screen w-72 z-50">
          <SidebarContent />
       </aside>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Curtain Menu */}
       <AnimatePresence>
         {isMobileOpen && (
           <>
@@ -182,21 +183,21 @@ const Navbar = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileOpen(false)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-md z-[90]"
+              className="fixed inset-0 bg-oxford-blue/40 backdrop-blur-sm z-[90]"
             />
             <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-              className="fixed inset-y-0 left-0 w-80 bg-[#0a0b14] shadow-2xl z-[100]"
+              className="fixed inset-y-0 left-0 w-80 shadow-2xl z-[100]"
             >
               <SidebarContent />
               <button 
                 onClick={() => setIsMobileOpen(false)}
-                className="absolute top-6 right-6 p-2 bg-white/5 rounded-xl text-white border border-white/10"
+                className="absolute top-8 right-8 p-3 bg-white rounded-2xl text-oxford-blue border-[2px] border-oxford-blue hover:bg-slate-50 transition-all active:scale-95"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5" />
               </button>
             </motion.div>
           </>

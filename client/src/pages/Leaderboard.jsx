@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import api from '../services/api';
-import { Trophy, Medal, Crown } from 'lucide-react';
-import { Card3D } from '../components/Card3D';
+import { Trophy, Medal, Crown, Award, Zap, ChevronRight, Beaker, ShieldCheck, Microscope } from 'lucide-react';
 
 const Leaderboard = () => {
   const [users, setUsers] = useState([]);
@@ -19,98 +18,122 @@ const Leaderboard = () => {
     fetchLeaderboard();
   }, []);
 
-  const getRankIcon = (index) => {
-    switch (index) {
-      case 0: return <Crown className="w-8 h-8 text-yellow-400" fill="currentColor" />;
-      case 1: return <Medal className="w-8 h-8 text-gray-300" />;
-      case 2: return <Medal className="w-8 h-8 text-amber-600" />;
-      default: return <span className="text-xl font-bold text-gray-400">#{index + 1}</span>;
-    }
-  };
-
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4 bg-[#0a0b14]">
-      <div className="max-w-4xl mx-auto space-y-12">
-        <div className="text-center space-y-6">
+    <div className="min-h-screen pt-24 pb-16 px-6 bg-slate-50 relative overflow-hidden">
+      {/* Academy Sketch Background Patterns */}
+      <div className="absolute inset-0 sketch-grid opacity-10 pointer-events-none" />
+      <h1 className="sr-only">Sketch Academy Institutional Standings - Global Global Rankings</h1>
+      
+      <div className="max-w-5xl mx-auto relative z-10 space-y-16">
+        {/* Header Section: Institutional Achievement */}
+        <div className="text-center space-y-8">
           <motion.div
-             initial={{ scale: 0, rotate: -180 }}
+             initial={{ scale: 0, rotate: -45 }}
              animate={{ scale: 1, rotate: 0 }}
-             transition={{ type: "spring", duration: 1 }}
+             transition={{ type: "spring", duration: 1.2 }}
              className="inline-block relative"
           >
-            <div className="absolute inset-0 bg-yellow-400/20 blur-2xl rounded-full" />
-            <Trophy className="w-24 h-24 text-yellow-400 mx-auto drop-shadow-[0_0_15px_rgba(250,204,21,0.5)] relative z-10" />
+            <div className="icon-circle-sketch h-28 w-28 bg-white border-[4px] border-oxford-blue shadow-[10px_10px_0px_0px_#FF5722] flex items-center justify-center mx-auto mb-4">
+               <Trophy className="w-14 h-14 text-oxford-blue group-hover:text-orange-500 transition-colors" />
+            </div>
           </motion.div>
-          <div>
-            <h1 className="text-5xl font-black text-white italic tracking-tighter uppercase">
-              GLOBAL <span className="text-gradient">RANKINGS</span>
-            </h1>
-            <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.4em] mt-3">Elite Operational Standings</p>
+          
+          <div className="space-y-4">
+             <div className="inline-flex items-center gap-2 px-3 py-1 bg-oxford-blue text-white text-[9px] font-black uppercase tracking-[0.2em] border-2 border-oxford-blue shadow-[3px_3px_0px_0px_#FF5722] mx-auto">
+               <ShieldCheck className="w-3 h-3 text-orange-400 fill-orange-400" />
+               ACADEMIC_ACHIEVEMENT_PROTOCOL_V4
+             </div>
+             <h1 className="text-5xl sm:text-7xl font-black text-oxford-blue tracking-tighter uppercase italic title-fredoka leading-none">
+               INSTITUTIONAL <span className="text-orange-500 underline decoration-dashed underline-offset-[12px]">STANDINGS</span>
+             </h1>
+             <p className="text-slate-400 font-black uppercase tracking-widest text-[11px] italic">Verified Elite Operational Standings • Top Technical Talent</p>
           </div>
         </div>
 
-        <div className="space-y-4">
+        {/* Global Ranking Archive */}
+        <div className="space-y-8 pb-10">
           {users.map((user, index) => (
             <motion.div
               key={user.id}
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
+              transition={{ delay: index * 0.08 }}
             >
-              <Card3D className="glass-panel !bg-white/5 border-white/5 hover:border-indigo-500/30 transition-all rounded-[32px] group overflow-hidden">
-                <div className="flex items-center justify-between p-6 sm:p-8 relative">
-                  <div className="absolute top-0 right-0 w-32 h-full bg-gradient-to-l from-indigo-600/5 to-transparent pointer-events-none" />
-                  
-                  <div className="flex items-center gap-6 sm:gap-10">
-                    <div className="w-12 flex justify-center flex-shrink-0">
-                      {index < 3 ? (
-                        <div className={`relative ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-gray-300' : 'text-amber-600'}`}>
-                           <Crown className="w-10 h-10 drop-shadow-lg" fill="currentColor" />
-                           <span className="absolute -bottom-1 -right-1 text-[10px] bg-black/80 px-1.5 rounded-md font-black italic border border-white/10">#{index+1}</span>
-                        </div>
-                      ) : (
-                        <span className="text-2xl font-black text-gray-700 italic group-hover:text-indigo-400 transition-colors">#{index + 1}</span>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center gap-4 sm:gap-6 overflow-hidden">
-                      <div className={`w-14 h-14 rounded-2xl flex-shrink-0 flex items-center justify-center text-xl font-black text-white shadow-2xl transition-transform group-hover:rotate-6
-                        ${index === 0 ? 'bg-gradient-to-br from-yellow-400 to-orange-600 shadow-orange-500/20' : 
-                          index === 1 ? 'bg-gradient-to-br from-slate-400 to-gray-600 shadow-gray-400/20' :
-                          index === 2 ? 'bg-gradient-to-br from-amber-600 to-brown-800 shadow-amber-800/20' :
-                          'bg-white/5 border border-white/10 shadow-indigo-500/10'}`}
-                      >
-                        {user.name.charAt(0).toUpperCase()}
+              <div className={`sketch-card bg-white p-6 sm:p-10 border-oxford-blue flex flex-col sm:flex-row items-center justify-between gap-8 h-full transition-all hover:-translate-y-1 cursor-help group
+                ${index === 0 ? 'shadow-[12px_12px_0px_0px_#FF5722]' : 
+                  index === 1 ? 'shadow-[10px_10px_0px_0px_#94a3b8]' :
+                  index === 2 ? 'shadow-[10px_10px_0px_0px_#92400e]' :
+                  'shadow-[8px_8px_0px_0px_#cbd5e1]'}`}
+              >
+                <div className="flex items-center gap-8 sm:gap-12 w-full sm:w-auto">
+                  {/* Rank Indicator Badge */}
+                  <div className="w-16 flex-shrink-0 flex justify-center">
+                    {index < 3 ? (
+                      <div className="relative group/rank cursor-pointer">
+                         <div className={`h-12 w-12 icon-circle-sketch border-[3px] border-oxford-blue flex items-center justify-center transition-all
+                           ${index === 0 ? 'bg-orange-500 text-white' : index === 1 ? 'bg-slate-200 text-oxford-blue' : 'bg-amber-800 text-white'}`}
+                         >
+                            <Crown className="w-6 h-6" />
+                         </div>
+                         <span className="absolute -bottom-2 -right-2 text-[11px] bg-oxford-blue text-white px-2 py-0.5 font-black italic border-2 border-white title-fredoka">
+                           #{index + 1}
+                         </span>
                       </div>
-                      <div className="min-w-0">
-                        <h3 className="text-xl font-black text-white italic truncate group-hover:text-indigo-400 transition-colors">
-                          {user.name.toUpperCase()}
-                        </h3>
-                        <div className="flex items-center gap-2 text-[9px] text-gray-500 font-bold uppercase tracking-widest mt-1">
-                          <span className="flex items-center gap-1"><Award className="w-3 h-3" /> {user.badges?.length || 0} Badges</span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> {user.quizzesAttempted?.length || 0} Cycles</span>
-                        </div>
-                      </div>
-                    </div>
+                    ) : (
+                      <span className="text-3xl font-black text-slate-300 italic title-fredoka group-hover:text-oxford-blue transition-colors leading-none tracking-tighter">
+                        #{index + 1}
+                      </span>
+                    )}
                   </div>
-   
-                  <div className="text-right flex-shrink-0 space-y-1">
-                    <div className="text-2xl sm:text-3xl font-black text-white italic leading-none tracking-tighter">
-                      {user.totalPoints?.toLocaleString()}
+                  
+                  {/* Identity Fragment */}
+                  <div className="flex items-center gap-6 sm:gap-8 overflow-hidden">
+                    <div className={`h-20 w-20 icon-circle-sketch border-[3px] border-oxford-blue p-1 flex-shrink-0 transition-all ${index === 0 ? 'shadow-[4px_4px_0px_0px_#FF5722]' : 'shadow-[4px_4px_0px_0px_#cbd5e1]'}`}>
+                       <div className="w-full h-full bg-oxford-blue rounded-full flex items-center justify-center text-white font-black text-3xl title-fredoka relative overflow-hidden">
+                          {user.name.charAt(0).toUpperCase()}
+                          <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                       </div>
                     </div>
-                    <div className="text-[8px] font-black text-indigo-400 uppercase tracking-[0.2em]">
-                      XP METRIC
+                    <div className="min-w-0 space-y-2">
+                      <h3 className="text-2xl font-black text-oxford-blue italic truncate title-fredoka tracking-tighter">
+                        {user.name.toUpperCase()}
+                      </h3>
+                      <div className="flex items-center gap-4 text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] italic">
+                        <span className="flex items-center gap-2 border-b-[2px] border-slate-50 transition-colors group-hover:text-orange-500">
+                          <Award className="w-4 h-4 text-oxford-blue" /> {user.badges?.length || 0} BADGES
+                        </span>
+                        <span className="flex items-center gap-2 border-b-[2px] border-slate-50 transition-colors group-hover:text-orange-500">
+                          <Zap className="w-4 h-4 text-oxford-blue" /> {user.quizzesAttempted?.length || 0} CYCLES
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </Card3D>
+ 
+                {/* Performance Metric Output */}
+                <div className="w-full sm:w-auto text-center sm:text-right space-y-2 border-t sm:border-t-0 sm:border-l-[3px] border-dashed border-slate-100 pt-6 sm:pt-0 sm:pl-10">
+                  <div className="text-4xl sm:text-5xl font-black text-oxford-blue italic leading-none tracking-tighter title-fredoka">
+                    {user.totalPoints?.toLocaleString()}
+                  </div>
+                  <div className="text-[10px] font-black text-orange-500 uppercase tracking-[0.4em] italic leading-none">
+                    XP_METRIC_AGGREGATE
+                  </div>
+                </div>
+
+                {/* Tactical Status Badge (Corner) */}
+                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-10 transition-opacity">
+                   <Microscope className="w-12 h-12 text-oxford-blue rotate-12" />
+                </div>
+              </div>
             </motion.div>
           ))}
 
           {users.length === 0 && (
-            <div className="text-center py-20 glass-panel rounded-[3rem] border-white/5">
-              <p className="text-gray-600 font-bold uppercase tracking-widest text-xs">No active identities detected in this sector.</p>
+            <div className="text-center py-32 sketch-card bg-white border-oxford-blue border-dashed shadow-[15px_15px_0px_0px_#cbd5e1]">
+              <Beaker className="w-20 h-20 text-slate-200 mx-auto mb-8" />
+              <p className="text-slate-400 font-black uppercase tracking-[0.4em] text-xs italic px-10 leading-loose">
+                 "No verified technical identities detected within these institutional parameters."
+              </p>
             </div>
           )}
         </div>

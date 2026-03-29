@@ -1,110 +1,81 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Dancing+Script:wght@400;700&family=Cinzel:wght@400;700;900&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #6C63FF;
-  --color-secondary: #4FC3F7;
-  --color-success: #4CAF50;
-  --color-warning: #FFB300;
-  --color-day-bg: #F5F7FB;
-  --color-card-bg: #FFFFFF;
-  
-  --animate-shimmer: shimmer 2s linear infinite;
-  @keyframes shimmer {
-    from { transform: translateX(-100%); }
-    to { transform: translateX(100%); }
-  }
+  --color-oxford-blue: #002D72;
+  --color-vibrant-orange: #FF5722;
+  --color-sketch-slate: #F1F5F9;
 }
 
 @layer base {
   body {
-    @apply antialiased transition-colors duration-500 selection:bg-indigo-500/30;
-    @apply bg-[#020617] text-slate-100;
-    font-family: 'Outfit', sans-serif;
+    @apply antialiased transition-all duration-500 selection:bg-orange-500/20;
+    @apply bg-slate-50 text-slate-900 overflow-x-hidden;
+    font-family: 'Inter', sans-serif;
     letter-spacing: -0.01em;
     
+    /* Notebook Paper Effect */
     background-image: 
-      radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%), 
-      radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.08) 0px, transparent 50%), 
-      radial-gradient(at 100% 100%, rgba(30, 64, 175, 0.08) 0px, transparent 50%), 
-      radial-gradient(at 0% 100%, rgba(67, 56, 202, 0.08) 0px, transparent 50%);
-    background-size: 200% 200%;
+      linear-gradient(rgba(0, 45, 114, 0.05) 1px, transparent 1px);
+    background-size: 100% 32px;
     background-attachment: fixed;
-    animation: gradient-move 20s ease infinite;
-  }
-  
-  @keyframes gradient-move {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
   }
 
-  /* Premium Scrollbar */
+  h1, h2, h3, h4, .brand-font {
+    font-family: 'Fredoka', sans-serif;
+    @apply tracking-tight font-bold text-oxford-blue;
+  }
+
+  /* Premium Sketch Scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
+    width: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: rgba(2, 6, 23, 0.8);
+    background: #f1f5f9;
   }
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, #6366f1, #a855f7);
-    border-radius: 10px;
-    border: 2px solid rgba(2, 6, 23, 0.8);
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(to bottom, #4f46e5, #9333ea);
+    background: #002D72;
+    border: 3px solid #f1f5f9;
+    border-radius: 20px;
   }
 
-  /* Utilities */
-  /* Utilities Expansion */
-  .glass-panel {
-    @apply bg-[#0a0b14]/60 backdrop-blur-2xl transition-all duration-500 ease-out;
-    @apply border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.8)];
+  /* Sketch Card (Neubrutalist Academic) */
+  .sketch-card {
+    @apply bg-white border-[3px] border-oxford-blue shadow-[6px_6px_0px_0px_#FF5722] transition-all duration-300 rounded-3xl overflow-hidden cursor-default;
   }
-  .glass-panel:hover {
-    @apply bg-[#0a0b14]/80 shadow-[0_12px_48px_0_rgba(79,70,229,0.15)];
-    @apply border-white/10;
-  }
-  
-  .glass-card {
-    @apply bg-white/5 backdrop-blur-lg border border-white/5 transition-all duration-500 ease-out;
-  }
-  .glass-card:hover {
-    @apply border-indigo-500/30 bg-white/10 shadow-[0_0_30px_rgba(99,102,241,0.2)];
-    @apply -translate-y-1;
+  .sketch-card:hover {
+    @apply shadow-[8px_8px_0px_0px_#FF5722] -translate-x-1 -translate-y-1;
   }
 
-  .glow-border {
-    position: relative;
-    overflow: hidden;
-  }
-  .glow-border::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: linear-gradient(to bottom right, rgba(255,255,255,0.15), transparent, rgba(99,102,241,0.4));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
+  /* Strategic Buttons */
+  .btn-sketch {
+    @apply px-8 py-4 bg-oxford-blue hover:bg-oxford-blue/90 text-white font-black text-xs uppercase tracking-widest rounded-2xl transition-all active:translate-y-1 active:shadow-none flex items-center justify-center gap-3 shadow-[4px_4px_0px_0px_#FF5722] border-[2px] border-oxford-blue;
   }
 
-  .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-white via-indigo-400 to-purple-600;
+  .btn-sketch-outline {
+    @apply px-8 py-4 bg-white hover:bg-slate-50 text-oxford-blue font-black text-xs uppercase tracking-widest rounded-2xl transition-all active:translate-y-1 active:shadow-none border-[2px] border-oxford-blue shadow-[4px_4px_0px_0px_#cbd5e1];
   }
 
-  .perspective-elite {
-    perspective: 2000px;
-    transform-style: preserve-3d;
+  .text-gradient-sketch {
+    @apply text-oxford-blue font-black;
   }
 
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
+  .badge-sketch {
+    @apply px-3 py-1 bg-orange-100 border-2 border-orange-500 text-orange-600 font-black text-[9px] uppercase tracking-widest rounded-lg;
   }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+
+  .icon-circle-sketch {
+    @apply w-12 h-12 rounded-full border-[3px] border-oxford-blue flex items-center justify-center bg-slate-50 text-oxford-blue;
+  }
+
+  .sketch-grid {
+    background-size: 20px 20px;
+    background-image: 
+      linear-gradient(to right, rgba(0, 45, 114, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 45, 114, 0.03) 1px, transparent 1px);
+  }
+
+  [data-scroll-container] {
+    @apply overflow-hidden;
   }
 }

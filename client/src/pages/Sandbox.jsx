@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Code2, Play, RefreshCw, Layers, Monitor, Smartphone, Terminal, Save, Trash2, ShieldCheck, Zap } from 'lucide-react';
+import { Code2, Play, RefreshCw, Layers, Monitor, Smartphone, Terminal, Save, Trash2, ShieldCheck, Zap, Beaker, ChevronRight, Microscope } from 'lucide-react';
 
 const Sandbox = () => {
-  const [html, setHtml] = useState('<!-- Code your dream here -->\n<div class="hello">Hello SoloLearn!</div>\n\n<style>\n  body { background: #0f1020; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }\n  .hello { font-size: 3rem; font-weight: 900; background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.5)); }\n</style>');
-  const [js, setJs] = useState('// JavaScript Logic\nconsole.log("Welcome to SoloLearn Sandbox!");\ndocument.querySelector(".hello").innerText = "Interactive Mode ON";');
+  const [html, setHtml] = useState('<!-- Laboratory Sandbox v2.5 -->\n<div class="academy-node">PROJECT: FUTURE ENGINEERING</div>\n\n<style>\n  body { background: #F8FAFC; color: #002D72; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: "Fredoka", sans-serif; }\n  .academy-node { \n    font-size: 3rem; \n    font-weight: 900; \n    background: white; \n    color: #002D72; \n    padding: 2rem 4rem;\n    border: 4px solid #002D72;\n    box-shadow: 10px 10px 0px 0px #FF5722;\n    transform: rotate(-1deg);\n    text-transform: uppercase;\n  }\n</style>');
+  const [js, setJs] = useState('// Scripting Protocol Initialized\nconsole.log("Academy Lab Ready.");\n// document.querySelector(".academy-node").innerText = "AUTHORIZED ACCESS";');
   const [srcDoc, setSrcDoc] = useState('');
   const [activeTab, setActiveTab] = useState('html');
 
@@ -12,6 +12,9 @@ const Sandbox = () => {
     const timeout = setTimeout(() => {
       setSrcDoc(`
         <html>
+          <head>
+            <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&display=swap" rel="stylesheet">
+          </head>
           <body>${html}</body>
           <script>${js}</script>
         </html>
@@ -21,98 +24,144 @@ const Sandbox = () => {
     return () => clearTimeout(timeout);
   }, [html, js]);
 
+  const handleReset = () => {
+    if(window.confirm('PROTOCOL WARNING: This will purge all active laboratory data. Proceed?')) {
+       setHtml('<!-- Resetting Lab... -->');
+       setJs('// Purged.');
+    }
+  };
+
   return (
-    <div className="min-h-screen pt-24 pb-8 px-4 flex flex-col bg-[#0a0b14]">
-      {/* Sandbox Header */}
-      <div className="max-w-7xl mx-auto w-full mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-indigo-400 font-bold mb-2">
-            <Zap className="w-4 h-4" />
-            SoloLearn Interactive Playground
+    <div className="min-h-screen pt-24 pb-12 px-6 flex flex-col bg-slate-50 relative overflow-hidden">
+      {/* Academy Sketch Background Patterns */}
+      <div className="absolute inset-0 sketch-grid opacity-5 pointer-events-none" />
+      
+      {/* Sandbox Header: Institutional Branding */}
+      <div className="max-w-[1700px] mx-auto w-full mb-10 flex flex-wrap items-end justify-between gap-6 relative z-10">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-oxford-blue text-white text-[9px] font-black uppercase tracking-[0.2em] border-2 border-oxford-blue shadow-[3px_3px_0px_0px_#FF5722]">
+            <Beaker className="w-3 h-3 text-orange-400" />
+            RESEARCH EVALUATION NODE: 1024
           </div>
-          <h1 className="text-3xl font-black text-white">Code <span className="text-indigo-400">Sandbox</span> v2.0</h1>
+          <h1 className="text-4xl sm:text-5xl font-black text-oxford-blue italic title-fredoka uppercase tracking-tighter">
+            LABORATORY: <span className="text-orange-500">CODE SANDBOX</span>
+          </h1>
         </div>
         
-        <div className="flex items-center gap-3">
-          <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 mr-4">
+        <div className="flex items-center gap-4">
+          <div className="flex bg-white p-1.5 border-[3px] border-oxford-blue shadow-[5px_5px_0px_0px_#cbd5e1]">
             <button 
               onClick={() => setActiveTab('html')}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'html' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-gray-500 hover:text-white'}`}
+              className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'html' ? 'bg-oxford-blue text-white shadow-[3px_3px_0px_0px_#FF5722]' : 'text-slate-400 hover:text-oxford-blue'}`}
             >
-              HTML/CSS
+              STRUCTURE / STYLE
             </button>
             <button 
               onClick={() => setActiveTab('js')}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${activeTab === 'js' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30' : 'text-gray-500 hover:text-white'}`}
+              className={`px-6 py-2 text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'js' ? 'bg-oxford-blue text-white shadow-[3px_3px_0px_0px_#FF5722]' : 'text-slate-400 hover:text-oxford-blue'}`}
             >
-              JS Logic
+              LOGIC PROTOCOL
             </button>
           </div>
           
-          <button className="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all border border-transparent hover:border-white/10" title="Save Project">
-            <Save className="w-5 h-5" />
-          </button>
-          <button className="p-2 text-gray-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all border border-transparent hover:border-red-500/20" title="Reset All">
-            <Trash2 className="w-5 h-5" />
-          </button>
+          <div className="flex gap-3">
+            <button className="icon-circle-sketch h-12 w-12 border-[3px] bg-white hover:shadow-[5px_5px_0px_0px_#FF5722]" title="Save Research">
+              <Save className="w-5 h-5 text-oxford-blue" />
+            </button>
+            <button 
+              onClick={handleReset}
+              className="icon-circle-sketch h-12 w-12 border-[3px] bg-white hover:bg-orange-50 hover:border-orange-500 transition-all" title="Purge Lab"
+            >
+              <Trash2 className="w-5 h-5 text-slate-400 hover:text-orange-500" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Main Sandbox Area */}
-      <div className="flex-1 max-w-[1700px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-6 pb-6">
-        {/* Editor Area */}
-        <div className="glass-panel border-white/5 rounded-[2rem] overflow-hidden flex flex-col min-h-[500px]">
-          <div className="bg-white/5 border-b border-white/5 px-6 py-4 flex items-center justify-between">
+      {/* Main Laboratory Area */}
+      <div className="flex-1 max-w-[1700px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-10 relative z-10">
+        
+        {/* Editor Area (The Module Input) */}
+        <motion.div 
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="sketch-card bg-[#001D4A] border-oxford-blue shadow-[12px_12px_0px_0px_#FF5722] flex flex-col min-h-[500px] overflow-hidden"
+        >
+          <div className="bg-oxford-blue border-b-[3px] border-oxford-blue px-8 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Terminal className="w-4 h-4 text-indigo-400" />
-              <span className="text-xs font-black uppercase tracking-widest text-gray-400">{activeTab.toUpperCase()} Editor</span>
+              <Terminal className="w-5 h-5 text-orange-400" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white italic">
+                {activeTab === 'html' ? 'STRUCTURAL_MARKUP.EXE' : 'LOGIC_CORE.SYSTEM'}
+              </span>
             </div>
-            <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-red-400/50"></div>
-              <div className="w-2 h-2 rounded-full bg-amber-400/50"></div>
-              <div className="w-2 h-2 rounded-full bg-emerald-400/50"></div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full border-2 border-white/20"></div>
+              <div className="w-3 h-3 rounded-full border-2 border-white/20"></div>
+              <div className="w-3 h-3 rounded-full bg-orange-500"></div>
             </div>
           </div>
           
           <textarea
-            className="flex-1 w-full bg-transparent p-6 text-indigo-300 font-mono text-sm resize-none focus:outline-none scrollbar-thin scrollbar-thumb-white/10"
+            className="flex-1 w-full bg-transparent p-10 text-orange-200 font-mono text-sm resize-none focus:outline-none scrollbar-sketch placeholder-white/20"
             value={activeTab === 'html' ? html : js}
             onChange={(e) => activeTab === 'html' ? setHtml(e.target.value) : setJs(e.target.value)}
             spellCheck="false"
+            placeholder={activeTab === 'html' ? "Enter HTML/CSS Protocol..." : "Enter Logic Flow..."}
           />
-        </div>
+        </motion.div>
 
-        {/* Preview Area */}
-        <div className="glass-panel border-white/5 rounded-[2rem] overflow-hidden flex flex-col bg-white">
-          <div className="bg-gray-100 border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        {/* Evaluation Area (The Live Output) */}
+        <motion.div 
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="sketch-card border-oxford-blue shadow-[12px_12px_0px_0px_#cbd5e1] flex flex-col bg-white overflow-hidden"
+        >
+          <div className="bg-slate-50 border-b-[3px] border-oxford-blue px-8 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Monitor className="w-4 h-4 text-gray-400" />
-              <span className="text-xs font-black uppercase tracking-widest text-gray-500 underline decoration-indigo-400/50 decoration-2 underline-offset-4">Live Preview</span>
+              <Monitor className="w-5 h-5 text-oxford-blue" />
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-oxford-blue italic underline decoration-orange-400 decoration-[3px] underline-offset-4">
+                REAL_TIME_EVALUATION.OUT
+              </span>
             </div>
-            <div className="flex items-center gap-2">
-              <Smartphone className="w-4 h-4 text-gray-400 hover:text-indigo-500 cursor-pointer" />
-              <Layers className="w-4 h-4 text-gray-400 hover:text-indigo-500 cursor-pointer" />
-              <RefreshCw className="w-4 h-4 text-emerald-500 animate-spin-slow cursor-pointer" onClick={() => setSrcDoc(srcDoc)} />
+            <div className="flex items-center gap-4 text-slate-400">
+               <div className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-emerald-500">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+                  ACTIVE_LINK
+               </div>
+               <div className="h-6 w-[2px] bg-slate-200" />
+               <Smartphone className="w-4 h-4 hover:text-oxford-blue cursor-pointer transition-colors" />
+               <RefreshCw className="w-4 h-4 hover:text-oxford-blue cursor-pointer transition-all active:rotate-180" onClick={() => setSrcDoc(srcDoc)} />
             </div>
           </div>
           
-          <iframe
-            srcDoc={srcDoc}
-            title="output"
-            sandbox="allow-scripts"
-            frameBorder="0"
-            width="100%"
-            height="100%"
-            className="flex-1 bg-white"
-          />
-        </div>
+          <div className="flex-1 p-2 bg-slate-100 flex items-center justify-center">
+             <div className="w-full h-full bg-white border-[2px] border-oxford-blue overflow-hidden relative shadow-inner">
+                <iframe
+                  srcDoc={srcDoc}
+                  title="Laboratory Output"
+                  sandbox="allow-scripts"
+                  frameBorder="0"
+                  width="100%"
+                  height="100%"
+                  className="w-full h-full"
+                />
+             </div>
+          </div>
+        </motion.div>
       </div>
       
-      {/* Bottom Info */}
-      <div className="max-w-7xl mx-auto w-full text-center group">
-         <p className="text-gray-600 text-[10px] uppercase font-bold tracking-[0.2em] group-hover:text-indigo-400 transition-colors">
-            Powered by SoloLearn Infinity Engine &copy; 2026. <ShieldCheck className="w-3 h-3 inline-block ml-1" />
-         </p>
+      {/* Institutional Benchmarks Info */}
+      <div className="max-w-[1700px] mx-auto w-full mt-12 flex items-center justify-between gap-6 border-t-[3px] border-dashed border-slate-200 pt-8 group">
+         <div className="flex items-center gap-4">
+            <Microscope className="w-6 h-6 text-oxford-blue opacity-50" />
+            <p className="text-slate-400 text-[10px] uppercase font-black tracking-[0.2em] italic">
+               Institutional Practice Module Authorized &copy; 2026. Data Persistence Status: <span className="text-orange-500">VOLATILE</span>
+            </p>
+         </div>
+         <div className="flex items-center gap-2 text-[9px] font-black text-oxford-blue uppercase tracking-widest px-4 py-2 border-[2px] border-oxford-blue shadow-[3px_3px_0px_0px_#cbd5e1] group-hover:shadow-[3px_3px_0px_0px_#FF5722] transition-all bg-white cursor-help">
+            <ShieldCheck className="w-4 h-4 text-orange-400" />
+            Security Protocol Valid
+         </div>
       </div>
     </div>
   );

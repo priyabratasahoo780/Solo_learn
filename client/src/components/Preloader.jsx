@@ -1,18 +1,18 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, Cpu, Globe, Shovel, ShieldCheck, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { BookOpen, Sparkles, Cpu, Target, Zap, GraduationCap } from 'lucide-react';
 
 const Preloader = ({ onFinish }) => {
   const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState('Initializing SoloLearn V2.0...');
+  const [status, setStatus] = useState('Initializing Academy Protocols...');
   
   const statuses = [
-    'Syncing AI Architect...',
-    'Calibrating MNC Meeting Rooms...',
-    'Entering BattleGround Arena...',
-    'Optimizing Neural Networks...',
-    'Preparing Elite Roadmaps...',
-    'Platform Ready.'
+    'Mapping Academic Modules...',
+    'Calibrating Recruitment Intel...',
+    'Synchronizing Research Papers...',
+    'Initializing Neural Workspace...',
+    'Deploying Engineering Heuristics...',
+    'Study Session Ready.'
   ];
 
   useEffect(() => {
@@ -20,106 +20,113 @@ const Preloader = ({ onFinish }) => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(interval);
-          setTimeout(onFinish, 800);
+          setTimeout(onFinish, 1000);
           return 100;
         }
         return prev + 1;
       });
-    }, 30);
+    }, 25);
 
     const statusInterval = setInterval(() => {
       setStatus(statuses[Math.floor(Math.random() * statuses.length)]);
-    }, 800);
-
-    // Fail-safe: Force finish if progress is stuck
-    const failSafe = setTimeout(() => {
-      setProgress(100);
-      setTimeout(onFinish, 500);
-    }, 8000);
+    }, 900);
 
     return () => {
       clearInterval(interval);
       clearInterval(statusInterval);
-      clearTimeout(failSafe);
     };
   }, []);
 
   return (
     <motion.div 
-      exit={{ opacity: 0, scale: 1.1 }}
-      className="fixed inset-0 z-[9999] bg-[#05060b] flex flex-col items-center justify-center overflow-hidden"
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      className="fixed inset-0 z-[10000] bg-slate-50 flex flex-col items-center justify-center overflow-hidden"
     >
-      {/* Background Glows */}
-      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-indigo-600/20 blur-[120px] rounded-full animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-purple-600/20 blur-[120px] rounded-full animate-pulse delay-700" />
+      {/* Notebook Paper Lines overlay */}
+      <div className="absolute inset-0 sketch-grid opacity-20 pointer-events-none" />
+      <div className="absolute inset-x-0 h-full flex flex-col pointer-events-none opacity-5">
+        {[...Array(40)].map((_, i) => (
+          <div key={i} className="h-[32px] border-b border-oxford-blue" />
+        ))}
+      </div>
 
-      <div className="relative z-10 text-center">
-        {/* Animated Brand Logo */}
+      <div className="relative z-10 text-center max-w-lg w-full px-8">
+        {/* Animated Academic Icon */}
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0, rotate: -10 }}
+          animate={{ 
+            scale: [0.8, 1.1, 1],
+            opacity: 1,
+            rotate: [0, 5, -5, 0]
+          }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+          className="w-24 h-24 bg-white border-[3px] border-oxford-blue rounded-full shadow-[8px_8px_0px_0px_#FF5722] flex items-center justify-center mx-auto mb-12 relative"
+        >
+          <div className="absolute inset-0 rounded-full border-[3px] border-dashed border-oxford-blue/20 animate-spin-slow" style={{ animationDuration: '10s' }} />
+          <GraduationCap className="w-10 h-10 text-oxford-blue" />
+        </motion.div>
+
+        {/* Brand Presence */}
         <motion.div 
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
           className="mb-12"
         >
-          <div className="relative w-24 h-24 mx-auto mb-6">
-             <div className="absolute inset-0 border-2 border-indigo-500/20 rounded-3xl rotate-45" />
-             <motion.div 
-               animate={{ rotate: 360 }}
-               transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-               className="absolute inset-0 border-2 border-t-indigo-500 rounded-3xl rotate-45" 
-             />
-             <div className="absolute inset-0 flex items-center justify-center">
-                <Zap className="w-10 h-10 text-indigo-400 fill-indigo-400" />
-             </div>
-          </div>
-          <h1 className="text-4xl font-black text-white tracking-tighter uppercase italic">
-            Solo<span className="text-indigo-500">Learn</span>
+          <h1 className="text-4xl font-black text-oxford-blue italic tracking-tighter uppercase leading-none">
+            SOLO<span className="text-orange-500">LEARN</span>
           </h1>
-          <div className="text-[10px] text-gray-500 font-bold uppercase tracking-[0.5em] mt-2">Elite Edition</div>
+          <div className="flex items-center justify-center gap-2 mt-3">
+             <div className="h-[2px] w-8 bg-oxford-blue/10" />
+             <span className="text-[10px] text-slate-500 font-black uppercase tracking-[0.4em]">Academic Sketch Hub</span>
+             <div className="h-[2px] w-8 bg-oxford-blue/10" />
+          </div>
         </motion.div>
 
-        {/* Progress System */}
-        <div className="max-w-[280px] w-full mx-auto">
-           <div className="flex justify-between items-end mb-4 px-1">
-              <div className="text-[10px] text-indigo-400 font-bold uppercase tracking-widest animate-pulse">
-                {status}
+        {/* Progress System (Neubrutalist) */}
+        <div className="w-full space-y-6">
+           <div className="flex justify-between items-end px-2">
+              <div className="flex flex-col items-start gap-1">
+                <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest">Protocol Status</span>
+                <div className="text-xs text-oxford-blue font-black uppercase tracking-tight h-5 overflow-hidden">
+                  <motion.div
+                    key={status}
+                    initial={{ y: 20 }}
+                    animate={{ y: 0 }}
+                    className="flex items-center gap-2"
+                  >
+                    <Sparkles className="w-3 h-3 text-orange-500" />
+                    {status}
+                  </motion.div>
+                </div>
               </div>
-              <div className="text-xl font-black text-white italic">
+              <div className="text-3xl font-black text-oxford-blue italic tabular-nums">
                 {progress}%
               </div>
            </div>
-           <div className="h-1 bg-white/5 rounded-full overflow-hidden border border-white/5">
+           
+           <div className="h-6 bg-white border-[3px] border-oxford-blue rounded-2xl shadow-[6px_6px_0px_0px_#FF5722] overflow-hidden p-[3px]">
               <motion.div 
-                className="h-full bg-indigo-500"
+                className="h-full bg-oxford-blue rounded-xl relative overflow-hidden"
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
                 transition={{ duration: 0.1 }}
-              />
+              >
+                 <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.1)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.1)_50%,rgba(255,255,255,0.1)_75%,transparent_75%,transparent)] bg-[length:20px_20px] animate-shimmer" />
+              </motion.div>
            </div>
         </div>
-      </div>
 
-      {/* Floating Elements */}
-      <div className="absolute inset-0 pointer-events-none opacity-20">
-         {[...Array(20)].map((_, i) => (
-           <motion.div 
-             key={i}
-             initial={{ 
-               x: Math.random() * window.innerWidth, 
-               y: Math.random() * window.innerHeight,
-               scale: Math.random() * 0.5
-             }}
-             animate={{ 
-               y: [null, Math.random() * -100],
-               opacity: [0, 1, 0]
-             }}
-             transition={{ 
-               duration: Math.random() * 5 + 5, 
-               repeat: Infinity,
-               ease: "linear"
-              }}
-             className="w-1 h-1 bg-white rounded-full"
-           />
-         ))}
+        {/* Study Advice */}
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="mt-12 text-[10px] text-slate-400 font-bold uppercase tracking-widest max-w-[200px] mx-auto leading-relaxed"
+        >
+          Pro Tip: Use the AI Tutor to break down monolithic code architectures.
+        </motion.p>
       </div>
     </motion.div>
   );

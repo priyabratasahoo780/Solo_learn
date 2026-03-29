@@ -1,38 +1,43 @@
+import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
+import AITutor from './AITutor';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster } from 'react-hot-toast';
-import GlobalSearch from './GlobalSearch';
-import { useState } from 'react';
 
+// [SKETCH ACADEMY] Force Refresh - UI Overhaul V2
 const Layout = ({ children }) => {
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-
-  const toastStyle = {
-    background: 'rgba(30, 41, 59, 0.9)',
-    backdropFilter: 'blur(8px)',
-    color: '#f8fafc',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-  };
-
   return (
-    <div className="min-h-screen bg-[#05060b] font-sans text-gray-900 dark:text-gray-100 selection:bg-indigo-500/30 transition-colors duration-300 flex">
-      {/* Fixed Sidebar */}
+    <div className="min-h-screen flex bg-slate-50 text-oxford-blue selection:bg-orange-500/20 relative overflow-x-hidden">
+      {/* Primary Strategic Sidebar */}
       <Navbar />
-      
-      {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 transition-all duration-300 pt-[72px] lg:pt-0 lg:pl-[288px]">
-        <div className="flex-1 py-8 sm:py-12 px-4 sm:px-10 lg:px-20 w-screen sm:w-full max-w-[1600px] mx-auto overflow-x-hidden">
-          {children}
+
+      {/* Main Study Arena */}
+      <main className="flex-1 flex flex-col min-w-0 transition-all duration-500 lg:pl-72 relative z-10">
+        <div className="flex-1 w-full max-w-[1600px] mx-auto p-4 sm:p-8 lg:p-12">
+          <AnimatePresence mode="wait">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className="w-full h-full"
+            >
+              {children || <Outlet />}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
 
+      {/* Integrated Academic Assistant */}
+      <AITutor />
+
       <Toaster 
-        position="bottom-right" 
+        position="top-center" 
         toastOptions={{ 
-          style: toastStyle,
-          className: 'glass-panel border-white/10 text-white rounded-2xl font-bold text-xs' 
+          duration: 4000,
+          className: 'sketch-card border-[3px] border-oxford-blue text-oxford-blue bg-white rounded-2xl font-black text-xs px-6 py-4 shadow-[4px_4px_0px_0px_#FF5722]' 
         }} 
       />
-      <GlobalSearch isOpen={isSearchOpen} onClose={setIsSearchOpen} />
     </div>
   );
 };

@@ -1,10 +1,7 @@
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { generateAIContent } = require('../utils/aiService');
 const { getStaticResponse } = require('../utils/aiHelpers');
-
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 // @desc    Ask AI Tutor a question
 // @route   POST /api/ai/ask
@@ -29,7 +26,6 @@ exports.askTutor = asyncHandler(async (req, res, next) => {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     const TutorContext = require('../models/TutorContext.model');
     
     // Fetch and Initialize Context if needed
@@ -53,9 +49,8 @@ exports.askTutor = asyncHandler(async (req, res, next) => {
       Student Question: ${question}
     `;
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const answer = response.text();
+
+    const answer = await generateAIContent(prompt);
 
     res.status(200).json({
       success: true,
@@ -99,10 +94,6 @@ exports.generateQuiz = asyncHandler(async (req, res, next) => {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: { responseMimeType: "application/json" }
-    });
 
     const prompt = `
       Create a high-quality technical quiz about "${topic}" for level "${difficulty}".
@@ -123,13 +114,7 @@ exports.generateQuiz = asyncHandler(async (req, res, next) => {
       }
     `;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
-
-    const result = await model.generateContent(prompt);
-    clearTimeout(timeout);
-    const response = await result.response;
-    const quizData = JSON.parse(response.text());
+    const quizData = await generateAIContent(prompt, true);
 
     res.status(200).json({
       success: true,

@@ -1,5 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
-import { Bot, Send, User, X, Sparkles, Copy, Check, Terminal, Code, GitBranch, Database } from 'lucide-react';
+import { 
+  Bot, Send, User, X, Sparkles, Copy, Check, 
+  Terminal, Code, GitBranch, Database, BookOpen,
+  MessageSquare, ChevronRight, Maximize2, Minimize2,
+  ArrowRight
+} from 'lucide-react';
 import api from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -7,8 +12,12 @@ import rehypeHighlight from 'rehype-highlight';
 
 const AITutor = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Hello! I am your AI Code Tutor. Ask me anything about JavaScript, React, CSS, Python, SQL, or Git!' }
+    { 
+      role: 'assistant', 
+      content: '### Strategic Academic Briefing\nI am your **Sketch Academy Assistant**. I specialize in decomposing complex engineering patterns into executable study modules.\n\nReady to begin your session?' 
+    }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,10 +25,10 @@ const AITutor = () => {
   const messagesEndRef = useRef(null);
 
   const quickActions = [
-    { label: 'Explain React Hooks', icon: <Code className="w-3.5 h-3.5" /> },
-    { label: 'Git Workflow help', icon: <GitBranch className="w-3.5 h-3.5" /> },
-    { label: 'Python basics', icon: <Terminal className="w-3.5 h-3.5" /> },
-    { label: 'SQL query example', icon: <Database className="w-3.5 h-3.5" /> },
+    { label: 'Deep Breakdown', icon: <BookOpen className="w-3.5 h-3.5" /> },
+    { label: 'Code Review', icon: <Code className="w-3.5 h-3.5" /> },
+    { label: 'Architecture', icon: <Database className="w-3.5 h-3.5" /> },
+    { label: 'Exam Mode', icon: <Sparkles className="w-3.5 h-3.5" /> },
   ];
 
   const scrollToBottom = () => {
@@ -46,7 +55,7 @@ const AITutor = () => {
       setMessages(prev => [...prev, botMessage]);
     } catch (err) {
       console.error('AI Tutor Error:', err);
-      const errorMessage = err.response?.data?.message || 'Sorry, I encountered an error. Please try again.';
+      const errorMessage = '### Connectivity Intelligence\nOperating in **Local Cache Mode**. High-fidelity generative signals are currently experiencing atmospheric interference.\n\nReference our core modules for continued progress.';
       setMessages(prev => [...prev, { role: 'assistant', content: errorMessage }]);
     } finally {
       setLoading(false);
@@ -59,99 +68,109 @@ const AITutor = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const MarkdownComponents = {
-    code({ node, inline, className, children, ...props }) {
-      const match = /language-(\w+)/.exec(className || '');
-      const codeText = String(children).replace(/\n$/, '');
-      const id = Math.random().toString(36).substr(2, 9);
-
-      return !inline && match ? (
-        <div className="relative group my-4">
-          <div className="absolute right-2 top-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-            <button
-              onClick={() => copyToClipboard(codeText, id)}
-              className="p-1.5 bg-gray-800/80 text-white rounded-md hover:bg-gray-700 backdrop-blur-sm border border-white/10"
-              title="Copy code"
-            >
-              {copiedId === id ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
-            </button>
-          </div>
-          <code className={className} {...props}>
-            {children}
-          </code>
-        </div>
-      ) : (
-        <code className={className} {...props}>
-          {children}
-        </code>
-      );
-    }
-  };
-
   return (
     <>
-      {/* Floating Button */}
+      {/* Strategic Toggle Button */}
       <motion.button
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60] w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-full shadow-2xl flex items-center justify-center text-white hover:scale-110 transition-transform"
+        className="fixed bottom-10 right-10 z-[70] w-16 h-16 bg-oxford-blue rounded-full shadow-[4px_4px_0px_0px_#FF5722] flex items-center justify-center text-white border-[3px] border-white hover:scale-110 active:scale-95 transition-all"
         onClick={() => setIsOpen(!isOpen)}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
+        whileHover={{ rotate: 15 }}
       >
-        {isOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Bot className="w-6 h-6 sm:w-7 sm:h-7" />}
-        {!isOpen && (
-          <span className="absolute -top-1 -right-1 flex h-4 w-4">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-4 w-4 bg-indigo-500"></span>
-          </span>
-        )}
+        <AnimatePresence mode="wait">
+          {isOpen ? (
+            <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
+              <X className="w-7 h-7" />
+            </motion.div>
+          ) : (
+            <motion.div key="bot" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
+              <Bot className="w-7 h-7" />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.button>
  
-      {/* Chat Window */}
+      {/* Sketch Assistant Workspace */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed bottom-20 right-4 left-4 sm:left-auto sm:right-6 z-[60] w-auto sm:w-96 h-[500px] sm:h-[550px] bg-white dark:bg-[#0f172a] rounded-3xl shadow-2xl border border-gray-200 dark:border-white/10 flex flex-col overflow-hidden"
+            initial={{ x: 500, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: 500, opacity: 0 }}
+            className={`fixed top-0 right-0 z-[65] h-screen bg-white border-l-[3px] border-oxford-blue flex flex-col transition-all duration-500 shadow-[-10px_0_40px_rgba(0,45,114,0.1)]
+              ${isExpanded ? 'w-[700px]' : 'w-full sm:w-[450px]'}`}
           >
-            {/* Header */}
-            <div className="p-4 bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center border border-white/10 backdrop-blur-sm">
-                <Sparkles className="w-5 h-5 text-yellow-300" />
+            {/* Academic Header */}
+            <div className="p-8 border-b-[3px] border-oxford-blue flex items-center justify-between bg-slate-50">
+              <div className="flex items-center gap-5">
+                <div className="icon-circle-sketch bg-white shadow-[3px_3px_0px_0px_#cbd5e1]">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-black text-oxford-blue text-lg uppercase tracking-tight leading-none italic">Academic Intel</h3>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest leading-none">Generative Strategy Active</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-white text-lg">AI Tutor</h3>
-                <p className="text-white/70 text-xs flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.5)]" />
-                  Online
-                </p>
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className="p-2.5 bg-white border-2 border-oxford-blue rounded-xl text-oxford-blue hover:bg-slate-50 transition-all active:translate-y-0.5 shadow-[2px_2px_0px_0px_#cbd5e1]"
+                >
+                  {isExpanded ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+                </button>
+                <button 
+                  onClick={() => setIsOpen(false)}
+                  className="p-2.5 bg-white border-2 border-oxford-blue rounded-xl text-oxford-blue hover:bg-slate-50 transition-all active:translate-y-0.5 shadow-[2px_2px_0px_0px_#cbd5e1]"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
               </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 scroll-smooth scrollbar-thin scrollbar-thumb-indigo-500/20">
+            {/* Study Feed */}
+            <div className="flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar sketch-grid">
               {messages.map((msg, index) => (
                 <div
                   key={index}
-                  className={`flex items-start gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+                  className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
                 >
-                  <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center border ${
-                    msg.role === 'assistant' 
-                      ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-500/20' 
-                      : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-700'
-                  }`}>
-                    {msg.role === 'assistant' ? <Bot className="w-5 h-5" /> : <User className="w-5 h-5" />}
-                  </div>
-                  <div className={`p-3.5 rounded-2xl text-sm ${
+                  <div className={`p-6 rounded-3xl text-sm leading-relaxed border-[3px] ${
                     msg.role === 'assistant'
-                      ? 'bg-gray-50 dark:bg-gray-800/50 text-gray-800 dark:text-gray-200 rounded-tl-none prose dark:prose-invert prose-sm max-w-[85%] border border-gray-100 dark:border-white/5'
-                      : 'bg-indigo-600 text-white rounded-tr-none max-w-[75%] shadow-lg shadow-indigo-500/20'
+                      ? 'bg-white text-slate-700 border-oxford-blue shadow-[6px_6px_0px_0px_#cbd5e1] prose prose-academy max-w-[90%]'
+                      : 'bg-oxford-blue text-white border-oxford-blue shadow-[4px_4px_0px_0px_#FF5722] max-w-[85%] font-bold'
                   }`}>
                     {msg.role === 'assistant' ? (
                       <ReactMarkdown 
                         rehypePlugins={[rehypeHighlight]}
-                        components={MarkdownComponents}
+                        components={{
+                          code({ node, inline, className, children, ...props }) {
+                            const match = /language-(\w+)/.exec(className || '');
+                            const codeText = String(children).replace(/\n$/, '');
+                            return !inline && match ? (
+                              <div className="relative group my-6">
+                                <div className="absolute right-4 top-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <button
+                                    onClick={() => copyToClipboard(codeText, 'code')}
+                                    className="p-2.5 bg-white text-oxford-blue rounded-xl border-2 border-oxford-blue shadow-[3px_3px_0px_0px_#cbd5e1] hover:bg-slate-50"
+                                  >
+                                    <Copy className="w-4 h-4" />
+                                  </button>
+                                </div>
+                                <div className="p-1 bg-oxford-blue/5 rounded-2xl">
+                                  <code className={`${className} block overflow-x-auto`} {...props}>
+                                    {children}
+                                  </code>
+                                </div>
+                              </div>
+                            ) : (
+                              <code className={`${className} bg-slate-100 px-1.5 py-0.5 rounded-md text-oxford-blue font-bold`} {...props}>
+                                {children}
+                              </code>
+                            );
+                          }
+                        }}
                       >
                         {msg.content}
                       </ReactMarkdown>
@@ -159,63 +178,58 @@ const AITutor = () => {
                       msg.content
                     )}
                   </div>
+                  <div className="mt-3 px-3 flex items-center gap-2">
+                    <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest">
+                      {msg.role === 'assistant' ? 'Academy Intelligence' : 'Student Transmission'}
+                    </span>
+                  </div>
                 </div>
               ))}
               
-              {messages.length === 1 && !loading && (
-                <div className="pt-2 animate-in fade-in slide-in-from-bottom-2 duration-700">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest pl-1 mb-2">Quick Actions</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {quickActions.map((action, i) => (
-                      <button
-                        key={i}
-                        onClick={() => handleSend(null, action.label)}
-                        className="flex items-center gap-2 p-2.5 text-left text-xs bg-gray-50 dark:bg-gray-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 border border-gray-100 dark:border-white/5 rounded-xl transition-all hover:scale-[1.02] active:scale-95 text-gray-600 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-300"
-                      >
-                        <span className="p-1 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
-                          {action.icon}
-                        </span>
-                        {action.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {loading && (
-                <div className="flex items-start gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center border border-indigo-200 dark:border-indigo-500/20">
-                    <Bot className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  </div>
-                  <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-2xl rounded-tl-none border border-gray-100 dark:border-white/5">
-                     <div className="flex gap-1.5">
-                        <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-                        <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-                        <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-bounce"></span>
-                     </div>
-                  </div>
+                <div className="flex items-center gap-4 p-5 bg-white rounded-2xl border-[3px] border-oxford-blue shadow-[4px_4px_0px_0px_#cbd5e1] w-fit">
+                   <div className="flex gap-2">
+                     <span className="w-2 h-2 bg-oxford-blue rounded-full animate-bounce [animation-delay:-0.3s]" />
+                     <span className="w-2 h-2 bg-oxford-blue rounded-full animate-bounce [animation-delay:-0.15s]" />
+                     <span className="w-2 h-2 bg-oxford-blue rounded-full animate-bounce" />
+                   </div>
+                   <span className="text-[10px] text-oxford-blue font-black uppercase tracking-widest">Processing Intelligence...</span>
                 </div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
-            <form onSubmit={handleSend} className="p-4 bg-white dark:bg-[#0f172a] border-t border-gray-100 dark:border-white/5">
-              <div className="relative flex items-center">
+            {/* Strategic Intervention Options */}
+            <div className="px-8 py-5 grid grid-cols-2 gap-4 border-t-[3px] border-oxford-blue bg-white">
+              {quickActions.map((action, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSend(null, action.label)}
+                  className="flex items-center gap-3 p-4 text-xs bg-slate-50 hover:bg-white border-[2px] border-oxford-blue rounded-2xl transition-all hover:translate-x-1 active:translate-y-0.5 text-oxford-blue font-black uppercase tracking-tight group shadow-[3px_3px_0px_0px_#cbd5e1]"
+                >
+                  <span className="group-hover:rotate-12 transition-transform">{action.icon}</span>
+                  <span className="truncate">{action.label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Academic Command Hub (Input) */}
+            <form onSubmit={handleSend} className="p-8 bg-slate-50 border-t-[3px] border-oxford-blue">
+              <div className="relative group">
                 <input
                   type="text"
-                  placeholder="Ask a coding question..."
+                  placeholder="Transmit academic query..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   disabled={loading}
-                  className="w-full bg-gray-50 dark:bg-[#1e293b] border border-gray-200 dark:border-gray-700/50 rounded-2xl py-3.5 pl-4 pr-12 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 text-gray-900 dark:text-white transition-all disabled:opacity-50"
+                  className="w-full bg-white border-[3px] border-oxford-blue rounded-2xl py-5 pl-8 pr-16 focus:outline-none focus:ring-4 focus:ring-oxford-blue/5 text-slate-800 transition-all font-bold placeholder:text-slate-300 shadow-[4px_4px_0px_0px_#cbd5e1]"
                 />
                 <button
                   type="submit"
                   disabled={!input.trim() || loading}
-                  className="absolute right-2 p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:hover:bg-indigo-600 transition-all active:scale-95 shadow-lg shadow-indigo-600/20"
+                  className="absolute right-3 top-3 p-3 bg-oxford-blue text-white rounded-xl hover:bg-oxford-blue/90 disabled:opacity-20 transition-all active:translate-y-1 shadow-[3px_3px_0px_0px_#FF5722]"
                 >
-                  <Send className="w-4 h-4" />
+                  <ArrowRight className="w-6 h-6" />
                 </button>
               </div>
             </form>

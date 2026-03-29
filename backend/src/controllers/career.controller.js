@@ -4,6 +4,7 @@ const MockInterview = require('../models/MockInterview.model');
 const User = require('../models/User.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
+const { generateAIContent } = require('../utils/aiService');
 
 // ─── OFFLINE FALLBACK GENERATOR ────────────────────────────────────────────────
 function generateOfflineRoadmap(dreamJob, targetCompany, context) {
@@ -106,29 +107,12 @@ exports.generateRoadmap = asyncHandler(async (req, res, next) => {
 
   // Try Gemini, fall back to offline generator on any error
   try {
-    const { GoogleGenerativeAI } = require('@google/generative-ai');
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: { responseMimeType: 'application/json' }
-    });
-
     const prompt = `You are the 'SoloLearn AI Career Architect'. Build a personalized 7-day starter roadmap.
 USER GOAL: "${dreamJob}"${targetCompany ? ` at ${targetCompany}` : ''}.
 USER PROFILE: ${JSON.stringify(context)}
 Return ONLY valid JSON: { "readinessScore": number, "analysis": { "strengths": string[], "weaknesses": string[], "recommendation": string }, "roadmap": [{ "day": number, "title": string, "tasks": [{ "taskType": "quiz"|"sandbox"|"interview"|"battle", "taskName": string, "isCompleted": false }] }] }`;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout
-    try {
-      const result = await model.generateContent(prompt);
-      clearTimeout(timeout);
-      const text = result.response.text();
-      roadmapData = JSON.parse(text);
-    } catch (e) {
-      clearTimeout(timeout);
-      throw e;
-    }
+    roadmapData = await generateAIContent(prompt, true);
   } catch (err) {
     // Offline Specialist Fallback
     roadmapData = generateOfflineRoadmap(dreamJob, targetCompany, context);

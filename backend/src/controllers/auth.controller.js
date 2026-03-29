@@ -247,6 +247,10 @@ exports.updateDetails = asyncHandler(async (req, res, next) => {
     email: req.body.email
   };
 
+  if (req.body.avatar !== undefined) {
+    fieldsToUpdate.avatar = req.body.avatar;
+  }
+
   const user = await User.findByIdAndUpdate(req.user.id, fieldsToUpdate, {
     new: true,
     runValidators: true

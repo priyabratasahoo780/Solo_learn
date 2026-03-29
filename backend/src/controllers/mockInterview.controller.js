@@ -1,9 +1,7 @@
 const MockInterview = require('../models/MockInterview.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const { generateAIContent } = require('../utils/aiService');
 
 // Personas mapping
 const PERSONAS = {
@@ -73,26 +71,17 @@ exports.chatWithRecruiter = asyncHandler(async (req, res, next) => {
 
   let aiResponse;
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const chat = model.startChat({
-      history: interview.transcript.slice(0, -1).map(msg => ({
-        role: msg.sender === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.message }]
-      })),
-      systemInstruction: `
+    const prompt = `
         You are an elite Recruiter Persona: ${interview.recruiterPersona} from ${interview.company}.
         Personality: ${PERSONAS[interview.company]?.personality || 'Professional and technical.'}.
         
+        Transcript History: ${JSON.stringify(interview.transcript.slice(0, -1))}
+        
         Conduct a technical interview. Ask one question at a time. Be concise.
-      `
-    });
-
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+        User Response: ${message}
+      `;
     
-    const result = await chat.sendMessage(message);
-    clearTimeout(timeout);
-    aiResponse = await result.response.text();
+    aiResponse = await generateAIContent(prompt);
   } catch (err) {
     console.error('AI Chat Error:', err.message);
     aiResponse = "That's an interesting perspective. Could you elaborate more on how you'd handle the trade-offs in that specific scenario?";
@@ -118,21 +107,10 @@ exports.finishInterview = asyncHandler(async (req, res, next) => {
 
   let scorecard;
   try {
-    const model = genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash',
-      generationConfig: { responseMimeType: "application/json" }
-    });
-
     const prompt = `Analyze transcript: ${JSON.stringify(interview.transcript)}. 
     Return JSON: { "technical": 0-100, "communication": 0-100, "cultureFit": 0-100, "summary": string, "verdict": "HIRE"|"NO-HIRE" }`;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000); // 10s for analysis
-    
-    const result = await model.generateContent(prompt);
-    clearTimeout(timeout);
-    const text = await result.response.text();
-    scorecard = JSON.parse(text);
+    scorecard = await generateAIContent(prompt, true);
   } catch (err) {
     console.error('Scorecard AI Error:', err.message);
     scorecard = generateFallbackScorecard(interview.transcript, interview.company);

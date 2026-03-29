@@ -1,9 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
-
 import { useGameLogic } from '../hooks/useGameLogic';
-import { Card3D } from '../components/Card3D';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, ArrowRight, RefreshCw, Trophy, Home } from 'lucide-react';
+import { 
+  Heart, ArrowRight, RefreshCw, Trophy, Home, 
+  ShieldCheck, AlertCircle, Camera, Timer, 
+  Zap, Award, CheckCircle2, XCircle, BookOpen,
+  Lock, Laptop, Activity, ChevronRight
+} from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { useEffect, useState, useRef } from 'react';
 import api from '../services/api';
@@ -59,7 +62,6 @@ const GameInterface = ({ quiz, navigate }) => {
     totalQuestions
   } = useGameLogic(quiz);
 
-  // Stage 1: Enable Camera
   const handleEnableCamera = async () => {
     try {
       const s = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -67,31 +69,26 @@ const GameInterface = ({ quiz, navigate }) => {
       setIsCameraActive(true);
     } catch (err) {
       console.error('Camera permission denied:', err);
-      alert('Camera access is REQUIRED for this test. Please enable it in your browser.');
+      toast.error('Camera access is REQUIRED for this examination.');
     }
   };
 
-  // Stage 2: Start Proctored Test
   const handleStartTest = async () => {
     try {
-      // 1. Request Fullscreen (Best effort, but required for proctoring)
       try {
         if (!document.fullscreenElement) {
           await document.documentElement.requestFullscreen();
         }
       } catch (fsErr) {
-        console.warn('Fullscreen request failed or denied:', fsErr);
-        // We continue anyway but warn the user if we can't proctor properly
+        console.warn('Fullscreen denied');
       }
 
-      // 2. Start Attempt in backend
       const { data } = await api.post(`/quizzes/${quiz._id}/start`);
       
       if (data.success) {
         setAttemptId(data.data.attemptId);
         setHasStarted(true);
 
-        // Handle EmailJS dispatch for Quiz Start
         if (data.data.shouldSendEmail && data.data.emailData) {
           emailService.sendQuizReport(
             user?.name || 'User',
@@ -99,39 +96,32 @@ const GameInterface = ({ quiz, navigate }) => {
             {
               quizTitle: data.data.emailData.quizTitle,
               category: data.data.emailData.category,
-              type: 'START_NOTIFICATION' // You can customize this in your EmailJS template
+              type: 'START_NOTIFICATION'
             }
           );
         }
-      } else {
-        throw new Error('Failed to start quiz attempt on server');
       }
     } catch (err) {
       if (err.response?.status === 403) {
         setIsLocked(true);
       } else {
-        console.error('Test Initialization Error:', err);
-        alert(`Failed to start test: ${err.message || 'Unknown error'}. Please try again.`);
+        console.error('Test Init Error:', err);
       }
     }
   };
 
-  // Attach stream to video element whenever it's available and component is rendered
   useEffect(() => {
     if (videoRef.current && stream) {
       videoRef.current.srcObject = stream;
-      videoRef.current.play().catch(e => console.error('Play error:', e));
     }
-  }, [stream, hasStarted, isCameraActive]);
+  }, [stream]);
 
-  // Clean up stream on unmount
   useEffect(() => {
     return () => {
       if (stream) stream.getTracks().forEach(track => track.stop());
     };
   }, [stream]);
 
-  // Fullscreen Enforcement (Only after test starts)
   useEffect(() => {
     const handleFullscreenChange = () => {
       if (hasStarted && !document.fullscreenElement && !isGameOver && !isCompleted) {
@@ -142,16 +132,12 @@ const GameInterface = ({ quiz, navigate }) => {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, [hasStarted, isGameOver, isCompleted]);
 
-  // Violation Reporting
   const reportViolation = async (type) => {
     if (!attemptId || isGameOver || isCompleted) return;
-    
     try {
       const { data } = await api.post(`/quizzes/attempts/${attemptId}/violation`, { type });
       setViolations(data.violationCount);
-      
       if (data.isTerminated) {
-        // Instant Lockout
         setIsLocked(true);
         setHasStarted(false);
       } else {
@@ -159,11 +145,10 @@ const GameInterface = ({ quiz, navigate }) => {
         setShowWarning(true);
       }
     } catch (err) {
-      console.error('Failed to report violation', err);
+      console.error('Violation Error', err);
     }
   };
 
-  // Visibility & Blur Detection
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden && hasStarted && !isGameOver && !isCompleted) {
@@ -184,403 +169,264 @@ const GameInterface = ({ quiz, navigate }) => {
     };
   }, [hasStarted, isGameOver, isCompleted]);
 
-  // Anti-Inspect & DevTools Detection
-  useEffect(() => {
-    if (!hasStarted || isGameOver || isCompleted) return;
-
-    // 1. Detect DevTools via Window Resize
-    const checkDevToolsResize = () => {
-      const threshold = 160;
-      const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-      const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-      
-      if (widthThreshold || heightThreshold) {
-        // DevTools likely opened as a side/bottom panel
-        window.location.href = '/'; // Nuclear option: Force redirect to home
-      }
-    };
-
-    // 2. Detect via Debugger Loop
-    const debuggerProtection = () => {
-      const startTime = performance.now();
-      // eslint-disable-next-line no-debugger
-      debugger; 
-      const endTime = performance.now();
-      if (endTime - startTime > 100) {
-        // Debugger paused execution, DevTools is active
-        window.location.href = '/';
-      }
-    };
-
-    const resizeInterval = setInterval(checkDevToolsResize, 1000);
-    const debugInterval = setInterval(debuggerProtection, 2000);
-
-    // 3. Prevent keyboard shortcuts (Aggressive)
-    const handleKeyDown = (e) => {
-      const forbiddenKeys = ['F12', 'u', 'i', 'j', 'c'];
-      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-      const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
-      const shift = e.shiftKey;
-      const alt = e.altKey;
-
-      // Block F12
-      if (e.key === 'F12') {
-        e.preventDefault();
-        window.location.href = '/';
-        return;
-      }
-
-      // Block Ctrl+U (View Source)
-      if (cmdOrCtrl && e.key.toLowerCase() === 'u') {
-        e.preventDefault();
-        window.location.href = '/';
-        return;
-      }
-
-      // Block Ctrl+Shift+I/J/C
-      if (cmdOrCtrl && shift && (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'j' || e.key.toLowerCase() === 'c')) {
-        e.preventDefault();
-        window.location.href = '/';
-        return;
-      }
-
-      // Block Alt+Cmd+I (Mac)
-      if (isMac && cmdOrCtrl && alt && (e.key.toLowerCase() === 'i' || e.key.toLowerCase() === 'j' || e.key.toLowerCase() === 'c')) {
-        e.preventDefault();
-        window.location.href = '/';
-        return;
-      }
-    };
-
-    // 4. Prevent Right Click & Copy/Paste
-    const preventDefaults = (e) => {
-      e.preventDefault();
-      return false;
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('contextmenu', preventDefaults);
-    window.addEventListener('copy', preventDefaults);
-    window.addEventListener('cut', preventDefaults);
-    window.addEventListener('paste', preventDefaults);
-
-    return () => {
-      clearInterval(resizeInterval);
-      clearInterval(debugInterval);
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('contextmenu', preventDefaults);
-      window.removeEventListener('copy', preventDefaults);
-      window.removeEventListener('cut', preventDefaults);
-      window.removeEventListener('paste', preventDefaults);
-    };
-  }, [hasStarted, isGameOver, isCompleted]);
-
   if (isLocked) {
     return (
-      <div className="fixed inset-0 z-[200] bg-[#0a0f1a] flex items-center justify-center p-4">
-        {/* Subtle background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-600/10 blur-[120px] rounded-full pointer-events-none" />
-        
-        <Card3D className="relative w-full max-w-md bg-[#131b2b] border-2 border-red-500/30 p-10 text-center space-y-8 shadow-2xl shadow-red-900/20">
-          <div className="w-24 h-24 bg-red-600/10 rounded-full flex items-center justify-center mx-auto border border-red-500/20">
-            <Trophy className="w-12 h-12 text-red-500" />
+      <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }} 
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full sketch-card p-12 bg-white border-rose-500 shadow-[10px_10px_0px_0px_#002D72] text-center space-y-8"
+        >
+          <div className="icon-circle-sketch h-24 w-24 mx-auto bg-rose-50 border-rose-500 shadow-[6px_6px_0px_0px_#cbd5e1]">
+            <XCircle className="w-12 h-12 text-rose-600" />
           </div>
           
           <div className="space-y-3">
-            <h2 className="text-4xl font-black text-white tracking-tight">Access Denied</h2>
-            <p className="text-gray-400 text-lg leading-relaxed">
-              Your account is locked out for <span className="text-red-400 font-bold">3 days</span> due to multiple cheating violations.
+            <h2 className="text-3xl font-black text-oxford-blue italic tracking-tighter uppercase leading-none">Access Restricted</h2>
+            <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px] bg-rose-50 p-4 border-2 border-dashed border-rose-200 rounded-xl leading-relaxed">
+              Detection of <span className="text-rose-600">Cheating Violations</span>. Academic access suspended for 72 hours.
             </p>
           </div>
 
           <button 
             onClick={() => navigate('/quizzes')} 
-            className="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl transition-all shadow-lg shadow-red-600/25 uppercase tracking-widest active:scale-[0.98]"
+            className="btn-sketch w-full py-5 text-sm bg-rose-600 border-oxford-blue"
           >
-            Back to Quizzes
+            EXIT EXAM ROOM
           </button>
-        </Card3D>
+        </motion.div>
       </div>
     );
   }
 
-  // Entrance Screen (Two-Stage Start)
   if (!hasStarted) {
     return (
-      <div className="max-w-2xl mx-auto py-12 px-4 space-y-8">
+      <div className="max-w-4xl mx-auto py-12 px-4 space-y-12">
         <div className="text-center space-y-4">
-           <h1 className="text-4xl font-black text-white tracking-tight">Secure Exam Gateway</h1>
-           <p className="text-gray-400 max-w-lg mx-auto">This test uses advanced proctoring. Please confirm your identity and environment before starting.</p>
+           <div className="badge-sketch">PROCTORING NODE: SECURE</div>
+           <h1 className="text-5xl font-black text-oxford-blue italic tracking-tighter uppercase leading-none">
+              EXAM <span className="text-orange-500">GATEWAY</span>
+           </h1>
+           <p className="text-slate-500 font-bold uppercase tracking-[0.15em] text-[10px] max-w-lg mx-auto">
+              Identity verification and environment validation required before study assessment begins.
+           </p>
         </div>
 
-        {/* Live Preview / Placeholder */}
-        <div className="relative group">
-           <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-           <div className="relative bg-gray-900 rounded-2xl overflow-hidden border border-white/10 aspect-video flex items-center justify-center shadow-2xl">
-              {isCameraActive ? (
-                <>
-                  <video 
-                    ref={videoRef} 
-                    autoPlay 
-                    muted 
-                    playsInline 
-                    className="w-full h-full object-cover" 
-                  />
-                  {/* Scanning Animation */}
-                  <motion.div 
-                    initial={{ top: '-10%' }}
-                    animate={{ top: '110%' }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    className="absolute left-0 right-0 h-1 bg-indigo-500/50 shadow-[0_0_20px_rgba(99,102,241,0.8)] z-10"
-                  />
-                  <div className="absolute top-4 left-4 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/20">
-                    <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                    <span className="text-[10px] text-white font-black uppercase tracking-widest">System Ready</span>
-                  </div>
-                </>
-              ) : (
-                <div className="text-center space-y-4 p-8">
-                   <div className="w-20 h-20 bg-gray-800 rounded-full flex items-center justify-center mx-auto border border-white/10">
-                      <RefreshCw className="w-10 h-10 text-gray-500" />
-                   </div>
-                   <p className="text-gray-500 font-medium">Camera preview will appear here</p>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+          <div className="sketch-card bg-white border-oxford-blue shadow-[12px_12px_0px_0px_#cbd5e1] aspect-video flex flex-col items-center justify-center relative overflow-hidden group">
+            <div className="absolute inset-0 sketch-grid opacity-10" />
+            
+            {isCameraActive ? (
+              <>
+                <video 
+                  ref={videoRef} 
+                  autoPlay 
+                  muted 
+                  playsInline 
+                  className="w-full h-full object-cover mirror" 
+                />
+                <motion.div 
+                  initial={{ top: '-10%' }}
+                  animate={{ top: '110%' }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                  className="absolute left-0 right-0 h-[3px] bg-orange-500 shadow-[0_0_15px_#FF5722] z-10"
+                />
+                <div className="absolute top-4 left-4 badge-sketch bg-oxford-blue text-white shadow-[3px_3px_0px_0px_#FF5722]">
+                  STREAMING: 1080P
                 </div>
-              )}
-           </div>
-        </div>
-
-        <Card3D className="glass-card flex flex-col">
-           <div className="p-5 sm:p-10 space-y-8">
-              <div className="space-y-8">
-                {/* Test Instructions & Rules */}
-                <div className="space-y-4">
-                   <h2 className="text-xl sm:text-2xl font-black text-indigo-400 uppercase tracking-widest text-center sm:text-left">Test Instructions & Rules</h2>
-                   <div className="space-y-3 text-sm sm:text-base text-gray-300 leading-relaxed bg-white/5 p-5 sm:p-6 rounded-2xl border border-white/5 shadow-inner">
-                      <p className="flex gap-3"><span className="text-indigo-500">•</span> The test will not start until you grant the required permissions.</p>
-                      <p className="flex gap-3"><span className="text-indigo-500">•</span> Once permission is given, the quiz will begin immediately.</p>
-                      <p className="flex gap-3"><span className="text-indigo-500">•</span> During the test, switching tabs or visiting other websites is strictly monitored.</p>
-                      <p className="flex gap-3"><span className="text-indigo-500">•</span> If you switch tabs more than 3 times, you will receive a warning.</p>
-                      <p className="flex gap-3"><span className="text-indigo-500">•</span> If this behavior continues beyond the allowed limit, the test will be automatically closed.</p>
-                      <p className="flex gap-3"><span className="text-indigo-500">•</span> In such a case, you will be restricted from accessing the test for 3 days.</p>
-                      <p className="flex gap-3"><span className="text-indigo-500">•</span> After 3 days, you will be allowed to take the test again.</p>
-                   </div>
-                </div>
-
-                {/* Examination Guidelines */}
-                <div className="space-y-4">
-                   <h2 className="text-xl sm:text-2xl font-black text-indigo-400 uppercase tracking-widest text-center sm:text-left">Examination Guidelines</h2>
-                   <div className="grid grid-cols-1 gap-4 bg-white/5 p-5 sm:p-6 rounded-2xl border border-white/5 shadow-inner">
-                      {[
-                        "The test will only begin after all required permissions are granted.",
-                        "Once permissions are approved, the exam will start immediately.",
-                        "Candidates must remain on the test screen throughout the duration of the exam.",
-                        "Any attempt to switch tabs, minimize the window, or navigate away will be recorded.",
-                        "A maximum of 3 such violations is allowed.",
-                        "Exceeding this limit will result in immediate termination of the test.",
-                        "In case of termination, the candidate will be restricted from accessing the exam for a period of 3 days.",
-                        "Access will be restored automatically after the restriction period."
-                      ].map((rule, idx) => (
-                        <div key={idx} className="flex gap-4 text-sm sm:text-base text-gray-400 group">
-                           <span className="text-indigo-500 font-black shrink-0 transition-transform group-hover:scale-110">{idx + 1}.</span>
-                           <span className="group-hover:text-gray-200 transition-colors">{rule}</span>
-                        </div>
-                      ))}
-                   </div>
-                </div>
-
-                <div className="bg-red-500/10 p-4 rounded-xl border border-red-500/20">
-                  <p className="text-center text-[10px] sm:text-xs text-red-400 font-black uppercase tracking-widest">
-                    ⚠️ Strict compliance is required to avoid instant disqualification
-                  </p>
-                </div>
+              </>
+            ) : (
+              <div className="text-center space-y-6 relative z-10">
+                 <div className="icon-circle-sketch h-20 w-20 mx-auto bg-slate-50 border-oxford-blue shadow-[4px_4px_0px_0px_#cbd5e1]">
+                    <Camera className="w-10 h-10 text-slate-300" />
+                 </div>
+                 <p className="text-slate-400 font-black uppercase tracking-widest text-[9px] italic">Hardware Initialization Pending</p>
               </div>
-           </div>
+            )}
+          </div>
 
-           <div className="p-6 sm:px-10 pb-8 border-t border-white/10 bg-gray-900/50 backdrop-blur-xl sticky bottom-0 z-20 rounded-b-2xl">
-              {!isCameraActive ? (
-                <button 
-                  onClick={handleEnableCamera}
-                  className="w-full py-5 bg-white text-gray-900 font-black rounded-2xl hover:bg-gray-100 transition-all shadow-xl active:scale-[0.98]"
-                >
-                  Permit Camera Access
-                </button>
-              ) : (
-                <button 
-                  onClick={handleStartTest}
-                  className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all shadow-xl shadow-indigo-600/25 active:scale-[0.98]"
-                >
-                  Start Proctored Test
-                </button>
-              )}
-           </div>
-        </Card3D>
+          <div className="sketch-card bg-orange-50 border-orange-500 shadow-[8px_8px_0px_0px_#002D72] p-8 space-y-8">
+             <div className="flex items-center gap-4 border-b-2 border-dashed border-orange-200 pb-4">
+                <ShieldCheck className="w-8 h-8 text-oxford-blue" />
+                <h3 className="text-xl font-black text-oxford-blue italic uppercase tracking-tighter">Academic Integrity</h3>
+             </div>
+             
+             <ul className="space-y-4">
+                {[
+                  "No tab switching or browser exits.",
+                  "Fullscreen mode mandatory throughout.",
+                  "Live proctoring active via terminal camera.",
+                  "Cheating results in 72hr institutional ban."
+                ].map((rule, i) => (
+                  <li key={i} className="flex gap-4 text-xs font-bold text-oxford-blue">
+                     <span className="text-orange-500 font-black">•</span> {rule}
+                  </li>
+                ))}
+             </ul>
+
+             <div className="pt-4">
+                {!isCameraActive ? (
+                  <button 
+                    onClick={handleEnableCamera}
+                    className="btn-sketch w-full py-4 text-xs"
+                  >
+                    INITIALIZE CAMERA ARRAY
+                  </button>
+                ) : (
+                  <button 
+                    onClick={handleStartTest}
+                    className="btn-sketch w-full py-4 text-xs bg-orange-500"
+                  >
+                    START RIGOROUS TEST
+                  </button>
+                )}
+             </div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  // Lives Display
-  const renderLives = () => (
-    <div className="flex gap-1.5 sm:gap-2">
-      {[1, 2, 3].map((i) => (
-        <motion.div
-           key={i}
-           animate={i > lives ? { scale: [1, 1.5, 0], opacity: 0 } : { scale: 1, opacity: 1 }}
-        >
-          <Heart 
-            className={`w-6 h-6 sm:w-8 sm:h-8 ${i <= lives ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} 
-          />
-        </motion.div>
-      ))}
-    </div>
-  );
-
-  // Results Screen
   if (isCompleted || isGameOver) {
     return (
-      <div className="max-w-full sm:max-w-xl mx-auto py-8 sm:py-12 px-4 sm:px-0">
-        <Card3D className="bg-white dark:bg-[#0f172a]/90 border-gray-200 dark:border-white/10 p-5 sm:p-8 text-center space-y-6 sm:space-y-8">
-            <motion.div 
-              initial={{ scale: 0, rotate: -180 }} 
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ type: "spring", bounce: 0.5 }}
-              className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-700/50 rounded-full flex items-center justify-center mx-auto relative"
+      <div className="max-w-3xl mx-auto py-16 flex items-center justify-center px-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} 
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full sketch-card p-12 lg:p-16 bg-white border-oxford-blue shadow-[12px_12px_0px_0px_#cbd5e1] relative overflow-hidden"
+        >
+          <div className="absolute inset-0 sketch-grid opacity-5 pointer-events-none" />
+          
+          <div className="absolute top-10 right-10">
+             <div className="badge-sketch bg-oxford-blue text-white shadow-[4px_4px_0px_0px_#FF5722]">
+                CERTIFIED RESULT
+             </div>
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center gap-10 mb-16 border-b-[3px] border-dashed border-slate-100 pb-12">
+             <div className="icon-circle-sketch h-24 w-24 bg-white border-oxford-blue shadow-[8px_8px_0px_0px_#cbd5e1]">
+                {isCompleted ? <Trophy className="w-12 h-12 text-yellow-500" /> : <Heart className="w-12 h-12 text-rose-500" />}
+             </div>
+             <div className="text-center md:text-left">
+                <h1 className="text-4xl font-black text-oxford-blue italic tracking-tighter uppercase leading-none mb-3">
+                  {isCompleted ? 'CHALLENGE CHAMPION' : 'ACADEMIC RE-EVALUATION'}
+                </h1>
+                <p className="text-slate-500 font-black uppercase tracking-[0.2em] text-[10px]">Simulation Protocol: {quiz.title.toUpperCase()}</p>
+             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-8 mb-16">
+             <div className="sketch-card p-8 bg-slate-50 border-[2px] text-center shadow-[4px_4px_0px_0px_#cbd5e1]">
+                <div className="text-4xl font-black mb-2 italic text-oxford-blue">{score}</div>
+                <div className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">CUMULATIVE SCORE</div>
+             </div>
+             <div className="sketch-card p-8 bg-slate-50 border-[2px] text-center shadow-[4px_4px_0px_0px_#cbd5e1]">
+                <div className={`text-4xl font-black mb-2 italic ${isCompleted ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  {isCompleted ? 'PASSED' : 'FAILED'}
+                </div>
+                <div className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">EXAM STATUS</div>
+             </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-6">
+            <button 
+              onClick={() => navigate('/quizzes')}
+              className="btn-sketch flex-1 py-5 text-sm bg-slate-100 border-oxford-blue text-oxford-blue shadow-none hover:bg-slate-200"
             >
-              <motion.div
-                 animate={{ scale: [1, 1.2, 1] }}
-                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                 className="absolute inset-0 bg-white/10 rounded-full"
-              />
-              {isCompleted ? <Trophy className="w-10 h-10 sm:w-12 sm:h-12 text-yellow-400 relative z-10" /> : <Heart className="w-10 h-10 sm:w-12 sm:h-12 text-red-500 relative z-10" />}
-            </motion.div>
-            
-            <div className="space-y-2">
-              <h2 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white">
-                {isCompleted ? 'Quiz Completed!' : 'Game Over'}
-              </h2>
-              <p className="text-lg sm:text-xl text-gray-600 dark:text-slate-300">
-                You scored <span className="text-indigo-600 dark:text-indigo-400 font-bold">{score}</span> points
-              </p>
-            </div>
- 
-            <div className="grid grid-cols-2 gap-2 sm:gap-4">
-               <div className="p-3 sm:p-4 rounded-xl bg-gray-700/50">
-                 <div className="text-[10px] sm:text-sm text-gray-400 uppercase">Correct</div>
-                 <div className="text-xl sm:text-2xl font-bold text-green-400">
-                   {isCompleted ? Math.round(score / quiz.pointsPerQuestion) : '—'} / {totalQuestions}
-                 </div>
-               </div>
-               <div className="p-3 sm:p-4 rounded-xl bg-gray-700/50">
-                 <div className="text-[10px] sm:text-sm text-gray-400 uppercase">Status</div>
-                 <div className={`text-xl sm:text-2xl font-bold ${isCompleted ? 'text-yellow-400' : 'text-red-400'}`}>
-                   {isCompleted ? 'Victory' : 'Defeated'}
-                 </div>
-               </div>
-            </div>
- 
-            <div className="flex flex-col gap-3 pt-4 sm:pt-6">
-              <button 
-                onClick={() => navigate('/quizzes')}
-                className="w-full py-3.5 sm:py-4 rounded-xl bg-gray-100 dark:bg-[#1e293b] text-gray-900 dark:text-white font-bold hover:bg-gray-200 dark:hover:bg-[#334155] transition-colors text-sm sm:text-base"
-              >
-                Back to Quizzes
-              </button>
-              <button 
-                onClick={() => navigate('/dashboard')}
-                className="w-full py-3.5 sm:py-4 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-500/25 text-sm sm:text-base"
-              >
-                Go to Dashboard
-              </button>
-            </div>
-        </Card3D>
+              MODULE ARCHIVE
+            </button>
+            <button 
+              onClick={() => navigate('/dashboard')}
+              className="btn-sketch flex-1 py-5 text-sm"
+            >
+              COMMAND CENTER
+            </button>
+          </div>
+        </motion.div>
       </div>
     );
   }
  
   return (
-    <div className="max-w-2xl mx-auto space-y-6 sm:space-y-8 pb-12 px-4 sm:px-0">
-      {/* Proctoring Header */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 bg-gray-900/50 border border-indigo-500/20 p-4 rounded-2xl shadow-xl backdrop-blur-md">
-        <div className="w-32 h-24 sm:w-40 sm:h-30 rounded-lg overflow-hidden border-2 border-indigo-500 shadow-lg relative">
+    <div className="max-w-4xl mx-auto space-y-10 pb-24 pt-4 px-4">
+      {/* Proctoring Hub */}
+      <div className="flex flex-col md:flex-row items-center gap-8 bg-white sketch-card p-6 border-oxford-blue shadow-[10px_10px_0px_0px_#FF5722]">
+        <div className="w-full md:w-56 aspect-video sketch-card bg-slate-50 border-oxford-blue shadow-[4px_4px_0px_0px_#cbd5e1] overflow-hidden relative">
           <video 
             ref={videoRef} 
             autoPlay 
             muted 
             playsInline 
-            className="w-full h-full object-cover bg-black" 
+            className="w-full h-full object-cover mirror" 
           />
-          <div className="absolute top-1 left-1 flex items-center gap-1.5 bg-black/50 px-1.5 py-0.5 rounded">
-            <div className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse" />
-            <span className="text-[8px] text-white font-bold uppercase tracking-tighter">LIVE</span>
+          <div className="absolute top-2 left-2 flex items-center gap-2 bg-oxford-blue text-white px-2 py-0.5 rounded text-[8px] font-black tracking-widest">
+            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse" />
+            LIVE STUDY
           </div>
         </div>
         
-        <div className="flex-1 flex flex-row sm:flex-col justify-between items-center sm:items-start w-full gap-2">
-           <div className="flex items-center gap-4">
-              {renderLives()}
-           </div>
-           <div className="flex items-center justify-between w-full mt-2">
-              <div className="text-indigo-400 text-xs sm:text-sm font-bold uppercase tracking-widest">
-                Question {currentQuestionIndex + 1}/{totalQuestions}
+        <div className="flex-1 w-full space-y-6">
+           <div className="flex items-center justify-between">
+              <div className="flex gap-2">
+                {[1, 2, 3].map((i) => (
+                  <Heart 
+                    key={i}
+                    className={`w-6 h-6 ${i <= lives ? 'fill-rose-500 text-rose-500' : 'text-slate-200'}`} 
+                  />
+                ))}
               </div>
-              <div className="px-3 py-1 bg-indigo-600/20 rounded-full text-indigo-400 font-mono font-bold text-xs">
-                {score} PTS
+              <div className="badge-sketch bg-oxford-blue text-white shadow-[2px_2px_0px_0px_#FF5722] text-[10px]">
+                {score} XP GAINED
+              </div>
+           </div>
+           
+           <div className="space-y-3">
+              <div className="flex items-center justify-between text-[10px] font-black text-oxford-blue uppercase tracking-widest leading-none">
+                <span>Modules {currentQuestionIndex + 1} of {totalQuestions}</span>
+                <span className="text-orange-500">{Math.round(((currentQuestionIndex + 1) / totalQuestions) * 100)}% COMPLETE</span>
+              </div>
+              <div className="h-3 w-full bg-slate-100 border-[2px] border-oxford-blue rounded-full overflow-hidden shadow-[3px_3px_0px_0px_#cbd5e1]">
+                <motion.div 
+                  className="h-full bg-orange-500 border-r-[2px] border-oxford-blue"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${((currentQuestionIndex + 1) / totalQuestions) * 100}%` }}
+                />
               </div>
            </div>
         </div>
       </div>
 
-      {/* Warning Overlay */}
+      {/* Warning Modal */}
       <AnimatePresence>
         {showWarning && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              className="bg-gray-900 border-2 border-red-500 rounded-2xl p-8 max-w-sm text-center shadow-2xl shadow-red-500/20"
-            >
-              <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Heart className="w-8 h-8 text-red-500 animate-bounce" />
+          <motion.div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-50/80 backdrop-blur-sm">
+            <motion.div className="sketch-card bg-white border-rose-500 p-10 max-w-sm text-center shadow-[10px_10px_0px_0px_#002D72]">
+              <div className="icon-circle-sketch h-16 w-16 mx-auto bg-rose-50 border-rose-500 mb-6">
+                <AlertCircle className="w-8 h-8 text-rose-600" />
               </div>
-              <h3 className="text-2xl font-bold text-white mb-2 uppercase tracking-wide">Warning!</h3>
-              <p className="text-gray-400 mb-6 font-medium">
-                {warningType === 'tab-switch' && "Tab switching is strictly forbidden!"}
-                {warningType === 'blur' && "Focus loss detected! Stay on the test window."}
-                {warningType === 'fullscreen-exit' && "Full-screen mode is required!"}
-                <br />
-                <span className="text-red-400 font-bold mt-2 block">Strike {violations} of 3</span>
+              <h3 className="text-2xl font-black text-oxford-blue italic uppercase mb-4">Integrity Violation</h3>
+              <p className="text-slate-500 font-bold text-xs mb-8">
+                {warningType === 'tab-switch' && "TAB SWITCH DETECTED."}
+                {warningType === 'focus-loss' && "LOSS OF FOCUS DETECTED."}
+                {warningType === 'fullscreen-exit' && "FULLSCREEN EXIT DETECTED."}
+                <br /><br />
+                <span className="text-rose-600 uppercase tracking-widest">Strike {violations} / 3</span>
               </p>
               <button 
                 onClick={() => {
                   setShowWarning(false);
                   document.documentElement.requestFullscreen().catch(e => console.error(e));
                 }}
-                className="w-full py-4 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl transition-all uppercase tracking-widest shadow-lg shadow-red-600/30"
+                className="btn-sketch w-full py-4 text-xs bg-rose-600 border-oxford-blue"
               >
-                I Understand
+                ACKNOWLEDGEMENT
               </button>
-              <p className="mt-4 text-[10px] text-gray-500 uppercase font-bold tracking-tighter">One more violation may result in a 3-day ban</p>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Progress Bar */}
-      <div className="h-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden shadow-inner relative">
-        <motion.div 
-          className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 shadow-[0_0_10px_rgba(99,102,241,0.5)] relative"
-          initial={{ width: 0 }}
-          animate={{ width: `${((currentQuestionIndex) / totalQuestions) * 100}%` }}
-        >
-           <div className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
-        </motion.div>
-      </div>
-
-      {/* Question Card */}
+      {/* Question Platform */}
       <AnimatePresence mode='wait'>
         <motion.div
            key={currentQuestionIndex}
@@ -588,77 +434,83 @@ const GameInterface = ({ quiz, navigate }) => {
            animate={{ opacity: 1, x: 0 }}
            exit={{ opacity: 0, x: -20 }}
         >
-          <Card3D className="glass-card p-5 sm:p-8 min-h-[350px] sm:min-h-[400px] flex flex-col justify-between">
-             <div className="space-y-4 sm:space-y-6">
-               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white leading-tight">
-                 {currentQuestion.question}
-               </h2>
+          <div className="sketch-card p-10 bg-white border-oxford-blue shadow-[12px_12px_0px_0px_#cbd5e1] min-h-[450px] flex flex-col justify-between relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-4 opacity-[0.03]">
+                <Zap className="w-32 h-32 text-oxford-blue" />
+             </div>
+
+             <div className="space-y-8 relative z-10">
+               <div className="space-y-4">
+                 <div className="badge-sketch bg-slate-100 text-oxford-blue border-oxford-blue">QUESTION_{currentQuestionIndex + 1}</div>
+                 <h2 className="text-3xl md:text-4xl font-black text-oxford-blue italic tracking-tighter leading-none title-fredoka">
+                   {currentQuestion.question}
+                 </h2>
+               </div>
                
-               <div className="space-y-3">
+               <div className="grid grid-cols-1 gap-5">
                    {currentQuestion.options.map((option, index) => {
-                   let stateStyles = "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-indigo-300 dark:bg-gray-700/50 dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-600";
+                   let stateStyles = "bg-white border-oxford-blue text-oxford-blue hover:shadow-[4px_4px_0px_0px_#FF5722] hover:-translate-y-0.5";
                    
                    if (selectedOption === index) {
-                     stateStyles = "bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-500/20 ring-2 ring-indigo-500/20";
+                     stateStyles = "bg-orange-500 text-white border-oxford-blue shadow-[4px_4px_0px_0px_#002D72] -translate-y-1";
                    }
                    
                    if (feedback) {
                       if (index === currentQuestion.answerIndex) {
-                        stateStyles = "bg-green-500/10 border-green-500 text-green-700 dark:text-green-300";
+                        stateStyles = "bg-emerald-50 text-emerald-700 border-emerald-500 shadow-[4px_4px_0px_0px_#cbd5e1]";
                       } else if (selectedOption === index) {
-                        stateStyles = "bg-red-500/10 border-red-500 text-red-700 dark:text-red-300";
+                        stateStyles = "bg-rose-50 text-rose-700 border-rose-500 shadow-[4px_4px_0px_0px_#cbd5e1]";
                       } else {
-                        stateStyles = "opacity-50 bg-gray-50 dark:bg-[#1e293b]/50 border-transparent text-gray-400";
+                        stateStyles = "opacity-40 grayscale pointer-events-none border-slate-200 text-slate-300";
                       }
                    }
 
                    return (
-                     <motion.button
+                     <button
                        key={index}
                        onClick={() => handleAnswer(index)}
                        disabled={!!feedback}
-                       whileHover={!feedback ? { scale: 1.02, x: 5 } : {}}
-                       whileTap={!feedback ? { scale: 0.98 } : {}}
-                       className={`w-full text-left p-4 rounded-xl border-2 font-medium transition-colors duration-200 relative overflow-hidden group/opt ${stateStyles}`}
+                       className={`w-full text-left p-6 rounded-2xl border-[3px] font-black transition-all flex items-center group shadow-[6px_6px_0px_0px_#cbd5e1] ${stateStyles}`}
                      >
-                        <span className={`opacity-70 mr-3 font-bold ${selectedOption === index ? 'text-white' : 'text-indigo-500 dark:text-indigo-400'}`}>
-                          {String.fromCharCode(65 + index)}.
+                        <span className={`h-8 w-8 rounded-lg border-2 border-current flex items-center justify-center mr-6 font-black italic text-xs ${selectedOption === index ? 'bg-white text-orange-500' : ''}`}>
+                          {String.fromCharCode(65 + index)}
                         </span>
                         {option}
-                     </motion.button>
+                     </button>
                    );
                  })}
                </div>
              </div>
 
-             {/* Footer / Explanation */}
+             {/* Dynamic Explanation Panel */}
              {feedback && (
                <motion.div
-                 initial={{ opacity: 0, y: 10 }}
+                 initial={{ opacity: 0, y: 15 }}
                  animate={{ opacity: 1, y: 0 }}
-                 className="mt-6 pt-6 border-t border-white/10"
+                 className="mt-10 pt-10 border-t-[3px] border-dashed border-slate-100 space-y-6"
                >
-                 <div className={`p-4 rounded-xl mb-4 ${feedback === 'correct' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
-                   <p className={`font-bold text-lg mb-1 ${feedback === 'correct' ? 'text-green-800 dark:text-green-400' : 'text-red-800 dark:text-red-400'}`}>
-                     {feedback === 'correct' ? 'Correct!' : 'Incorrect'}
-                   </p>
-                   {currentQuestion.explanation && (
-                     <p className="text-gray-700 dark:text-gray-300 text-sm">
-                       {currentQuestion.explanation}
-                     </p>
-                   )}
+                 <div className={`sketch-card p-6 border-[2px] ${feedback === 'correct' ? 'bg-emerald-50 border-emerald-500' : 'bg-rose-50 border-rose-500'}`}>
+                    <div className="flex items-center gap-3 mb-3">
+                       {feedback === 'correct' ? <CheckCircle2 className="w-6 h-6 text-emerald-600" /> : <XCircle className="w-6 h-6 text-rose-600" />}
+                       <h4 className="font-black italic uppercase italic tracking-tight text-oxford-blue">
+                          {feedback === 'correct' ? 'Session Optimization Successful' : 'Strategic Miscalculation'}
+                       </h4>
+                    </div>
+                    <p className="text-slate-600 font-bold text-sm italic leading-relaxed">
+                       "{currentQuestion.explanation || 'Protocol analyzed. Re-evaluating core concepts for next module.'}"
+                    </p>
                  </div>
                  
                  <button
                    onClick={nextQuestion}
-                   className="w-full py-4 rounded-xl bg-white text-gray-900 font-bold hover:bg-gray-100 flex items-center justify-center gap-2 transition-colors"
+                   className="btn-sketch w-full py-5 text-sm"
                  >
-                   {currentQuestionIndex < totalQuestions - 1 ? 'Next Question' : 'Finish Quiz'}
-                   <ArrowRight className="w-5 h-5" />
+                   {currentQuestionIndex < totalQuestions - 1 ? 'LOAD NEXT MODULE' : 'FINALIZE ASSESSMENT'}
+                   <ChevronRight className="w-6 h-6 ml-2 text-orange-400" />
                  </button>
                </motion.div>
              )}
-          </Card3D>
+          </div>
         </motion.div>
       </AnimatePresence>
     </div>

@@ -24,7 +24,6 @@ function App() {
             <SecurityWrapper>
               <Layout>
                 <AnimatedRoutes />
-                <AITutor />
               </Layout>
             </SecurityWrapper>
           </Router>

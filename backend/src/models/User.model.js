@@ -45,6 +45,10 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user'
   },
+  avatar: {
+    type: String, // Storing base64 encoded string directly
+    default: ''
+  },
   coins: {
     type: Number,
     default: 100  // Signup bonus so new users can immediately duel

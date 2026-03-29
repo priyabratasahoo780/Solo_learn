@@ -5,7 +5,8 @@ import {
   Zap, Trophy, Swords, Timer, Coins, 
   Users, User, ArrowRight, Play, 
   AlertCircle, CheckCircle2, X,
-  TrendingUp, Shield, Crown, Search
+  TrendingUp, Shield, Crown, Search,
+  ChevronRight, Beaker, ShieldCheck, Microscope, Rocket
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -75,280 +76,341 @@ const BattleGround = () => {
 
   if (duelStep === 'playing') {
      return (
-        <div className="min-h-screen bg-[#05060b] flex items-center justify-center p-4">
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 relative overflow-hidden">
+           <div className="absolute inset-0 sketch-grid opacity-10 pointer-events-none" />
            <motion.div 
              initial={{ scale: 0.9, opacity: 0 }}
              animate={{ scale: 1, opacity: 1 }}
-             className="max-w-xl w-full glass-panel p-12 text-center rounded-[3rem] border-indigo-500/20"
+             className="max-w-xl w-full flex flex-col items-center"
            >
-              <div className="w-20 h-20 bg-indigo-500/20 rounded-full flex items-center justify-center mx-auto mb-8 animate-pulse">
-                 <Swords className="w-10 h-10 text-indigo-400" />
+              <div className="sketch-card bg-white p-12 text-center border-oxford-blue shadow-[15px_15px_0px_0px_#FF5722] relative z-10 w-full space-y-8">
+                <div className="w-24 h-24 bg-oxford-blue border-[4px] border-oxford-blue shadow-[6px_6px_0px_0px_#FF5722] rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+                   <Swords className="w-12 h-12 text-white" />
+                </div>
+                <h2 className="text-4xl font-black text-oxford-blue italic uppercase tracking-tighter title-fredoka">Arena Initialized</h2>
+                <div className="p-4 bg-slate-50 border-[2px] border-dashed border-oxford-blue text-xs font-black text-slate-500 uppercase tracking-widest italic">
+                   "You are competing for <span className="text-orange-500 font-extrabold">{activeDuel.pointsWager * 2} Coins</span>. Accuracy and Time are your only allies."
+                </div>
+                
+                <button 
+                  onClick={() => {
+                     toast.success('Simulating Battle Launch...');
+                     setTimeout(() => setDuelStep('lobby'), 2000);
+                  }}
+                  className="btn-sketch w-full py-6 text-sm"
+                >
+                  ENTER COMBAT <ChevronRight className="w-6 h-6 ml-2 text-orange-400" />
+                </button>
               </div>
-              <h2 className="text-3xl font-black text-white mb-4 italic uppercase tracking-tighter">Arena Initialized</h2>
-              <p className="text-gray-500 mb-8 font-medium">You are competing for <span className="text-amber-500 font-black">{activeDuel.pointsWager * 2} Coins</span>. Accuracy and Time are your only allies.</p>
-              
-              <button 
-                onClick={() => {
-                   // In a real implementation, this would redirect to QuizPage with Battle context
-                   toast.success('Simulation: Redirecting to Battle Engine...');
-                   setTimeout(() => setDuelStep('lobby'), 2000);
-                }}
-                className="w-full py-5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl shadow-indigo-600/30 hover:scale-[1.02] transition-all"
-              >
-                Enter Combat
-              </button>
+              <div className="mt-8 text-[10px] text-slate-400 font-black uppercase tracking-[0.5em] italic">Authorized Battle Session Node: {activeDuel._id}</div>
            </motion.div>
         </div>
      );
   }
 
   return (
-    <div className="min-h-screen pt-24 pb-12 px-4 bg-[#0a0b14]">
-      <h1 className="sr-only">SoloLearn PvP BattleGround Arena - 1V1 Specialized Challenges</h1>
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen pt-24 pb-16 px-6 bg-slate-50 relative overflow-hidden">
+      {/* Academy Sketch Background Patterns */}
+      <div className="absolute inset-0 sketch-grid opacity-5 pointer-events-none" />
+      <h1 className="sr-only">Sketch Academy Valor Arena - Institutional PvP Challenges</h1>
+      
+      <div className="max-w-[1700px] mx-auto relative z-10 space-y-12">
         
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+        {/* Header Section: Institutional Branding */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8 border-b-[3px] border-dashed border-slate-200 pb-12">
            <motion.div 
-             initial={{ opacity: 0, x: -20 }}
+             initial={{ opacity: 0, x: -30 }}
              animate={{ opacity: 1, x: 0 }}
+             className="space-y-4"
            >
-              <h1 className="text-5xl font-black text-white tracking-tighter uppercase italic flex items-center gap-3">
-                 <Zap className="w-10 h-10 text-indigo-500 fill-indigo-500" />
-                 Battle<span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">Ground</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-oxford-blue text-white text-[9px] font-black uppercase tracking-[0.2em] border-2 border-oxford-blue shadow-[3px_3px_0px_0px_#FF5722]">
+                <Zap className="w-3 h-3 text-orange-400 fill-orange-400" />
+                VALOR_ARENA_PROTOCOL: 2.5
+              </div>
+              <h1 className="text-5xl sm:text-7xl font-black text-oxford-blue tracking-tighter uppercase italic title-fredoka leading-none">
+                 VALOR <span className="text-orange-500 underline decoration-dashed underline-offset-8">ARENA</span>
               </h1>
-              <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] mt-2">Elite 1V1 Competitive Arena • Wager & Win</p>
+              <p className="text-slate-400 font-black uppercase tracking-widest text-[11px] italic">Institutional 1V1 Specialized Competitive Arena • Wager & Win</p>
            </motion.div>
 
-           <div className="flex items-center gap-4">
-              <div className="glass-panel px-6 py-3 rounded-2xl border-white/5 flex items-center gap-3">
-                 <Coins className="w-5 h-5 text-amber-500" />
-                 <span className="text-white font-black">{user?.coins || 0}</span>
+           <div className="flex items-center gap-6">
+              <div className="sketch-card bg-white px-8 py-4 border-oxford-blue shadow-[6px_6px_0px_0px_#cbd5e1] flex items-center gap-4">
+                 <Coins className="w-6 h-6 text-orange-500" />
+                 <div className="flex flex-col">
+                    <span className="text-[8px] text-slate-400 font-black uppercase tracking-widest">Active Credits</span>
+                    <span className="text-xl font-black text-oxford-blue leading-none">{user?.coins || 0}</span>
+                 </div>
               </div>
               <button 
                 onClick={() => setShowCreateModal(true)}
-                className="px-8 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl shadow-indigo-600/20 transition-all flex items-center gap-2"
+                className="btn-sketch py-5 px-10 text-xs shadow-[8px_8px_0px_0px_#002D72] hover:shadow-[10px_10px_0px_0px_#FF5722]"
               >
-                <Swords className="w-4 h-4" /> Create Duel
+                <Swords className="w-5 h-5 mr-3 text-orange-400" /> CREATE DUEL
               </button>
            </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+        {/* Institutional Metrics (Stats) Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
            {[
-             { label: 'Battles Won', val: '12', icon: Trophy, color: 'text-indigo-400' },
-             { label: 'Win Rate', val: '68%', icon: TrendingUp, color: 'text-emerald-400' },
-             { label: 'Coins Earned', val: '2,450', icon: Coins, color: 'text-amber-400' },
-             { label: 'Global Rank', val: '#42', icon: Crown, color: 'text-rose-400' }
+             { label: 'BATTLES WON', val: '12', icon: Trophy, color: 'text-orange-500', shadow: 'shadow-[6px_6px_0px_0px_#FF5722]' },
+             { label: 'WIN RATE', val: '68%', icon: TrendingUp, color: 'text-oxford-blue', shadow: 'shadow-[6px_6px_0px_0px_#cbd5e1]' },
+             { label: 'COINS EARNED', val: '2,450', icon: Coins, color: 'text-oxford-blue', shadow: 'shadow-[6px_6px_0px_0px_#cbd5e1]' },
+             { label: 'GLOBAL RANK', val: '#42', icon: Crown, color: 'text-oxford-blue', shadow: 'shadow-[6px_6px_0px_0px_#cbd5e1]' }
            ].map((stat, i) => (
               <motion.div 
                 key={i}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
-                className="glass-panel p-6 rounded-[2.5rem] border-white/5 flex items-center gap-4"
+                className={`sketch-card bg-white p-6 border-oxford-blue ${stat.shadow} flex items-center gap-5 hover:scale-[1.02] transition-transform cursor-help group`}
               >
-                 <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/5">
-                    <stat.icon className={`w-6 h-6 ${stat.color}`} />
+                 <div className="h-14 w-14 icon-circle-sketch border-[2px] bg-slate-50 group-hover:bg-oxford-blue transition-colors">
+                    <stat.icon className={`w-7 h-7 ${stat.color} group-hover:text-white transition-colors`} />
                  </div>
-                 <div>
-                    <div className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">{stat.label}</div>
-                    <div className="text-xl font-black text-white">{stat.val}</div>
+                 <div className="space-y-1">
+                    <div className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] italic">{stat.label}</div>
+                    <div className="text-2xl font-black text-oxford-blue title-fredoka leading-none">{stat.val}</div>
                  </div>
               </motion.div>
            ))}
         </div>
 
-        {/* Duel Lobby */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Tactical Arena Interface */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
            
-           {/* Active Challenges List */}
-           <div className="lg:col-span-8 space-y-6">
+           {/* Active Duel Lobby (Institutional Record) */}
+           <div className="lg:col-span-8 space-y-10">
               <div className="flex justify-between items-center px-4">
-                 <h3 className="text-white font-black italic uppercase tracking-tighter">Active Lobby</h3>
-                 <span className="text-[10px] text-indigo-400 font-bold uppercase animate-pulse">Live Matchmaking...</span>
+                 <h3 className="text-2xl font-black text-oxford-blue italic uppercase tracking-tighter title-fredoka">Active Lobby <span className="text-orange-500 ml-1">Archive</span></h3>
+                 <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                    <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic animate-pulse">Live Deployment Scan...</span>
+                 </div>
               </div>
 
               {loading ? (
-                 Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="h-40 glass-panel rounded-[2.5rem] animate-pulse"></div>
-                 ))
-              ) : openChallenges.length === 0 ? (
-                 <div className="text-center py-20 glass-panel rounded-[3rem] border-white/5 bg-white/5">
-                    <Users className="w-12 h-12 text-gray-700 mx-auto mb-4" />
-                    <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px]">No active challenges. Create one to start the war.</p>
+                 <div className="space-y-6">
+                   {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="h-40 sketch-card bg-white border-oxford-blue opacity-50 animate-pulse"></div>
+                   ))}
                  </div>
-              ) : openChallenges.map((challenge, i) => (
-                 <motion.div 
-                   key={challenge._id}
-                   initial={{ opacity: 0, y: 10 }}
-                   animate={{ opacity: 1, y: 0 }}
-                   className="glass-panel p-8 rounded-[3rem] border-white/5 hover:border-indigo-500/20 group transition-all relative overflow-hidden flex flex-col sm:flex-row gap-8 items-center"
-                 >
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity" />
-                    
-                    {/* Challenger Info */}
-                    <div className="text-center sm:text-left min-w-[150px]">
-                       <div className="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full mx-auto sm:mx-0 p-1 mb-4 shadow-xl">
-                          <div className="w-full h-full bg-[#0a0b14] rounded-full flex items-center justify-center text-white font-black">
-                             {challenge.challenger?.name?.charAt(0).toUpperCase()}
-                          </div>
-                       </div>
-                       <h4 className="text-white font-black tracking-tight">{challenge.challenger?.name}</h4>
-                       <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Wants War</span>
-                    </div>
-
-                    {/* Quiz/Arena Info */}
-                    <div className="flex-1 text-center sm:text-left">
-                       <div className="flex items-center justify-center sm:justify-start gap-2 mb-2">
-                          <span className="text-[10px] text-indigo-400 font-black uppercase bg-indigo-400/10 px-3 py-1 rounded-full border border-indigo-400/20">
-                             {challenge.quizId?.category || 'General'}
-                          </span>
-                       </div>
-                       <h3 className="text-xl font-black text-white mb-2">{challenge.quizId?.title}</h3>
-                       <div className="flex items-center justify-center sm:justify-start gap-4 text-gray-500">
-                          <div className="flex items-center gap-1.5 text-xs font-bold">
-                             <Timer className="w-4 h-4 text-indigo-400" /> 10 mins
-                          </div>
-                          <div className="flex items-center gap-1.5 text-xs font-bold">
-                             <Coins className="w-4 h-4 text-amber-500" /> {challenge.pointsWager} Wager
-                          </div>
-                       </div>
-                    </div>
-
-                    {/* Action */}
-                    <button 
-                      onClick={() => acceptChallenge(challenge._id)}
-                      className="px-8 py-4 bg-white/5 hover:bg-emerald-500 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl border border-white/5 group-hover:border-emerald-500/50 transition-all flex items-center gap-2"
+              ) : openChallenges.length === 0 ? (
+                 <div className="text-center py-24 bg-white sketch-card border-oxford-blue shadow-[10px_10px_0px_0px_#cbd5e1] border-dashed">
+                    <Users className="w-16 h-16 text-slate-200 mx-auto mb-6" />
+                    <p className="text-slate-400 font-black uppercase tracking-[0.3em] text-[10px] italic">No active deployments detected. Initialize a duel to start the mission.</p>
+                 </div>
+              ) : (
+                <div className="space-y-8">
+                  {openChallenges.map((challenge, i) => (
+                    <motion.div 
+                      key={challenge._id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="sketch-card p-10 bg-white border-oxford-blue shadow-[8px_8px_0px_0px_#cbd5e1] hover:shadow-[10px_10px_0px_0px_#FF5722] group transition-all relative overflow-hidden flex flex-col sm:flex-row gap-10 items-center"
                     >
-                       Join Duel <Play className="w-3 h-3 fill-white" />
-                    </button>
-                 </motion.div>
-              ))}
+                       {/* Challenger Profile Fragment */}
+                       <div className="text-center sm:text-left min-w-[160px] space-y-4">
+                          <div className="h-20 w-20 icon-circle-sketch border-[3px] mx-auto sm:mx-0 shadow-[4px_4px_0px_0px_#cbd5e1] group-hover:shadow-[4px_4px_0px_0px_#FF5722] transition-all bg-white overflow-hidden">
+                             <div className="w-full h-full bg-oxford-blue flex items-center justify-center text-white font-black text-2xl title-fredoka">
+                                {challenge.challenger?.name?.charAt(0).toUpperCase()}
+                             </div>
+                          </div>
+                          <div>
+                             <h4 className="text-oxford-blue font-black uppercase italic tracking-tight text-sm title-fredoka">{challenge.challenger?.name}</h4>
+                             <span className="text-[9px] text-slate-400 font-black uppercase tracking-widest italic block mt-1 underline decoration-orange-400">Tactical Unit</span>
+                          </div>
+                       </div>
+
+                       {/* Arena Objective Mapping */}
+                       <div className="flex-1 text-center sm:text-left space-y-4">
+                          <div className="flex items-center justify-center sm:justify-start gap-3">
+                             <div className="badge-sketch bg-slate-50 border-oxford-blue text-slate-500 text-[8px] py-1.5 px-3">
+                                {challenge.quizId?.category?.toUpperCase() || 'GENERAL'}
+                             </div>
+                             <div className="flex items-center gap-1.5 text-orange-500 font-black text-[10px] italic">
+                                <Beaker className="w-4 h-4" /> AUTH_LVL_9
+                             </div>
+                          </div>
+                          <h3 className="text-3xl font-black text-oxford-blue title-fredoka uppercase leading-tight italic">{challenge.quizId?.title}</h3>
+                          <div className="flex items-center justify-center sm:justify-start gap-6 border-t-[2px] border-dashed border-slate-100 pt-5">
+                             <div className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 italic">
+                                <Timer className="w-4 h-4 text-oxford-blue" /> 10 MINUTES
+                             </div>
+                             <div className="flex items-center gap-2 text-[10px] font-black uppercase text-oxford-blue italic">
+                                <Coins className="w-4 h-4 text-orange-500" /> {challenge.pointsWager} UNIT WAGER
+                             </div>
+                          </div>
+                       </div>
+
+                       {/* Deployment Action */}
+                       <button 
+                         onClick={() => acceptChallenge(challenge._id)}
+                         className="btn-sketch py-6 px-10 text-[10px] bg-oxford-blue text-white border-oxford-blue shadow-[6px_6px_0px_0px_#FF5722] group-hover:scale-105 transition-all w-full sm:w-auto"
+                       >
+                          JOIN DUEL <Play className="w-4 h-4 ml-3 text-orange-400 fill-orange-400" />
+                       </button>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
            </div>
 
-           {/* Right Sidebar: Rules & Hall of Fame */}
-           <div className="lg:col-span-4 space-y-8">
-              <div className="glass-panel p-8 rounded-[2.5rem] border-white/5">
-                 <h4 className="text-white font-black italic flex items-center gap-2 mb-6">
-                    <Shield className="w-5 h-5 text-indigo-400" />
-                    Rules of War
+           {/* Tactical Sidebar: Rules & Ranking Hall */}
+           <div className="lg:col-span-4 space-y-12">
+              
+              {/* Rules of Engagement Card */}
+              <div className="sketch-card bg-white p-10 border-oxford-blue shadow-[10px_10px_0px_0px_#cbd5e1] border-dashed relative">
+                 <div className="absolute top-0 right-0 p-4 opacity-5"><Shield className="w-16 h-16 text-oxford-blue" /></div>
+                 <h4 className="text-xl font-black text-oxford-blue title-fredoka italic uppercase flex items-center gap-3 mb-8">
+                    <Shield className="w-6 h-6 text-oxford-blue" />
+                    Rules of Engagement
                  </h4>
-                 <div className="space-y-4">
+                 <div className="space-y-6">
                     {[
                       'Matchmaking is strictly asynchronous.',
                       'Highest accuracy wins the wager.',
                       'Total time is the tie-breaker.',
                       'Quitting mid-duel results in forfeit.'
                     ].map((rule, i) => (
-                       <div key={i} className="flex gap-3 text-xs text-gray-400 font-medium">
-                          <span className="text-indigo-400 font-black tracking-tighter">0{i+1}.</span>
-                          {rule}
+                       <div key={i} className="flex gap-4 text-[11px] text-slate-500 font-bold uppercase italic leading-relaxed">
+                          <span className="text-orange-500 font-black tracking-tighter">0{i+1}.</span>
+                          <span className="border-b-[2px] border-slate-50 pb-1 flex-1">{rule}</span>
                        </div>
                     ))}
                  </div>
               </div>
 
-              <div className="glass-panel p-8 rounded-[2.5rem] border-white/5">
-                 <h4 className="text-white font-black italic flex items-center gap-2 mb-6 text-amber-400">
-                    <Crown className="w-5 h-5" />
-                    Elite Dualists
+              {/* Distinguished Competitors (Hall of Fame) */}
+              <div className="sketch-card bg-oxford-blue p-10 border-oxford-blue shadow-[10px_10px_0px_0px_#FF5722]">
+                 <h4 className="text-xl font-black text-white title-fredoka italic uppercase flex items-center gap-3 mb-10">
+                    <Crown className="w-6 h-6 text-orange-500" />
+                    DISTINGUISHED RANK
                  </h4>
-                 <div className="space-y-4">
+                 <div className="space-y-6">
                     {[
                       { name: 'Satoshi_Coder', wins: 142 },
                       { name: 'Binary_Beast', wins: 128 },
                       { name: 'NullPointer', wins: 95 }
                     ].map((elite, i) => (
-                       <div key={i} className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                             <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center font-black text-xs text-gray-500">
+                       <div key={i} className="flex items-center justify-between group cursor-help">
+                          <div className="flex items-center gap-4">
+                             <div className="h-10 w-10 icon-circle-sketch border-[2px] border-white/20 bg-white/5 flex items-center justify-center font-black text-xs text-white title-fredoka group-hover:bg-white group-hover:text-oxford-blue transition-all">
                                 {i+1}
                              </div>
-                             <span className="text-sm font-bold text-gray-300">{elite.name}</span>
+                             <span className="text-sm font-black text-slate-200 uppercase italic tracking-tighter group-hover:text-orange-500 transition-colors">{elite.name}</span>
                           </div>
-                          <span className="text-[10px] font-black text-amber-500">{elite.wins} Wins</span>
+                          <div className="text-[10px] font-black text-orange-500 border-[2px] border-orange-500/20 px-3 py-1 rounded-full group-hover:bg-orange-500 group-hover:text-white transition-all">
+                             {elite.wins} VICTORIES
+                          </div>
                        </div>
                     ))}
                  </div>
+              </div>
+
+              {/* Institutional integrity Badge */}
+              <div className="p-8 border-[3px] border-dashed border-slate-200 rounded-[2rem] text-center space-y-4">
+                 <Microscope className="w-10 h-10 text-slate-200 mx-auto" />
+                 <p className="text-[9px] text-slate-400 font-black uppercase tracking-[0.2em] italic leading-relaxed px-4">
+                    "All battle metrics are verified by the Institutional Integrity Council."
+                 </p>
+                 <div className="block h-[1px] bg-slate-100 w-1/2 mx-auto" />
+                 <div className="text-[10px] font-black text-oxford-blue uppercase italic">Status: <span className="text-orange-500 animate-pulse">VALIDATED</span></div>
               </div>
            </div>
         </div>
       </div>
 
-      {/* Create Duel Modal */}
+      {/* Institutional Create Duel Terminal (Modal) */}
       <AnimatePresence>
         {showCreateModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
              <motion.div 
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
                exit={{ opacity: 0 }}
-               className="absolute inset-0 bg-black/80 backdrop-blur-xl"
+               className="absolute inset-0 bg-oxford-blue/10 backdrop-blur-md"
                onClick={() => setShowCreateModal(false)}
              />
              <motion.div 
-               initial={{ scale: 0.9, opacity: 0, y: 20 }}
+               initial={{ scale: 0.9, opacity: 0, y: 40 }}
                animate={{ scale: 1, opacity: 1, y: 0 }}
-               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-               className="max-w-xl w-full glass-panel p-8 rounded-[3rem] border-white/5 z-10 relative overflow-hidden"
+               exit={{ scale: 0.9, opacity: 0, y: 40 }}
+               className="max-w-2xl w-full sketch-card bg-white p-12 border-oxford-blue shadow-[20px_20px_0px_0px_#FF5722] z-10 relative overflow-hidden"
              >
-                <div className="flex justify-between items-center mb-8">
-                   <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">Prepare for War</h2>
-                   <button onClick={() => setShowCreateModal(false)} className="p-2 hover:bg-white/5 rounded-full transition-colors">
-                      <X className="w-6 h-6 text-gray-500" />
+                <div className="flex justify-between items-center mb-10 border-b-[3px] border-dashed border-slate-100 pb-8">
+                   <div className="space-y-1">
+                      <h2 className="text-3xl font-black text-oxford-blue uppercase italic tracking-tighter title-fredoka">Prepare For <span className="text-orange-500">Valor</span></h2>
+                      <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic">Institutional Deployment Authorization</p>
+                   </div>
+                   <button onClick={() => setShowCreateModal(false)} className="icon-circle-sketch h-12 w-12 border-[2px] bg-white hover:bg-slate-50">
+                      <X className="w-6 h-6 text-oxford-blue" />
                    </button>
                 </div>
 
-                <div className="space-y-6">
-                   <div>
-                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3 block">Target Arena (Quiz)</label>
-                      <div className="grid grid-cols-1 gap-3 max-h-[300px] overflow-y-auto pr-2 scrollbar-hide">
-                         {quizzes.slice(0, 10).map(quiz => (
+                <div className="space-y-10">
+                   {/* Target Selection Cell */}
+                   <div className="space-y-4">
+                      <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic flex items-center gap-2">
+                         <Microscope className="w-4 h-4 text-oxford-blue" />
+                         Target Arena Protocol
+                      </label>
+                      <div className="grid grid-cols-1 gap-4 max-h-[300px] overflow-y-auto pr-4 scrollbar-sketch">
+                         {quizzes.map(quiz => (
                             <div 
                               key={quiz._id}
                               onClick={() => setSelectedQuiz(quiz)}
-                              className={`p-4 rounded-2xl border transition-all cursor-pointer flex justify-between items-center ${
+                              className={`p-6 bg-white border-[3px] transition-all cursor-pointer flex justify-between items-center group ${
                                 selectedQuiz?._id === quiz._id 
-                                ? 'bg-indigo-500/20 border-indigo-500' 
-                                : 'bg-white/5 border-white/5 hover:border-white/10'
+                                ? 'border-oxford-blue shadow-[6px_6px_0px_0px_#FF5722] -translate-y-1' 
+                                : 'border-slate-100 hover:border-oxford-blue hover:shadow-[6px_6px_0px_0px_#cbd5e1]'
                               }`}
                             >
-                               <span className="text-sm font-bold text-white">{quiz.title}</span>
-                               <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">{quiz.category}</span>
+                               <div className="space-y-1">
+                                  <span className={`text-md font-black uppercase italic title-fredoka transition-colors ${selectedQuiz?._id === quiz._id ? 'text-oxford-blue' : 'text-slate-400 group-hover:text-oxford-blue'}`}>{quiz.title}</span>
+                                  <div className="text-[8px] font-black uppercase tracking-[0.2em] italic text-slate-300 group-hover:text-orange-500">{quiz.category}</div>
+                               </div>
+                               {selectedQuiz?._id === quiz._id && <CheckCircle2 className="w-5 h-5 text-orange-400" />}
                             </div>
                          ))}
                       </div>
                    </div>
 
-                       <div className="flex justify-between items-center mb-3 px-2">
-                          <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Set Coin Wager</label>
-                          <p className="text-[10px] text-amber-400 font-black uppercase tracking-widest">Balance: {user?.coins ?? 0} Coins</p>
+                   {/* Wager Assignment Unit */}
+                   <div className="space-y-6">
+                       <div className="flex justify-between items-center px-2">
+                          <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic flex items-center gap-2">
+                             <Coins className="w-4 h-4 text-orange-500" /> Wager Deployment Matrix
+                          </label>
+                          <div className="text-[9px] text-oxford-blue font-black uppercase tracking-widest bg-slate-50 px-3 py-1 border-[2px] border-slate-100 italic">Balance: {user?.coins ?? 0} Credits</div>
                        </div>
-                       <div className="flex justify-between gap-3">
+                       <div className="grid grid-cols-5 gap-4">
                           {[0, 10, 50, 100, 500].map(amount => (
                              <button 
                                key={amount}
                                onClick={() => setWager(amount)}
-                               className={`flex-1 py-4 rounded-2xl border font-black transition-all text-xs ${
+                               className={`py-5 border-[3px] font-black transition-all text-[11px] italic title-fredoka uppercase tracking-tighter ${
                                  wager === amount 
-                                 ? 'bg-amber-500 text-black border-amber-500 shadow-xl shadow-amber-500/20' 
-                                 : 'bg-white/5 border-white/5 text-gray-500 hover:text-white'
+                                 ? 'bg-oxford-blue text-white border-oxford-blue shadow-[5px_5px_0px_0px_#FF5722]' 
+                                 : 'bg-white border-slate-100 text-slate-300 hover:border-oxford-blue hover:text-oxford-blue'
                                }`}
                              >
-                                {amount === 0 ? "Free" : amount}
+                                {amount === 0 ? "FREE" : amount}
                              </button>
                           ))}
                        </div>
+                   </div>
 
+                   {/* Final Initialization Button */}
                    <button 
                     onClick={createChallenge}
-                    className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl shadow-indigo-600/30 transition-all mt-4"
+                    className="btn-sketch w-full py-6 text-sm bg-oxford-blue text-white border-oxford-blue shadow-[12px_12px_0px_0px_#FF5722]"
                    >
-                      Dispatch Challenge
+                      AUTHORIZE AND DISPATCH <Rocket className="w-6 h-6 ml-3 text-orange-400" />
                    </button>
                 </div>
+                {/* Visual Security Overlay */}
+                <div className="absolute -bottom-10 -right-10 opacity-5 -rotate-12"><Beaker className="w-48 h-48 text-oxford-blue" /></div>
              </motion.div>
           </div>
         )}

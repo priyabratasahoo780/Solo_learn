@@ -18,58 +18,19 @@ const CreateQuiz = () => {
   const [questions, setQuestions] = useState([
     { question: '', options: ['', '', '', ''], answerIndex: 0, explanation: '' }
   ]);
-  const [isAdminUnlocked, setIsAdminUnlocked] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
-
-  const ADMIN_SECRET = "ADMIN123"; // Simple password system as requested
-
-  const handleUnlock = (e) => {
-    e.preventDefault();
-    if (adminPassword === ADMIN_SECRET) {
-      if (user?.role !== 'admin') {
-         toast.error('Admin password correct, but your account is not an AdminRole. Check Profile.');
-         // Optional: proceed anyway if user strictly wants password-only access, 
-         // but best to check both.
-         // For now, let's just use password for "CON ACCESS" as requested.
-      }
-      setIsAdminUnlocked(true);
-      toast.success('Admin Access Granted!');
-    } else {
-      toast.error('Incorrect Admin Password');
-    }
-  };
-
-  if (!isAdminUnlocked) {
+  if (user?.role !== 'admin') {
     return (
       <div className="min-h-[60vh] flex items-center justify-center p-4">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="glass-panel p-8 rounded-3xl max-w-md w-full text-center"
+          className="bg-white p-8 rounded-3xl max-w-md w-full text-center border-[3px] border-oxford-blue shadow-[8px_8px_0px_0px_#FF5722]"
         >
-          <div className="w-20 h-20 bg-indigo-600/10 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Lock className="w-10 h-10 text-indigo-500" />
+          <div className="w-20 h-20 bg-orange-100 border-[3px] border-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-6 transform -rotate-6">
+            <Lock className="w-10 h-10 text-orange-600" />
           </div>
-          <h1 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Admin Access Only</h1>
-          <p className="text-gray-500 dark:text-gray-400 mb-8">Please enter the administrator password to access this section.</p>
-          
-          <form onSubmit={handleUnlock} className="space-y-4">
-            <input
-              type="password"
-              placeholder="Admin Password"
-              className="w-full bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-4 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-center tracking-widest font-mono"
-              value={adminPassword}
-              onChange={(e) => setAdminPassword(e.target.value)}
-              autoFocus
-            />
-            <button
-              type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
-            >
-              <Unlock className="w-5 h-5" />
-              Unlock Section
-            </button>
-          </form>
+          <h1 className="text-2xl font-black text-oxford-blue mb-2 uppercase italic tracking-tighter leading-none">Security Clearance Failed</h1>
+          <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest mt-4">This facility is permanently restricted to authorized Academy Administrators.</p>
         </motion.div>
       </div>
     );

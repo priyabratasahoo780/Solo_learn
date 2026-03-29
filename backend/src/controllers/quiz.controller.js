@@ -305,6 +305,7 @@ exports.reportViolation = asyncHandler(async (req, res, next) => {
 // @route   POST /api/quizzes/:id/submit
 // @access  Private
 exports.submitQuiz = asyncHandler(async (req, res, next) => {
+  const user = req.user;
   const quizId = req.params.id;
   const { answers } = req.body; 
 
