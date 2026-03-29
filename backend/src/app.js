@@ -31,17 +31,18 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
+    // [TACTICAL] Allow requests with no origin (like mobile apps or institutional scans)
     if (!origin) return callback(null, true);
 
     const isAllowed = allowedOrigins.includes(origin) || 
-                     (process.env.NODE_ENV === 'production' && origin.endsWith('.vercel.app'));
+                     (origin.endsWith('.vercel.app')) || 
+                     (origin.endsWith('.onrender.com'));
 
     if (isAllowed) {
       callback(null, true);
     } else {
-      console.warn(`🚫 CORS Blocked: origin ${origin} is not in allowed list:`, allowedOrigins);
-      callback(new Error('Not allowed by CORS'));
+      console.warn(`🚫 MISSION CRITICAL: CORS Blocked origin: ${origin}. Add to CLIENT_URL or authorize subdomain.`);
+      callback(new Error('Institutional Access Denied by CORS'));
     }
   },
   credentials: true

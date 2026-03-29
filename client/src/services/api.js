@@ -1,15 +1,18 @@
 import axios from 'axios';
 
 // Create axios instance
+// [TACTICAL] Elite Academy API Connection Node
 let apiURL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
-// Auto-fix for Vercel deployment: if they provided the Render URL without /api, add it
-if (import.meta.env.PROD && !apiURL.endsWith('/api')) {
-  // Trim trailing slash if present before appending /api
-  apiURL = apiURL.replace(/\/$/, '') + '/api';
+// [INTEL] Auto-correction for production environments
+if (!window.location.hostname.includes('localhost') && !import.meta.env.VITE_API_URL) {
+  console.warn('📡 PROD RED ALERT: Frontend is live but VITE_API_URL is missing. Connection may fail.');
+  // If your backend is also on Render, it often follows this pattern
+  // apiURL = 'https://' + window.location.hostname.replace('vercel.app', 'onrender.com') + '/api';
 }
 
-if (import.meta.env.DEV) console.log('🌐 API Target:', apiURL);
+if (import.meta.env.DEV) console.log('🌐 ACADEMY API TARGET:', apiURL);
+
 
 const api = axios.create({
   baseURL: apiURL,
