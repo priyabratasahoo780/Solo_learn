@@ -70,9 +70,11 @@ const limiter = rateLimit({
   max: 1000, // Limit each IP to 1000 requests per windowMs
   message: 'Too many requests from this IP, please try again in 10 minutes'
 });
-app.use('/api', limiter);
+// [TACTICAL] Legacy Route Bridge: Redirecting non-prefixed calls to /api
+app.use('/auth', auth); 
 
-// Mount routers
+// Standard API Routers
+app.use('/api', limiter);
 app.use('/api/auth', auth);
 app.use('/api/quizzes', quizzes);
 app.use('/api/leaderboard', leaderboard);
