@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, ArrowRight, LogIn, Loader } from 'lucide-react';
+import { Mail, Lock, ArrowRight, LogIn, Loader, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Login = () => {

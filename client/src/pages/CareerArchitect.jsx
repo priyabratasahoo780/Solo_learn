@@ -44,11 +44,9 @@ const CareerArchitect = () => {
     
     setIsGenerating(true);
     try {
-      const res = await axios.post(`${API_URL}/career/generate`, { 
+      const res = await api.post('/career/generate', { 
         dreamJob, 
         targetCompany 
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setRoadmap(res.data.data);
       toast.success('Your Career Roadmap has been architected!');
@@ -61,11 +59,9 @@ const CareerArchitect = () => {
 
   const toggleTask = async (day, taskName) => {
     try {
-      const res = await axios.put(`${API_URL}/career/task/complete`, { 
+      const res = await api.put('/career/task/complete', { 
         day, 
         taskName 
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setRoadmap(res.data.data);
     } catch (err) {

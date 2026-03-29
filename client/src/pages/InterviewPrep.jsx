@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, ShieldCheck, Briefcase, BookOpen, ChevronRight, Bookmark, Building2, Terminal, Zap, ArrowRight } from 'lucide-react';
-
-const API_URL = 'http://localhost:4000/api';
 
 const InterviewPrep = () => {
   const [questions, setQuestions] = useState([]);

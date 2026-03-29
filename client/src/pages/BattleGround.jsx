@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import api from '../services/api';
 import { 
   Zap, Trophy, Swords, Timer, Coins, 
   Users, User, ArrowRight, Play, 
@@ -9,8 +9,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
-
-const API_URL = 'http://localhost:4000/api';
 
 const BattleGround = () => {
   const { user } = useAuth();
@@ -30,9 +28,7 @@ const BattleGround = () => {
 
   const fetchChallenges = async () => {
     try {
-      const res = await axios.get(`${API_URL}/challenges/open`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await api.get('/challenges/open');
       setOpenChallenges(res.data.data);
     } catch (err) {
       toast.error('Failed to load battle lobby');
@@ -43,9 +39,7 @@ const BattleGround = () => {
 
   const fetchQuizzes = async () => {
     try {
-      const res = await axios.get(`${API_URL}/quizzes`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await api.get('/quizzes');
       setQuizzes(res.data.data);
     } catch (err) {
       console.error('Quiz fetch failed');
@@ -56,11 +50,9 @@ const BattleGround = () => {
     if (!selectedQuiz) return toast.error('Select a target quiz for the duel');
     
     try {
-      await axios.post(`${API_URL}/challenges/create`, {
+      await api.post('/challenges/create', {
         quizId: selectedQuiz._id,
         pointsWager: wager
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       toast.success('Battle challenge posted to the feed!');
       setShowCreateModal(false);
@@ -72,9 +64,7 @@ const BattleGround = () => {
 
   const acceptChallenge = async (id) => {
     try {
-      const res = await axios.put(`${API_URL}/challenges/${id}/accept`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await api.put(`/challenges/${id}/accept`, {});
       setActiveDuel(res.data.data);
       setDuelStep('playing');
       toast.success('Entering Arena... Good luck!');
@@ -332,24 +322,25 @@ const BattleGround = () => {
                       </div>
                    </div>
 
-                   <div>
-                      <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-3 block text-center">Set Coin Wager</label>
-                      <div className="flex justify-between gap-4">
-                         {[0, 10, 50, 100, 500].map(amount => (
-                            <button 
-                              key={amount}
-                              onClick={() => setWager(amount)}
-                              className={`flex-1 py-4 rounded-2xl border font-black transition-all ${
-                                wager === amount 
-                                ? 'bg-amber-500 text-black border-amber-500 shadow-xl shadow-amber-500/20' 
-                                : 'bg-white/5 border-white/5 text-gray-500 hover:text-white'
-                              }`}
-                            >
-                               {amount}
-                            </button>
-                         ))}
-                      </div>
-                   </div>
+                       <div className="flex justify-between items-center mb-3 px-2">
+                          <label className="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Set Coin Wager</label>
+                          <p className="text-[10px] text-amber-400 font-black uppercase tracking-widest">Balance: {user?.coins ?? 0} Coins</p>
+                       </div>
+                       <div className="flex justify-between gap-3">
+                          {[0, 10, 50, 100, 500].map(amount => (
+                             <button 
+                               key={amount}
+                               onClick={() => setWager(amount)}
+                               className={`flex-1 py-4 rounded-2xl border font-black transition-all text-xs ${
+                                 wager === amount 
+                                 ? 'bg-amber-500 text-black border-amber-500 shadow-xl shadow-amber-500/20' 
+                                 : 'bg-white/5 border-white/5 text-gray-500 hover:text-white'
+                               }`}
+                             >
+                                {amount === 0 ? "Free" : amount}
+                             </button>
+                          ))}
+                       </div>
 
                    <button 
                     onClick={createChallenge}

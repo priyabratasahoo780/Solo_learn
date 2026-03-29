@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { UserPlus, Mail, Lock, LogIn, ArrowRight, Loader } from 'lucide-react';
+import { UserPlus, Mail, Lock, LogIn, ArrowRight, Loader, Users } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Signup = () => {

@@ -1,15 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
-import { 
-  Video, Mic, MicOff, VideoOff, MessageSquare, 
-  Send, X, Award, BarChart3, ShieldCheck, 
-  Terminal, User, Zap, ArrowRight, Loader2,
-  CheckCircle2, AlertCircle, Layout
-} from 'lucide-react';
-import { toast } from 'react-hot-toast';
-
-const API_URL = 'http://localhost:4000/api';
+import api from '../services/api';
 
 const MockInterview = () => {
   const [session, setSession] = useState(null);
@@ -54,10 +45,15 @@ const MockInterview = () => {
       });
       setStream(s);
       if (videoRef.current) videoRef.current.srcObject = s;
+      setIsVideoOn(true);
+      setIsMicOn(true);
+      return true;
     } catch (err) {
       console.error('Media error:', err);
+      toast.error('Media access denied. Camera/Mic features will be unavailable.');
       setIsVideoOn(false);
       setIsMicOn(false);
+      return false;
     }
   };
 
@@ -90,9 +86,7 @@ const MockInterview = () => {
   const startInterview = async (company) => {
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/mock-interview/start`, { company }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await api.post(`/mock-interview/start`, { company });
       setSession(res.data.data);
       setSelectedCompany(company);
       toast.success(`Interview with ${company} started!`);
@@ -112,10 +106,7 @@ const MockInterview = () => {
     setChatLoading(true);
 
     try {
-      const res = await axios.post(`${API_URL}/mock-interview/${session._id}/chat`, 
-        { message: userMsg },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }}
-      );
+      const res = await api.post(`/mock-interview/${session._id}/chat`, { message: userMsg });
       setSession(res.data.session);
     } catch (err) {
       toast.error('Connection lost with recruiter');
@@ -127,9 +118,7 @@ const MockInterview = () => {
   const finishInterview = async () => {
     setLoading(true);
     try {
-      const res = await axios.post(`${API_URL}/mock-interview/${session._id}/finish`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
+      const res = await api.post(`/mock-interview/${session._id}/finish`, {});
       setScorecard(res.data.data.scorecard);
       setSession(res.data.data);
       toast.success('Interview concluded. Results are in!');
@@ -143,11 +132,9 @@ const MockInterview = () => {
   const shareToFeed = async () => {
     setLoading(true);
     try {
-      await axios.post(`${API_URL}/posts/share-scorecard`, { 
+      await api.post(`/posts/share-scorecard`, { 
         scorecard, 
         company: selectedCompany 
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       toast.success('Scorecard shared to feed!');
     } catch (err) {
@@ -232,29 +219,37 @@ const MockInterview = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center mb-16"
           >
-            <h1 className="text-5xl font-black text-white mb-4 tracking-tight">AI Recruiter <span className="text-indigo-500">Simulation</span></h1>
-            <p className="text-gray-500 max-w-2xl mx-auto font-medium">Practice your technical interviews with MNC recruiters in a high-fidelity environment. Choose your target company to begin.</p>
+            <h1 className="text-4xl sm:text-6xl font-black text-white mb-6 italic tracking-tighter uppercase relative inline-block">
+              AI RECRUITER <span className="text-gradient">SIMULATION</span>
+              <div className="absolute -top-4 -right-8 px-2 py-0.5 bg-indigo-500 rounded text-[8px] font-black tracking-[0.3em] uppercase">MNC Grade v2</div>
+            </h1>
+            <p className="text-gray-500 max-w-2xl mx-auto font-medium text-sm sm:text-base leading-relaxed">
+              Experience the evolution of technical hiring. Practice with Staff Engineer personas from top-tier MNCs in a high-fidelity virtual boardroom.
+            </p>
           </motion.div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {companies.map((comp) => (
               <motion.div
                 key={comp.id}
                 whileHover={{ y: -10 }}
-                className="glass-panel p-10 rounded-[40px] border border-white/5 cursor-pointer group relative overflow-hidden shadow-3xl"
-                onClick={() => startInterview(comp.id)}
+                className="glass-panel p-8 sm:p-10 rounded-[48px] border border-white/5 cursor-pointer group relative overflow-hidden shadow-3xl"
+                onClick={async () => {
+                    const hasAccess = await startMedia();
+                    startInterview(comp.id);
+                }}
               >
-                <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${comp.color} opacity-0 group-hover:opacity-10 blur-3xl transition-opacity animate-pulse`} />
+                <div className={`absolute -top-10 -right-10 w-40 h-40 bg-gradient-to-br ${comp.color} opacity-0 group-hover:opacity-10 blur-[80px] transition-opacity animate-pulse`} />
                 
-                <div className={`w-16 h-16 bg-gradient-to-br ${comp.color} rounded-2xl mb-8 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
+                <div className={`w-16 h-16 bg-gradient-to-br ${comp.color} rounded-2xl mb-10 flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-6 transition-all duration-500`}>
                    <User className="w-8 h-8 text-white" />
                 </div>
                 
-                <h3 className="text-2xl font-black text-white italic uppercase tracking-tight mb-2 group-hover:text-indigo-400 transition-colors">{comp.name}</h3>
-                <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.3em] mb-8">{comp.recruiter}</p>
+                <h3 className="text-2xl font-black text-white italic uppercase tracking-tight mb-3 group-hover:text-indigo-400 transition-colors uppercase">{comp.name}</h3>
+                <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.3em] mb-10">{comp.recruiter}</p>
                 
-                <div className="flex items-center gap-3 text-indigo-400 text-[10px] font-black uppercase tracking-[0.4em] group-hover:translate-x-2 transition-transform">
-                   Enter Boardroom <ArrowRight className="w-5 h-5" />
+                <div className="flex items-center gap-3 text-indigo-400 text-[9px] font-black uppercase tracking-[0.4em] group-hover:translate-x-2 transition-transform">
+                   INITIALIZE SESSION <ArrowRight className="w-5 h-5" />
                 </div>
               </motion.div>
             ))}

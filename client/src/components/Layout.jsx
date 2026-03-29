@@ -19,8 +19,8 @@ const Layout = ({ children }) => {
       <Navbar />
       
       {/* Main Content Area */}
-      <main className="flex-1 flex flex-col min-w-0 lg:pl-72 transition-all duration-300">
-        <div className="flex-1 py-8 sm:py-12 px-4 sm:px-6 lg:px-12 w-full max-w-[1600px] mx-auto">
+      <main className="flex-1 flex flex-col min-w-0 transition-all duration-300 pt-[72px] lg:pt-0 lg:pl-[288px]">
+        <div className="flex-1 py-8 sm:py-12 px-4 sm:px-10 lg:px-20 w-screen sm:w-full max-w-[1600px] mx-auto overflow-x-hidden">
           {children}
         </div>
       </main>
