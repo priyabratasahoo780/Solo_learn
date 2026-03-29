@@ -72,7 +72,6 @@ const Navbar = () => {
       {/* Navigation Ecosystem */}
       <div className="flex-1 space-y-10 overflow-y-auto pr-2 custom-scrollbar">
         {navGroups.map((group) => {
-          if (group.adminOnly && user?.role !== 'admin') return null;
           return (
           <div key={group.name} className="space-y-4">
              <h4 className="text-[11px] text-slate-400 font-black uppercase tracking-[0.2em] px-4">{group.name}</h4>
