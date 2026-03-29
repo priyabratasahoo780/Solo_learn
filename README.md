@@ -1,6 +1,6 @@
 # 🎓 SoloLearn: The Elite Engineering Academy
 
-![SoloLearn Premium Hero](./assets/images/hero_premium.png)
+![SoloLearn Premium Hero](./assets/hero_premium.png)
 
 > **"The world's premier digital institution for technical mastery. Simulations. Battlegrounds. Certifications."**
 
