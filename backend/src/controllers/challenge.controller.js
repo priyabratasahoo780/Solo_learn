@@ -109,6 +109,41 @@ exports.submitDuelResult = asyncHandler(async (req, res, next) => {
   });
 });
 
+// @desc    Get battle stats for the current user
+// @route   GET /api/challenges/stats
+// @access  Private
+exports.getUserBattleStats = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const user = await User.findById(userId);
+
+  const completedBattles = await Challenge.find({
+    $or: [{ challenger: userId }, { opponent: userId }],
+    status: 'completed'
+  });
+
+  const battlesWon = completedBattles.filter(b => b.winner && b.winner.toString() === userId.toString()).length;
+  const totalBattles = completedBattles.length;
+  const winRate = totalBattles > 0 ? Math.round((battlesWon / totalBattles) * 100) : 0;
+  
+  // Calculate Global Rank
+  const higherRankedUsers = await User.countDocuments({
+    totalPoints: { $gt: user.totalPoints }
+  });
+  const globalRank = higherRankedUsers + 1;
+
+  res.status(200).json({
+    success: true,
+    data: {
+      battlesWon,
+      totalBattles,
+      winRate,
+      coins: user.coins,
+      totalPoints: user.totalPoints,
+      globalRank: `#${globalRank}`
+    }
+  });
+});
+
 // @desc    Get active open challenges for the BattleGround
 // @route   GET /api/challenges/open
 // @access  Private

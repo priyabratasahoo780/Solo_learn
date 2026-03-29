@@ -52,8 +52,10 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'active', message: 'SoloLearn API is running smoothly' });
 });
 
-// Body parser
-app.use(express.json({ limit: '10kb' }));
+// Body parser (increase limit for base64 image uploads)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+console.log('✅ Body parser limits set to 50mb');
 
 // Cookie parser
 app.use(cookieParser());

@@ -70,12 +70,12 @@ export const useGameLogic = (quiz) => {
     // For now, let's submit everything to track history.
     
     try {
+      // Standard Quiz Attempt Submission
       const { data } = await api.post(`/quizzes/${quiz._id}/submit`, {
         answers: finalAnswers
       });
 
-      // Show enhanced reward modal via local state? 
-      // The component will handle the UI based on isCompleted/isGameOver
+      // Show enhanced reward modal via local state
       if (status === 'completed') {
         toast.success(`You earned ${data.result.pointsEarned} points!`, { icon: '🏆' });
       }
@@ -88,11 +88,24 @@ export const useGameLogic = (quiz) => {
           data.emailData
         );
       }
+
+      // Check if this is a DUEL
+      const urlParams = new URLSearchParams(window.location.search);
+      const challengeId = urlParams.get('challengeId');
+      if (challengeId) {
+         // Submit duel result for BattleGround
+         await api.put(`/challenges/${challengeId}/submit`, {
+            score: score, // from local state
+            timeTaken: 0  // Future enhancement: measure actual time
+         });
+         toast.success('Battle Results Dispatched to Headquarters!', { icon: '⚔️' });
+      }
+
     } catch (err) {
       console.error('Failed to submit quiz', err);
     }
 
-  }, [quiz, isCompleted]);
+  }, [quiz, isCompleted, score, user]);
 
   // Handle progression (Next Question or End)
   const nextQuestion = useCallback(() => {

@@ -3,8 +3,7 @@
  * Direct Fetch implementation for Gemini 1.5 Flash (v1 API)
  */
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
 
 /**
  * Generates AI content from a prompt.
@@ -13,6 +12,8 @@ const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemi
  * @returns {Promise<string|object>} - The AI generated response.
  */
 exports.generateAIContent = async (prompt, isJson = false) => {
+  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
   if (!GEMINI_API_KEY || GEMINI_API_KEY === 'your_gemini_api_key_here') {
     throw new Error('MISSING_API_KEY');
   }
@@ -40,7 +41,7 @@ exports.generateAIContent = async (prompt, isJson = false) => {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
+      const errorData = await response.json().catch(() => ({}));
       console.error('❌ [GEMINI_API_ERROR]:', errorData);
       throw new Error(`Gemini API Error: ${errorData.error?.message || response.statusText}`);
     }

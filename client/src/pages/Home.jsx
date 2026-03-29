@@ -24,30 +24,30 @@ const Home = () => {
       <section className="relative min-h-[95vh] flex flex-col items-center justify-center text-center px-6 pt-24 overflow-hidden">
         <div className="max-w-6xl mx-auto space-y-12 relative z-10">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-6 py-2 rounded-lg bg-oxford-blue text-white text-[10px] font-black uppercase tracking-[0.3em] mb-4 border-2 border-oxford-blue shadow-[4px_4px_0px_0px_#FF5722]"
+            transition={{ type: "spring", stiffness: 100, damping: 15 }}
+            className="inline-flex items-center gap-3 px-6 py-2 rounded-lg bg-oxford-blue text-white text-[10px] font-black uppercase tracking-[0.3em] mb-4 border-2 border-oxford-blue shadow-[4px_4px_0px_0px_#FF5722]"
           >
             <Sparkles className="w-4 h-4 text-orange-400" />
             Academy Node Initialized: V2.5
           </motion.div>
 
           <div className="space-y-6">
-            <h1 className="text-6xl sm:text-8xl md:text-9xl font-black tracking-tighter text-oxford-blue leading-[0.8] italic uppercase title-fredoka">
+            <h1 className="text-6xl sm:text-8xl md:text-9xl font-black tracking-tighter text-oxford-blue xl:leading-[0.8] leading-[1.1] italic uppercase title-fredoka">
               <motion.span 
-                 initial={{ opacity: 0, x: -100 }}
+                 initial={{ opacity: 0, x: -50 }}
                  animate={{ opacity: 1, x: 0 }}
-                 transition={{ duration: 0.8, delay: 0.2 }}
-                 className="block drop-shadow-[4px_4px_0px_#FF5722]"
+                 transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.1 }}
+                 className="block drop-shadow-[2px_2px_0px_#FF5722] sm:drop-shadow-[4px_4px_0px_#FF5722] mb-2 sm:mb-0"
               >
                 STUDY
               </motion.span>
               <motion.span 
-                 initial={{ opacity: 0, x: 100 }}
+                 initial={{ opacity: 0, x: 50 }}
                  animate={{ opacity: 1, x: 0 }}
-                 transition={{ duration: 0.8, delay: 0.4 }}
-                 className="block text-[#FF5722] drop-shadow-[4px_4px_0px_#002D72]"
+                 transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.3 }}
+                 className="block text-[#FF5722] drop-shadow-[2px_2px_0px_#002D72] sm:drop-shadow-[4px_4px_0px_#002D72]"
               >
                 ENGINEERING
               </motion.span>
@@ -55,9 +55,9 @@ const Home = () => {
           </div>
 
           <motion.p 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
+            transition={{ type: "spring", stiffness: 80, damping: 15, delay: 0.5 }}
             className="text-lg sm:text-2xl text-slate-500 max-w-3xl mx-auto font-black uppercase tracking-widest italic border-b-[3px] border-dashed border-slate-200 pb-8"
           >
             "The world's premier digital institution for technical mastery. <br/> 
@@ -65,20 +65,20 @@ const Home = () => {
           </motion.p>
 
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.7 }}
             className="flex flex-col sm:flex-row justify-center gap-10 pt-8"
           >
             <Link
               to="/signup"
-              className="btn-sketch py-6 px-16 text-sm"
+              className="btn-sketch py-6 px-16 text-sm hover:-translate-y-1 active:translate-y-0.5"
             >
               ENROLL NOW <ChevronRight className="w-6 h-6 text-orange-400" />
             </Link>
             <Link
               to="/quizzes"
-              className="btn-sketch py-6 px-16 text-sm bg-white text-oxford-blue border-oxford-blue hover:shadow-[10px_10px_0px_0px_#FF5722]"
+              className="btn-sketch-outline py-6 px-16 text-sm bg-white text-oxford-blue border-oxford-blue hover:shadow-[10px_10px_0px_0px_#FF5722] hover:-translate-y-1 active:translate-y-0.5"
             >
               MODULE ARCHIVE
             </Link>

@@ -4,7 +4,8 @@ const {
   createChallenge, 
   acceptChallenge, 
   submitDuelResult, 
-  getOpenChallenges 
+  getOpenChallenges, 
+  getUserBattleStats 
 } = require('../controllers/challenge.controller');
 const { protect } = require('../middleware/auth.middleware');
 
@@ -12,6 +13,7 @@ router.use(protect);
 
 router.post('/create', createChallenge);
 router.get('/open', getOpenChallenges);
+router.get('/stats', getUserBattleStats);
 router.put('/:id/accept', acceptChallenge);
 router.put('/:id/submit', submitDuelResult);
 

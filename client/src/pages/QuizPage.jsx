@@ -114,7 +114,7 @@ const GameInterface = ({ quiz, navigate }) => {
     if (videoRef.current && stream) {
       videoRef.current.srcObject = stream;
     }
-  }, [stream]);
+  }, [stream, hasStarted]);
 
   useEffect(() => {
     return () => {
@@ -335,12 +335,21 @@ const GameInterface = ({ quiz, navigate }) => {
             >
               MODULE ARCHIVE
             </button>
-            <button 
-              onClick={() => navigate('/dashboard')}
-              className="btn-sketch flex-1 py-5 text-sm"
-            >
-              COMMAND CENTER
-            </button>
+            {new URLSearchParams(window.location.search).get('challengeId') ? (
+              <button 
+                onClick={() => navigate('/battleground')}
+                className="btn-sketch flex-1 py-5 text-sm bg-orange-500 text-white"
+              >
+                RETURN TO BATTLEGROUND
+              </button>
+            ) : (
+              <button 
+                onClick={() => navigate('/dashboard')}
+                className="btn-sketch flex-1 py-5 text-sm"
+              >
+                COMMAND CENTER
+              </button>
+            )}
           </div>
         </motion.div>
       </div>

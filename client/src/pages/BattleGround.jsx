@@ -10,29 +10,68 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const BattleGround = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [openChallenges, setOpenChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [quizzes, setQuizzes] = useState([]);
   const [selectedQuiz, setSelectedQuiz] = useState(null);
+  
   const [wager, setWager] = useState(0);
   const [activeDuel, setActiveDuel] = useState(null);
   const [duelStep, setDuelStep] = useState('lobby'); // lobby, playing, result
+  const [topPlayers, setTopPlayers] = useState([]);
+  const [userStats, setUserStats] = useState({
+    battlesWon: 0,
+    winRate: 0,
+    coins: 0,
+    globalRank: '#--'
+  });
 
   useEffect(() => {
     fetchChallenges();
     fetchQuizzes();
+    fetchLeaderboard();
+    fetchUserStats();
+
+    // Mission Control: Live Data Polling (10s sync)
+    const syncInterval = setInterval(() => {
+      fetchChallenges();
+      fetchLeaderboard();
+      fetchUserStats();
+    }, 10000);
+
+    return () => clearInterval(syncInterval);
   }, []);
+
+  const fetchUserStats = async () => {
+    try {
+      const res = await api.get('/challenges/stats');
+      setUserStats(res.data.data);
+    } catch (err) {
+      console.error('Failed to fetch battle metrics', err);
+    }
+  };
+
+  const fetchLeaderboard = async () => {
+    try {
+      const res = await api.get('/leaderboard');
+      setTopPlayers(res.data.data.slice(0, 3));
+    } catch (err) {
+      console.error('Failed to fetch rank', err);
+    }
+  };
 
   const fetchChallenges = async () => {
     try {
       const res = await api.get('/challenges/open');
-      setOpenChallenges(res.data.data);
+      setOpenChallenges(res.data.data || []);
     } catch (err) {
-      toast.error('Failed to load battle lobby');
+      toast.error(err.response?.data?.message || 'Failed to load battle lobby');
     } finally {
       setLoading(false);
     }
@@ -41,9 +80,13 @@ const BattleGround = () => {
   const fetchQuizzes = async () => {
     try {
       const res = await api.get('/quizzes');
-      setQuizzes(res.data.data);
+      const fetchedQuizzes = res.data.data || [];
+      setQuizzes(fetchedQuizzes);
+      if (fetchedQuizzes.length > 0) {
+        setSelectedQuiz(fetchedQuizzes[0]);
+      }
     } catch (err) {
-      console.error('Quiz fetch failed');
+      console.error('Quiz fetch failed', err.response?.data?.message || err.message);
     }
   };
 
@@ -65,12 +108,16 @@ const BattleGround = () => {
 
   const acceptChallenge = async (id) => {
     try {
+      setLoading(true);
       const res = await api.put(`/challenges/${id}/accept`, {});
       setActiveDuel(res.data.data);
+      setOpenChallenges(openChallenges.filter(c => c._id !== id)); // Remove immediately from UI
       setDuelStep('playing');
       toast.success('Entering Arena... Good luck!');
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to join duel');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -89,15 +136,21 @@ const BattleGround = () => {
                 </div>
                 <h2 className="text-4xl font-black text-oxford-blue italic uppercase tracking-tighter title-fredoka">Arena Initialized</h2>
                 <div className="p-4 bg-slate-50 border-[2px] border-dashed border-oxford-blue text-xs font-black text-slate-500 uppercase tracking-widest italic">
-                   "You are competing for <span className="text-orange-500 font-extrabold">{activeDuel.pointsWager * 2} Coins</span>. Accuracy and Time are your only allies."
+                   "You are competing for <span className="text-orange-500 font-extrabold">
+                      {activeDuel.pointsWager > 0 ? `${activeDuel.pointsWager * 2} COINS` : 'HONOR AND GLORY'}
+                   </span>. Accuracy and Time are your only allies."
                 </div>
                 
                 <button 
                   onClick={() => {
-                     toast.success('Simulating Battle Launch...');
-                     setTimeout(() => setDuelStep('lobby'), 2000);
+                     toast.success('Initializing Neural Link to Quiz Module...');
+                     // Navigate to the real quiz page and pass the challengeId as a query param
+                     const quizId = activeDuel.quizId?._id || activeDuel.quizId;
+                     setTimeout(() => {
+                        navigate(`/quizzes/${quizId}?challengeId=${activeDuel._id}`);
+                     }, 1000);
                   }}
-                  className="btn-sketch w-full py-6 text-sm"
+                  className="btn-sketch w-full py-6 text-sm bg-oxford-blue text-white shadow-[8px_8px_0px_0px_#FF5722]"
                 >
                   ENTER COMBAT <ChevronRight className="w-6 h-6 ml-2 text-orange-400" />
                 </button>
@@ -153,10 +206,10 @@ const BattleGround = () => {
         {/* Institutional Metrics (Stats) Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
            {[
-             { label: 'BATTLES WON', val: '12', icon: Trophy, color: 'text-orange-500', shadow: 'shadow-[6px_6px_0px_0px_#FF5722]' },
-             { label: 'WIN RATE', val: '68%', icon: TrendingUp, color: 'text-oxford-blue', shadow: 'shadow-[6px_6px_0px_0px_#cbd5e1]' },
-             { label: 'COINS EARNED', val: '2,450', icon: Coins, color: 'text-oxford-blue', shadow: 'shadow-[6px_6px_0px_0px_#cbd5e1]' },
-             { label: 'GLOBAL RANK', val: '#42', icon: Crown, color: 'text-oxford-blue', shadow: 'shadow-[6px_6px_0px_0px_#cbd5e1]' }
+             { label: 'BATTLES WON', val: userStats.battlesWon, icon: Trophy, color: 'text-orange-500', shadow: 'shadow-[6px_6px_0px_0px_#FF5722]' },
+             { label: 'WIN RATE', val: `${userStats.winRate}%`, icon: TrendingUp, color: 'text-oxford-blue', shadow: 'shadow-[6px_6px_0px_0px_#cbd5e1]' },
+             { label: 'COINS EARNED', val: userStats.coins?.toLocaleString() || '0', icon: Coins, color: 'text-oxford-blue', shadow: 'shadow-[6px_6px_0px_0px_#cbd5e1]' },
+             { label: 'GLOBAL RANK', val: userStats.globalRank, icon: Crown, color: 'text-oxford-blue', shadow: 'shadow-[6px_6px_0px_0px_#cbd5e1]' }
            ].map((stat, i) => (
               <motion.div 
                 key={i}
@@ -246,7 +299,10 @@ const BattleGround = () => {
                        {/* Deployment Action */}
                        <button 
                          onClick={() => acceptChallenge(challenge._id)}
-                         className="btn-sketch py-6 px-10 text-[10px] bg-oxford-blue text-white border-oxford-blue shadow-[6px_6px_0px_0px_#FF5722] group-hover:scale-105 transition-all w-full sm:w-auto"
+                         disabled={loading}
+                         className={`btn-sketch py-6 px-10 text-[10px] text-white border-oxford-blue shadow-[6px_6px_0px_0px_#FF5722] group-hover:scale-105 transition-all w-full sm:w-auto ${
+                           challenge.challenger._id === user?._id ? 'bg-oxford-blue border-dashed opacity-90' : 'bg-oxford-blue'
+                         }`}
                        >
                           JOIN DUEL <Play className="w-4 h-4 ml-3 text-orange-400 fill-orange-400" />
                        </button>
@@ -288,20 +344,22 @@ const BattleGround = () => {
                     DISTINGUISHED RANK
                  </h4>
                  <div className="space-y-6">
-                    {[
-                      { name: 'Satoshi_Coder', wins: 142 },
-                      { name: 'Binary_Beast', wins: 128 },
-                      { name: 'NullPointer', wins: 95 }
-                    ].map((elite, i) => (
+                    {topPlayers.length === 0 ? (
+                       <div className="text-[10px] text-center text-slate-400 uppercase tracking-widest mt-4">
+                         Recalibrating Data...
+                       </div>
+                    ) : topPlayers.map((elite, i) => (
                        <div key={i} className="flex items-center justify-between group cursor-help">
                           <div className="flex items-center gap-4">
                              <div className="h-10 w-10 icon-circle-sketch border-[2px] border-white/20 bg-white/5 flex items-center justify-center font-black text-xs text-white title-fredoka group-hover:bg-white group-hover:text-oxford-blue transition-all">
                                 {i+1}
                              </div>
-                             <span className="text-sm font-black text-slate-200 uppercase italic tracking-tighter group-hover:text-orange-500 transition-colors">{elite.name}</span>
+                             <span className="text-sm font-black text-slate-200 uppercase italic tracking-tighter group-hover:text-orange-500 transition-colors">
+                                {elite.name || 'Anonymous'}
+                             </span>
                           </div>
                           <div className="text-[10px] font-black text-orange-500 border-[2px] border-orange-500/20 px-3 py-1 rounded-full group-hover:bg-orange-500 group-hover:text-white transition-all">
-                             {elite.wins} VICTORIES
+                             {elite.points || elite.totalPoints || 0} XP
                           </div>
                        </div>
                     ))}
@@ -356,7 +414,11 @@ const BattleGround = () => {
                          Target Arena Protocol
                       </label>
                       <div className="grid grid-cols-1 gap-4 max-h-[300px] overflow-y-auto pr-4 scrollbar-sketch">
-                         {quizzes.map(quiz => (
+                         {quizzes.length === 0 ? (
+                           <div className="p-10 text-center border-[2px] border-dashed border-slate-200 text-slate-400 font-bold uppercase text-xs italic">
+                             No Authorized Target Protocols (Quizzes) Available
+                           </div>
+                         ) : quizzes.map(quiz => (
                             <div 
                               key={quiz._id}
                               onClick={() => setSelectedQuiz(quiz)}

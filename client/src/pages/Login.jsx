@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, ArrowRight, LogIn, Loader, ShieldCheck } from 'lucide-react';
+import { Mail, Lock, ArrowRight, LogIn, Loader, ShieldCheck, Terminal, Activity, Zap, Beaker } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const Login = () => {
@@ -40,69 +40,80 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-[90vh] flex items-center justify-center py-20 px-6 relative z-10">
-      <motion.div 
-        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        className="max-w-md w-full glass-panel p-10 sm:p-14 rounded-[48px] border border-white/10 shadow-3xl relative group overflow-hidden"
-      >
-        <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/10 blur-[100px] -mr-32 -mt-32" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-600/10 blur-[100px] -ml-32 -mb-32" />
+    <div className="min-h-screen flex items-center justify-center py-20 px-6 relative overflow-hidden bg-slate-50">
+      {/* Academy Sketch Background Patterns */}
+      <div className="absolute inset-0 sketch-grid opacity-10 pointer-events-none" />
+      
+      {/* Blueprint Decorative Elements */}
+      <div className="absolute top-20 left-20 w-64 h-64 border-[1px] border-oxford-blue/5 rounded-full animate-spin-slow pointer-events-none" />
+      <div className="absolute bottom-20 right-20 w-80 h-80 border-[1px] border-oxford-blue/5 rounded-full animate-reverse-spin pointer-events-none" />
 
-        <div className="text-center mb-12 relative z-10">
-          <motion.div 
-            initial={{ rotate: -10, opacity: 0 }}
-            animate={{ rotate: 0, opacity: 1 }}
-            transition={{ type: 'spring', damping: 10 }}
-            className="mx-auto h-24 w-24 glass-panel border-white/10 rounded-[32px] flex items-center justify-center mb-8 shadow-2xl group-hover:scale-110 transition-transform duration-500"
-          >
-            <ShieldCheck className="h-12 w-12 text-indigo-400" strokeWidth={1.5} />
-          </motion.div>
-          <h2 className="text-4xl font-black text-white italic tracking-tighter uppercase mb-3">
-            AUTH <span className="text-gradient">GATEWAY</span>
-          </h2>
-          <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.4em]">
-            Identity Verification Required
-          </p>
+      <motion.div 
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        className="max-w-xl w-full sketch-card bg-white p-12 sm:p-16 border-oxford-blue shadow-[15px_15px_0px_0px_#FF5722] relative z-10 overflow-hidden"
+      >
+        {/* Visual Security Overlay (Blueprint style) */}
+        <div className="absolute -top-12 -right-12 opacity-5 -rotate-12 pointer-events-none">
+           <ShieldCheck className="w-48 h-48 text-oxford-blue" />
         </div>
 
-        <motion.form
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="space-y-8 relative z-10"
-          onSubmit={handleLogin}
-        >
-          <div className="space-y-3">
-            <label className="block text-[10px] font-black text-gray-500 tracking-[0.3em] ml-2 uppercase">Command Email</label>
-            <div className="relative group/input">
-              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-gray-400 group-focus-within/input:text-indigo-400 transition-colors">
-                <Mail className="h-5 w-5" />
-              </div>
+        <div className="text-center mb-14">
+          <motion.div 
+            initial={{ rotate: -10, opacity: 0, scale: 0.8 }}
+            animate={{ rotate: 0, opacity: 1, scale: 1 }}
+            className="mx-auto h-24 w-24 icon-circle-sketch border-[3px] border-oxford-blue bg-white flex items-center justify-center mb-10 shadow-[6px_6px_0px_0px_#FF5722]"
+          >
+            <ShieldCheck className="h-10 w-10 text-oxford-blue" />
+          </motion.div>
+          
+          <div className="space-y-2">
+             <h2 className="text-4xl font-black text-oxford-blue italic uppercase tracking-tighter title-fredoka">
+               AUTH <span className="text-orange-500 underline decoration-dashed underline-offset-4">GATEWAY</span>
+             </h2>
+             <div className="flex items-center justify-center gap-2">
+                <span className="h-[1px] w-6 bg-slate-200" />
+                <p className="text-slate-400 text-[9px] font-black uppercase tracking-[0.4em] italic">
+                   Identity Verification Required
+                </p>
+                <span className="h-[1px] w-6 bg-slate-200" />
+             </div>
+          </div>
+        </div>
+
+        <form className="space-y-10" onSubmit={handleLogin}>
+          {/* Email Deployment Unit */}
+          <div className="space-y-4">
+            <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic flex items-center gap-2">
+               <Mail className="w-4 h-4 text-oxford-blue" />
+               Command Email
+            </label>
+            <div className="relative">
               <input
                 type="email"
                 required
-                className="w-full bg-white/5 border border-white/5 text-white px-6 py-5 pl-16 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 focus:bg-white/10 transition-all font-medium placeholder-gray-600"
-                placeholder="engineer@sololearn.v2"
+                className="w-full bg-white border-[3px] border-oxford-blue text-oxford-blue px-6 py-5 rounded-none focus:outline-none focus:shadow-[6px_6px_0px_0px_#cbd5e1] transition-all font-black placeholder-slate-300 italic"
+                placeholder="ENGINEER@SOLOLEARN.EDU"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
           </div>
 
-          <div className="space-y-3">
-            <div className="flex justify-between items-center ml-2">
-              <label className="block text-[10px] font-black text-gray-500 tracking-[0.3em] uppercase">Access Code</label>
-              <Link to="/forgot-password" size="xs" className="text-[9px] font-black text-indigo-400 hover:text-white transition-colors tracking-widest uppercase">Lost Code?</Link>
+          {/* Access Code Unit */}
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <label className="text-[10px] text-slate-400 font-black uppercase tracking-widest italic flex items-center gap-2">
+                 <Lock className="w-4 h-4 text-oxford-blue" />
+                 Access Code
+              </label>
+              <Link to="/forgot-password" size="xs" className="text-[9px] font-black text-orange-500 hover:text-orange-600 transition-colors tracking-widest uppercase italic">Lost Code?</Link>
             </div>
-            <div className="relative group/input">
-              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none text-gray-400 group-focus-within/input:text-indigo-400 transition-colors">
-                <Lock className="h-5 w-5" />
-              </div>
+            <div className="relative">
               <input
                 type="password"
                 required
-                className="w-full bg-white/5 border border-white/5 text-white px-6 py-5 pl-16 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/40 focus:bg-white/10 transition-all font-medium placeholder-gray-600"
+                className="w-full bg-white border-[3px] border-oxford-blue text-oxford-blue px-6 py-5 rounded-none focus:outline-none focus:shadow-[6px_6px_0px_0px_#cbd5e1] transition-all font-black placeholder-slate-300 italic"
                 placeholder="••••••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -112,11 +123,11 @@ const Login = () => {
 
           {error && (
             <motion.div 
-              initial={{ x: -10, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              className="p-5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-200 text-xs font-bold flex items-center gap-4"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="p-5 border-[3px] border-dashed border-red-500 bg-red-50/50 text-red-600 text-[10px] font-black uppercase tracking-widest flex items-center gap-4 italic shadow-[6px_6px_0px_0px_#fee2e2]"
             >
-              <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse shrink-0" />
+              <Activity className="w-4 h-4 animate-pulse" />
               {error}
             </motion.div>
           )}
@@ -124,21 +135,26 @@ const Login = () => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full relative py-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-[0.5em] shadow-[0_20px_40px_rgba(79,70,229,0.3)] transition-all active:scale-95 disabled:opacity-50 group/btn overflow-hidden"
+            className="btn-sketch w-full py-6 text-sm bg-oxford-blue text-white border-oxford-blue shadow-[10px_10px_0px_0px_#FF5722] flex items-center justify-center gap-4 group"
           >
             {isLoading ? <Loader className="animate-spin h-5 w-5 mx-auto" /> : (
-              <span className="flex items-center justify-center gap-3">
-                Initialize System <ArrowRight className="h-5 w-5 group-hover/btn:translate-x-2 transition-transform" />
-              </span>
+              <>
+                INITIALIZE SYSTEM <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform text-orange-400" />
+              </>
             )}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" />
           </button>
-        </motion.form>
+        </form>
 
-        <div className="mt-12 text-center relative z-10 pt-10 border-t border-white/10">
-          <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest">
-            New Engineer? <Link to="/signup" className="text-white hover:text-indigo-400 ml-2 border-b border-indigo-500/30">Create Profile</Link>
+        <div className="mt-14 pt-10 border-t-[3px] border-dashed border-slate-50 text-center">
+          <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest italic">
+            New Engineer Enlistment? <Link to="/signup" className="text-orange-500 hover:text-orange-600 ml-2 border-b-2 border-orange-200">Create Profile</Link>
           </p>
+        </div>
+
+        {/* Tactical status pulse */}
+        <div className="absolute bottom-4 left-4 flex items-center gap-2">
+           <div className="w-2 h-2 bg-slate-200 rounded-full animate-pulse" />
+           <span className="text-[8px] text-slate-300 font-bold uppercase tracking-widest">GATEWAY_ENCRYPTION: ACTIVE</span>
         </div>
       </motion.div>
     </div>

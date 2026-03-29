@@ -3,11 +3,11 @@ const ApiError = require('../utils/ApiError');
 const { generateAIContent } = require('../utils/aiService');
 const { getStaticResponse } = require('../utils/aiHelpers');
 
-// @desc    Ask AI Tutor a question
+// @desc    Ask AI Tutor a question with session history
 // @route   POST /api/ai/ask
 // @access  Private
 exports.askTutor = asyncHandler(async (req, res, next) => {
-  const { question } = req.body;
+  const { question, history = [] } = req.body;
 
   if (!question) {
     return next(new ApiError(400, 'Please provide a question'));
@@ -34,21 +34,26 @@ exports.askTutor = asyncHandler(async (req, res, next) => {
       context = await TutorContext.create({ user: req.user.id });
     }
 
+    // Format Session History for Gemini
+    const formattedHistory = history.map(h => `${h.role === 'user' ? 'Student' : 'Tutor'}: ${h.content}`).join('\n');
+
     const prompt = `
       You are an expert Coding Tutor for a platform called SoloLearn. 
       Your goal is to explain concepts clearly, provide code snippets where helpful, and keep the tone professional but encouraging.
       Focus on JavaScript, Web Development, and Computer Science fundamentals.
-      Keep the answer concise (max 200 words) but high quality.
+      Keep the answer concise (max 250 words) but high quality.
 
-      LEARNING CONTEXT (Remember this about the student):
-      - Personality Preference: ${context.aiPersonality || 'Professional'}
-      - Previous Topics: ${(context.lastTopics || []).join(', ') || 'None'}
-      - Memory Summary: ${context.memorySummary || 'Beginner'}
-      - Help the user avoid these past mistakes: ${(context.mistakeHistory || []).map(m => m.incorrectConcept).join(', ') || 'No recorded mistakes'}
+      LEARNING CONTEXT (Professional Blueprint):
+      - Identity Style: ${context.aiPersonality || 'Socratic'}
+      - Memory Hub: ${context.memorySummary || 'Beginner student starting their technical journey.'}
+      - Known Weaknesses to resolve: ${(context.mistakeHistory || []).map(m => m.incorrectConcept).join(', ') || 'No recorded concept misunderstandings.'}
 
-      Student Question: ${question}
+      SESSION HISTORY (Previous Intel):
+      ${formattedHistory || 'Initial contact started.'}
+
+      Current Student Input: ${question}
+      Expert Response (Start direct, no fluff):
     `;
-
 
     const answer = await generateAIContent(prompt);
 
@@ -57,7 +62,8 @@ exports.askTutor = asyncHandler(async (req, res, next) => {
       data: {
         answer,
         timestamp: new Date(),
-        mode: 'ai'
+        mode: 'ai',
+        personality: context.aiPersonality || 'Socratic'
       }
     });
   } catch (err) {
