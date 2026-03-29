@@ -5,8 +5,7 @@ import { motion } from 'framer-motion';
 import api from '../services/api';
 
 import { toast } from 'react-hot-toast'; // Updated to react-hot-toast
-import { Plus, Trash2, Save, X, Settings, CheckCircle, Lock, Unlock } from 'lucide-react';
-import { Card3D } from '../components/Card3D';
+import { Plus, Trash2, Save, X, Settings, CheckCircle, Lock, Unlock, Sparkles } from 'lucide-react';
 
 const CreateQuiz = () => {
   const { user } = useAuth();
@@ -224,6 +223,25 @@ const CreateQuiz = () => {
                 </button>
               </div>
 
+               <div className="space-y-8 relative z-10">
+                 <div>
+                   <label className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-black mb-3 block ml-1">Prompt</label>
+                   <input
+                     type="text"
+                     className="w-full bg-slate-50 border-[3px] border-oxford-blue rounded-2xl py-5 px-6 text-oxford-blue font-black focus:outline-none focus:ring-8 focus:ring-oxford-blue/5 transition-all text-[15px] placeholder:text-slate-300 shadow-[4px_4px_0px_0px_#cbd5e1]"
+                     placeholder="State the technical query clearly..."
+                     value={q.question}
+                     onChange={(e) => updateQuestion(qIndex, 'question', e.target.value)}
+                   />
+                 </div>
+
+                 <div className="pt-4">
+                   <label className="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-black mb-4 block ml-1">Possible Data Returns</label>
+                   <div className="grid md:grid-cols-2 gap-6">
+                     {q.options.map((opt, oIndex) => (
+                       <div key={oIndex} className="flex items-center gap-4 group/option">
+                         <button
+                           onClick={() => updateQuestion(qIndex, 'answerIndex', oIndex)}
                            className={`w-8 h-8 rounded-xl border-[3px] flex items-center justify-center transition-all bg-white relative z-10 shadow-[2px_2px_0px_0px_#cbd5e1] shrink-0
                              ${q.answerIndex === oIndex ? 'border-orange-500 bg-orange-500 shadow-[2px_2px_0px_0px_#FF5722]' : 'border-slate-300 group-hover/option:border-oxford-blue text-transparent'}`}
                          >
