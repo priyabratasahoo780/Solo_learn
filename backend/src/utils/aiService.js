@@ -29,6 +29,7 @@ exports.generateAIContent = async (prompt, isJson = false) => {
   };
 
   try {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'; // Bypass local network TLS firewall blocks
     const response = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: {

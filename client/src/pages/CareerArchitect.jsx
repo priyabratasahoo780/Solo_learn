@@ -9,8 +9,10 @@ import {
   ShieldCheck, Beaker, Microscope, PenTool
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useAuth } from '../context/AuthContext';
 
 const CareerArchitect = () => {
+  const { refreshUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [roadmap, setRoadmap] = useState(null);
   const [dreamJob, setDreamJob] = useState('');
@@ -61,6 +63,7 @@ const CareerArchitect = () => {
         taskName 
       });
       setRoadmap(res.data.data);
+      refreshUser();
     } catch (err) {
       toast.error('Failed to update task progress');
     }

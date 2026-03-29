@@ -41,10 +41,10 @@ exports.askTutor = asyncHandler(async (req, res, next) => {
       Keep the answer concise (max 200 words) but high quality.
 
       LEARNING CONTEXT (Remember this about the student):
-      - Personality Preference: ${context.aiPersonality}
-      - Previous Topics: ${context.lastTopics.join(', ') || 'None'}
-      - Memory Summary: ${context.memorySummary}
-      - Help the user avoid these past mistakes: ${context.mistakeHistory.map(m => m.incorrectConcept).join(', ') || 'No recorded mistakes'}
+      - Personality Preference: ${context.aiPersonality || 'Professional'}
+      - Previous Topics: ${(context.lastTopics || []).join(', ') || 'None'}
+      - Memory Summary: ${context.memorySummary || 'Beginner'}
+      - Help the user avoid these past mistakes: ${(context.mistakeHistory || []).map(m => m.incorrectConcept).join(', ') || 'No recorded mistakes'}
 
       Student Question: ${question}
     `;

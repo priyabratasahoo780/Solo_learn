@@ -148,7 +148,17 @@ exports.completeTask = asyncHandler(async (req, res, next) => {
   const dayObj = roadmap.roadmap.find(d => d.day === day);
   if (dayObj) {
     const task = dayObj.tasks.find(t => t.taskName === taskName);
-    if (task) task.isCompleted = true;
+    if (task) {
+      task.isCompleted = !task.isCompleted;
+      
+      if (task.isCompleted) {
+        roadmap.readinessScore = Math.min(100, roadmap.readinessScore + 5);
+        await User.findByIdAndUpdate(req.user.id, { $inc: { totalPoints: 50, coins: 10 } });
+      } else {
+        roadmap.readinessScore = Math.max(0, roadmap.readinessScore - 5);
+        await User.findByIdAndUpdate(req.user.id, { $inc: { totalPoints: -50, coins: -10 } });
+      }
+    }
   }
 
   await roadmap.save();
