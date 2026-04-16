@@ -45,6 +45,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const googleLogin = async (accessToken) => {
+    try {
+      const { data } = await api.post('/auth/google', { accessToken });
+      setUser(data.data);
+      localStorage.setItem('token', data.token);
+      return { success: true };
+    } catch (err) {
+      return {
+        success: false,
+        error: err.response?.data?.message || 'Google login failed'
+      };
+    }
+  };
+
   const signup = async (name, email, password) => {
     try {
       console.log('Attempting signup for:', email);
@@ -175,7 +189,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, loading, refreshUser, sendOtp, verifyOtp, forgotPassword, updateProfile }}>
+    <AuthContext.Provider value={{ user, login, googleLogin, signup, logout, loading, refreshUser, sendOtp, verifyOtp, forgotPassword, updateProfile }}>
       {loading ? (
         <LoadingSpinner fullScreen />
       ) : (

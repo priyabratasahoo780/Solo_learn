@@ -6,6 +6,9 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const generateCertificate = require('../utils/generateCertificate');
 const { sendCertificateEmail, sendResetEmail } = require('../utils/sendEmail');
+const axios = require('axios');
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Helper to check and update streak
 const updateStreak = async (user) => {
@@ -291,4 +294,56 @@ exports.resetPassword = asyncHandler(async (req, res, next) => {
   await user.save();
 
   await sendTokenResponse(user, 200, res);
+});
+
+// @desc    Google Login
+// @route   POST /api/auth/google
+// @access  Public
+exports.googleLogin = asyncHandler(async (req, res, next) => {
+  const { accessToken } = req.body;
+
+  if (!accessToken) {
+    return next(new ApiError(400, 'Access Token is required'));
+  }
+
+  try {
+    // Verify accessToken and get user info
+    const tokenInfo = await client.getTokenInfo(accessToken);
+    
+    // For more details, we can also fetch from userinfo endpoint
+    const response = await axios.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`);
+    const payload = response.data;
+    
+    const { email, name, picture, sub: googleId } = payload;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create new user if they don't exist
+      const myReferralCode = crypto.randomBytes(4).toString('hex').toUpperCase();
+      const BASE_SIGNUP_BONUS = 500; // Extra bonus for social login
+
+      user = await User.create({
+        name,
+        email,
+        password: crypto.randomBytes(16).toString('hex'), // Random password for social users
+        avatar: picture,
+        googleId,
+        referralCode: myReferralCode,
+        coins: BASE_SIGNUP_BONUS
+      });
+    } else {
+      // Link Google account if not linked
+      if (!user.googleId) {
+        user.googleId = googleId;
+        if (picture && !user.avatar) user.avatar = picture;
+        await user.save();
+      }
+    }
+
+    await sendTokenResponse(user, 200, res);
+  } catch (error) {
+    console.error('Google Auth Error:', error);
+    return next(new ApiError(401, 'Google authentication failed'));
+  }
 });

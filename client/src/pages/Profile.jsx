@@ -113,9 +113,9 @@ const Profile = () => {
                 </div>
                 <input type="file" accept="image/*" onChange={handleImageChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" title="Click to upload profile photo" />
               </div>
-              <div>
-                <h3 className="text-2xl font-black text-oxford-blue italic tracking-tighter uppercase leading-none">Enrollment</h3>
-                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2">{user?.email}</p>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-2xl sm:text-3xl font-black text-oxford-blue italic tracking-tighter uppercase leading-none truncate">Enrollment</h3>
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-2 break-all leading-relaxed">{user?.email}</p>
               </div>
             </div>
 

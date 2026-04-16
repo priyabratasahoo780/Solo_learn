@@ -2,18 +2,52 @@ import { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, ArrowRight, LogIn, Loader, ShieldCheck, Terminal, Activity, Zap, Beaker } from 'lucide-react';
+import { FcGoogle } from 'react-icons/fc';
 import { motion } from 'framer-motion';
+import { useGoogleLogin } from '@react-oauth/google';
+import { toast } from 'react-hot-toast';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
   const from = location.state?.from?.pathname || '/dashboard';
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsLoading(true);
+      try {
+        // Note: For @react-oauth/google, we usually get an access_token.
+        // If we want an id_token, we use the 'GoogleLogin' component or a different flow.
+        // For simplicity with 'useGoogleLogin', we can fetch user info or pass the access_token.
+        // However, our backend expects an idToken. 
+        // Let's use the 'implicit' flow which is standard for useGoogleLogin.
+        
+        // Actually, let's use the standard 'GoogleLogin' component for idTokens if possible,
+        // but 'useGoogleLogin' is better for custom buttons. 
+        // I will adjust the backend to handle access_tokens or stick to a simple strategy.
+        
+        // Re-implementing with a strategy that fetch info from google and then logs in
+        const res = await googleLogin(tokenResponse.access_token);
+        if (res.success) {
+          toast.success('Neural Link Established. Welcome Engineer.');
+          navigate(from, { replace: true });
+        } else {
+          setError(res.error);
+        }
+      } catch (err) {
+        setError('Google synchronization failed');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => setError('Google Authentication Interrupted')
+  });
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -142,6 +176,26 @@ const Login = () => {
                 INITIALIZE SYSTEM <ArrowRight className="h-6 w-6 group-hover:translate-x-2 transition-transform text-orange-400" />
               </>
             )}
+          </button>
+
+          {/* Social Auth Separator */}
+          <div className="relative mt-8 mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-slate-200"></div>
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white px-4 text-slate-400 font-bold uppercase tracking-widest italic">Or Initialize Via</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={() => handleGoogleLogin()}
+            disabled={isLoading}
+            className="w-full py-4 bg-white border-[3px] border-oxford-blue text-oxford-blue flex items-center justify-center gap-3 font-black uppercase tracking-widest text-sm hover:-translate-y-1 transition-transform shadow-[6px_6px_0px_0px_#FF5722] disabled:opacity-50"
+          >
+            <FcGoogle className="w-6 h-6" />
+            Continue With Google
           </button>
         </form>
 

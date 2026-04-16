@@ -103,6 +103,11 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true // Allow null for email/pass users
+  },
   // Streak logic
 
 

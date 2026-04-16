@@ -1,29 +1,28 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.EMAIL_PORT) || 587,
-  secure: parseInt(process.env.EMAIL_PORT) === 465,
+  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  },
-  tls: {
-    rejectUnauthorized: false
   }
 });
 
 // Non-fatal connection check (does not block startup)
 if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
-  transporter.verify(function (error) {
-    if (error) {
-      console.warn('⚠️ SMTP Warning: Email service unavailable -', error.message);
-    } else {
-      console.log('✅ SMTP Server connected and ready');
-    }
+  transporter.verify().catch(error => {
+    console.warn('\n---------------------------------------------------------');
+    console.warn('⚠️  EMAIL SERVICE NOTICE: Authentication Pending');
+    console.warn('The EMAIL_PASS in your .env is being rejected by Google.');
+    console.warn('Your server is ACTIVE, but Emails/Certificates will fail.');
+    console.warn('Action: Please generate a NEW App Password from Google.');
+    console.warn('---------------------------------------------------------\n');
   });
 } else {
-  console.warn('⚠️ SMTP Warning: EMAIL_USER or EMAIL_PASS not set. Email features will be disabled.');
+  console.warn('⚠️ SMTP Warning: EMAIL_USER or EMAIL_PASS not set. Email features disabled.');
 }
 
 module.exports = transporter;
