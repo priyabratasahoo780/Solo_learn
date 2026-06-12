@@ -2,8 +2,8 @@ import { useState, useMemo, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-hot-toast';
-import { Link } from 'react-router-dom';
-import { Search, Filter, Play, Code2, Database, Coffee, Layers, Globe, Lock, Unlock, Coins, ChevronRight, BookOpen, Sparkles } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, Filter, Play, Code2, Database, Coffee, Layers, Globe, Lock, Unlock, Coins, ChevronRight, BookOpen, Sparkles, Zap } from 'lucide-react';
 
 const CATEGORIES = [
   { name: 'All', icon: Layers },
@@ -19,10 +19,12 @@ const CATEGORIES = [
 ];
 
 const QuizList = () => {
+  const navigate = useNavigate();
   const { user, refreshUser } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
   const [unlockingId, setUnlockingId] = useState(null);
+  const [generating, setGenerating] = useState(false);
   
   const [quizzes, setQuizzes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,6 +42,27 @@ const QuizList = () => {
     };
     fetchQuizzes();
   }, []);
+
+  const handleGenerateDynamicQuiz = async () => {
+    const categoryName = activeCategory === 'All' ? 'code' : activeCategory;
+    
+    setGenerating(true);
+    try {
+      toast.loading('Generating real-time interview questions from QuizAPI...', { id: 'quizapi' });
+      const { data } = await api.post('/quizzes/generate-quizapi', {
+        category: categoryName,
+        difficulty: 'Medium',
+        limit: 10
+      });
+      toast.success('Dynamic quiz generated successfully!', { id: 'quizapi' });
+      navigate(`/quizzes/${data.data._id}`);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || 'Failed to generate dynamic quiz. Try another category.', { id: 'quizapi' });
+    } finally {
+      setGenerating(false);
+    }
+  };
 
   const handleUnlock = async (quiz) => {
     if (unlockingId) return;
@@ -78,7 +101,17 @@ const QuizList = () => {
       {/* Academy Header & Control Module */}
       <div className="flex flex-col xl:flex-row items-start xl:items-end justify-between gap-10 border-b-[3px] border-dashed border-slate-200 pb-12">
         <div className="space-y-4 max-w-2xl">
-          <div className="badge-sketch bg-oxford-blue text-white shadow-[4px_4px_0px_0px_#FF5722]">Knowledge Labs Node</div>
+          <div className="flex items-center gap-4">
+             <div className="badge-sketch bg-oxford-blue text-white shadow-[4px_4px_0px_0px_#FF5722]">Knowledge Labs Node</div>
+             <button
+               onClick={handleGenerateDynamicQuiz}
+               disabled={generating}
+               className="badge-sketch flex items-center gap-2 bg-orange-50 text-orange-600 border-orange-500 shadow-[4px_4px_0px_0px_#FF5722] hover:-translate-y-0.5 transition-transform"
+             >
+               <Zap className={`w-4 h-4 ${generating ? 'animate-pulse' : ''}`} />
+               {generating ? 'GENERATING...' : 'GENERATE DYNAMIC EXAM'}
+             </button>
+          </div>
           <h1 className="text-5xl sm:text-6xl font-black text-oxford-blue italic tracking-tighter uppercase leading-none">
             LECTURE <span className="text-orange-500">CHALLENGES</span>
           </h1>
@@ -126,7 +159,29 @@ const QuizList = () => {
 
       {/* Challenge Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {filteredQuizzes.length > 0 ? (
+        {loading ? (
+          Array(6).fill(0).map((_, i) => (
+            <div key={i} className="sketch-card p-8 bg-white border-oxford-blue shadow-[10px_10px_0px_0px_#cbd5e1] min-h-[420px] flex flex-col justify-between relative overflow-hidden animate-pulse">
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <div className="w-20 h-6 bg-slate-200 rounded-lg border-2 border-slate-300"></div>
+                  <div className="w-16 h-4 bg-slate-200 rounded"></div>
+                </div>
+                <div className="space-y-3">
+                  <div className="w-3/4 h-8 bg-slate-200 rounded"></div>
+                  <div className="w-full h-20 bg-slate-100 border-2 border-dashed border-slate-200 rounded-xl"></div>
+                </div>
+              </div>
+              <div className="mt-8 pt-8 border-t-[3px] border-dashed border-slate-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="h-8 w-8 rounded-full border-2 bg-slate-200"></div>
+                  <div className="w-20 h-4 bg-slate-200 rounded"></div>
+                </div>
+                <div className="w-32 h-10 bg-slate-200 rounded-lg"></div>
+              </div>
+            </div>
+          ))
+        ) : filteredQuizzes.length > 0 ? (
           filteredQuizzes.map((quiz) => {
             const isPremium = quiz.isPremium;
             const isLocked = isPremium && user && !user.unlockedQuizzes?.includes(quiz._id);

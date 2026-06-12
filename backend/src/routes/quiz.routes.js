@@ -8,12 +8,16 @@ const {
   getQuizById,
   createQuiz,
   updateQuiz,
-  reportViolation
+  reportViolation,
+  generateFromQuizAPI
 } = require('../controllers/quiz.controller');
 
 const { protect, authorize } = require('../middleware/auth.middleware');
 
 const router = express.Router();
+
+router.route('/generate-quizapi')
+  .post(protect, generateFromQuizAPI);
 
 // Basic CRUD
 router.route('/')

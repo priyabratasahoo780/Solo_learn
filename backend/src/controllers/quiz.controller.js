@@ -1,5 +1,6 @@
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
+const axios = require('axios');
 const Quiz = require('../models/Quiz.model');
 const User = require('../models/User.model');
 const Certificate = require('../models/Certificate.model');
@@ -494,3 +495,99 @@ exports.submitQuiz = asyncHandler(async (req, res, next) => {
     }
   });
 });
+
+// @desc    Generate dynamic quiz from QuizAPI
+// @route   POST /api/quizzes/generate-quizapi
+// @access  Private
+exports.generateFromQuizAPI = asyncHandler(async (req, res, next) => {
+  const { category = 'code', difficulty = 'Medium', limit = 10 } = req.body;
+  const apiKey = process.env.QUIZ_API_KEY;
+  if (!apiKey) return next(new ApiError(500, 'QuizAPI key is missing in server config'));
+
+  // QuizAPI parameters
+  // QuizAPI parameters
+  const isCategoryValid = category && category !== 'All' && category !== 'code';
+  
+  // If the user selects "All", they expect Full Stack / DevOps / Tech questions, not general knowledge.
+  // We'll randomly pick a popular tech category for this generation round.
+  const techTags = ['JavaScript', 'HTML', 'CSS', 'ReactJS', 'NodeJS', 'Python', 'Docker', 'Linux', 'DevOps', 'MySQL', 'MongoDB', 'AWS', 'Kubernetes'];
+  const finalCategory = isCategoryValid ? category : techTags[Math.floor(Math.random() * techTags.length)];
+  
+  // Fetch up to 50 questions so we can shuffle them for randomness
+  const fetchLimit = 50;
+  const url = `https://quizapi.io/api/v1/questions?tags=${finalCategory}&limit=${fetchLimit}`;
+  
+  let response;
+  try {
+    response = await axios.get(url, {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      return next(new ApiError(401, 'Invalid QuizAPI Key. QuizAPI rejected the request with 401 Unauthorized. Please check your API key.'));
+    }
+    return next(new ApiError(500, 'Failed to fetch questions from QuizAPI.'));
+  }
+  
+  let data = response.data.data;
+
+  // Shuffle the data array to ensure different questions every time
+  if (Array.isArray(data)) {
+    data = data.sort(() => Math.random() - 0.5);
+  }
+
+  // Map data to our question format
+  const questions = [];
+  if (Array.isArray(data)) {
+    for (const q of data) {
+      if (questions.length >= limit) break; // Stop when we have enough questions
+
+      // Find the correct answer count
+      const correctAnswers = q.answers.filter(a => a.isCorrect);
+      // Ensure exactly one correct answer for simplicity in our UI
+      if (correctAnswers.length !== 1) continue;
+
+      // Map the answers and then shuffle them
+      let mappedAnswers = q.answers.map(a => ({ text: a.text, isCorrect: a.isCorrect }));
+      mappedAnswers = mappedAnswers.sort(() => Math.random() - 0.5);
+
+      const options = mappedAnswers.map(a => a.text);
+      const answerIndex = mappedAnswers.findIndex(a => a.isCorrect);
+
+      if (options.length >= 2 && options.length <= 6) {
+        questions.push({
+          question: q.text,
+          options,
+          answerIndex,
+          explanation: q.explanation || 'No explanation provided.'
+        });
+      }
+    }
+  }
+
+  if (questions.length === 0) {
+    return next(new ApiError(404, 'Could not generate valid single-answer MCQs from the API. Please try a different category.'));
+  }
+
+  // Create a new Quiz in the DB
+  const mappedCategory = category === 'code' ? 'Code' : category;
+  
+  const quiz = await Quiz.create({
+    title: `Dynamic ${mappedCategory} Interview`,
+    description: `Real-time generated interview questions for ${mappedCategory}.`,
+    category: mappedCategory,
+    difficulty: difficulty === 'Hard' ? 'Advanced' : (difficulty === 'Medium' ? 'Intermediate' : 'Beginner'),
+    pointsPerQuestion: 10,
+    isPremium: false,
+    createdBy: req.user.id,
+    questions: questions
+  });
+
+  res.status(201).json({
+    success: true,
+    data: quiz
+  });
+});
+
