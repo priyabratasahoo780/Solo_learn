@@ -56,10 +56,13 @@ const Navbar = () => {
     }
   ];
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full p-8 bg-white border-r-[3px] border-oxford-blue">
+  const renderSidebarContent = () => (
+    <div 
+      className="flex flex-col h-full p-8 bg-white border-r-[3px] border-oxford-blue overflow-y-auto"
+      data-lenis-prevent="true"
+    >
       {/* Academy Brand */}
-      <Link to="/" className="flex items-center gap-4 mb-16 px-2 group">
+      <Link to="/" className="flex items-center gap-4 mb-16 px-2 group shrink-0">
         <div className="icon-circle-sketch group-hover:bg-oxford-blue group-hover:text-white transition-all duration-300">
           <BookOpen className="h-6 w-6" />
         </div>
@@ -70,7 +73,7 @@ const Navbar = () => {
       </Link>
 
       {/* Navigation Ecosystem */}
-      <div className="flex-1 space-y-10 overflow-y-auto pr-2 custom-scrollbar">
+      <div className="flex-1 space-y-10">
         {navGroups.map((group) => {
           return (
           <div key={group.name} className="space-y-4">
@@ -170,7 +173,7 @@ const Navbar = () => {
 
       {/* Desktop Persistent Workspace Sidebar */}
       <aside className="hidden lg:block fixed left-0 top-0 h-screen w-72 z-50">
-         <SidebarContent />
+         {renderSidebarContent()}
       </aside>
 
       {/* Mobile Curtain Menu */}
@@ -191,7 +194,7 @@ const Navbar = () => {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed inset-y-0 left-0 w-80 shadow-2xl z-[100]"
             >
-              <SidebarContent />
+              {renderSidebarContent()}
               <button 
                 onClick={() => setIsMobileOpen(false)}
                 className="absolute top-8 right-8 p-3 bg-white rounded-2xl text-oxford-blue border-[2px] border-oxford-blue hover:bg-slate-50 transition-all active:scale-95"

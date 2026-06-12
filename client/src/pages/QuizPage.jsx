@@ -8,10 +8,11 @@ import {
   Lock, Laptop, Activity, ChevronRight
 } from 'lucide-react';
 import LoadingSpinner from '../components/LoadingSpinner';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import api from '../services/api';
 import emailService from '../services/emailService';
 import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
 
 const QuizPage = () => {
   const { id } = useParams();
@@ -80,7 +81,7 @@ const GameInterface = ({ quiz, navigate }) => {
           await document.documentElement.requestFullscreen();
         }
       } catch (fsErr) {
-        console.warn('Fullscreen denied');
+        console.warn('Fullscreen denied', fsErr);
       }
 
       const { data } = await api.post(`/quizzes/${quiz._id}/start`);
@@ -122,17 +123,7 @@ const GameInterface = ({ quiz, navigate }) => {
     };
   }, [stream]);
 
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      if (hasStarted && !document.fullscreenElement && !isGameOver && !isCompleted) {
-        reportViolation('fullscreen-exit');
-      }
-    };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, [hasStarted, isGameOver, isCompleted]);
-
-  const reportViolation = async (type) => {
+  const reportViolation = useCallback(async (type) => {
     if (!attemptId || isGameOver || isCompleted) return;
     try {
       const { data } = await api.post(`/quizzes/attempts/${attemptId}/violation`, { type });
@@ -147,7 +138,17 @@ const GameInterface = ({ quiz, navigate }) => {
     } catch (err) {
       console.error('Violation Error', err);
     }
-  };
+  }, [attemptId, isGameOver, isCompleted]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (hasStarted && !document.fullscreenElement && !isGameOver && !isCompleted) {
+        reportViolation('fullscreen-exit');
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, [hasStarted, isGameOver, isCompleted, reportViolation]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -167,7 +168,7 @@ const GameInterface = ({ quiz, navigate }) => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleBlur);
     };
-  }, [hasStarted, isGameOver, isCompleted]);
+  }, [hasStarted, isGameOver, isCompleted, reportViolation]);
 
   if (isLocked) {
     return (

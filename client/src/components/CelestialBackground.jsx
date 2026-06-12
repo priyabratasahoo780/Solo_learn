@@ -1,6 +1,16 @@
+import React from 'react';
 import { motion } from 'framer-motion';
 
 const CelestialBackground = () => {
+  const [stars] = React.useState(() => 
+    [...Array(150)].map(() => ({
+      cx: `${Math.random() * 100}%`,
+      cy: `${Math.random() * 100}%`,
+      r: Math.random() * 1,
+      duration: Math.random() * 4 + 3,
+      delay: Math.random() * 10
+    }))
+  );
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-[-1] bg-[#020617]">
       {/* Advanced Dynamic Background - Orbs */}
@@ -34,21 +44,21 @@ const CelestialBackground = () => {
             <stop offset="100%" stopColor="transparent" />
           </radialGradient>
         </defs>
-        {[...Array(150)].map((_, i) => (
+        {stars.map((star, i) => (
           <motion.circle
             key={i}
-            cx={`${Math.random() * 100}%`}
-            cy={`${Math.random() * 100}%`}
-            r={Math.random() * 1}
+            cx={star.cx}
+            cy={star.cy}
+            r={star.r}
             fill="url(#starGlow)"
             animate={{ 
               opacity: [0.1, 0.8, 0.1],
               scale: [1, 1.5, 1] 
             }}
             transition={{ 
-              duration: Math.random() * 4 + 3, 
+              duration: star.duration, 
               repeat: Infinity,
-              delay: Math.random() * 10
+              delay: star.delay
             }}
           />
         ))}

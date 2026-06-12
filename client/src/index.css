@@ -48,17 +48,26 @@ html.lenis, html.lenis body {
     @apply tracking-tight font-bold text-oxford-blue;
   }
 
-  /* Premium Sketch Scrollbar */
+  /* Sleek Global Scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 45, 114, 0.15) transparent;
+  }
+  
   ::-webkit-scrollbar {
-    width: 10px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
-    background: #f1f5f9;
+    background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #002D72;
-    border: 3px solid #f1f5f9;
-    border-radius: 20px;
+    background: rgba(0, 45, 114, 0.15);
+    border: none;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 45, 114, 0.3);
   }
 
   /* Sketch Card (Neubrutalist Academic) */

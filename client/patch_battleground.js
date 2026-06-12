@@ -1,3 +1,4 @@
+/* global require */
 const fs = require('fs');
 let c = fs.readFileSync('src/pages/BattleGround.jsx', 'utf8');
 c = c.replace(

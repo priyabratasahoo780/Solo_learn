@@ -4,11 +4,13 @@ import { Flame, CheckCircle2, ChevronRight } from 'lucide-react';
 
 const ActivityHeatmap = ({ user }) => {
   // Mocking 365 days of activity for visual fidelity
-  const days = Array.from({ length: 350 }, (_, i) => ({
-    id: i,
-    intensity: Math.floor(Math.random() * 5), // 0 to 4
-    date: new Date(Date.now() - (350 - i) * 86400000)
-  }));
+  const [days] = React.useState(() => 
+    Array.from({ length: 350 }, (_, i) => ({
+      id: i,
+      intensity: Math.floor(Math.random() * 5), // 0 to 4
+      date: new Date(Date.now() - (350 - i) * 86400000)
+    }))
+  );
 
   const getLevelColor = (level) => {
     switch(level) {

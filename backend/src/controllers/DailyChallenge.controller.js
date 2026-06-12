@@ -2,10 +2,7 @@ const DailyChallenge = require('../models/DailyChallenge.model');
 const User = require('../models/User.model');
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-
-// Configure AI Fallback for generation
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+const { generateAIContent } = require('../utils/aiService');
 
 // @desc    Get the daily challenge
 // @route   GET /api/daily-challenge
@@ -19,11 +16,6 @@ exports.getDailyChallenge = asyncHandler(async (req, res, next) => {
   // 🤖 AUTO-GENERATE DAILY CHALLENGE IF MISSING (AI AGENT MODE)
   if (!challenge && process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY !== 'your_gemini_api_key_here') {
     try {
-      const model = genAI.getGenerativeModel({ 
-        model: 'gemini-1.5-flash',
-        generationConfig: { responseMimeType: "application/json" }
-      });
-
       const prompt = `
         Generate a "Question of the Day" for a coding platform. 
         Topic: Random tech topic (JavaScript, Python, SQL, etc.)
@@ -39,8 +31,7 @@ exports.getDailyChallenge = asyncHandler(async (req, res, next) => {
         }
       `;
 
-      const result = await model.generateContent(prompt);
-      const data = JSON.parse(result.response.text());
+      const data = await generateAIContent(prompt, true);
       
       challenge = await DailyChallenge.create({
         ...data,
