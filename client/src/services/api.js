@@ -42,14 +42,18 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     
-    // If error is 401 and we haven't retried yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // If error is 401 and we haven't retried yet and it's not the refresh endpoint itself
+    if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh') {
       originalRequest._retry = true;
       
       try {
-        // Try to refresh token
-        // Note: this endpoint relies on the httpOnly cookie
-        const { data } = await api.post('/auth/refresh');
+        // Try to refresh token using base axios to avoid interceptor loops
+        const { data } = await axios.post(`${apiURL}/auth/refresh`, {}, {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
         
         // Save new access token
         localStorage.setItem('token', data.token);
@@ -60,7 +64,8 @@ api.interceptors.response.use(
       } catch (refreshError) {
         // If refresh fails, user is logged out
         localStorage.removeItem('token');
-        // window.location.href = '/login'; // Or handle via Context
+        // Optional: clear user state by dispatching an event or redirecting
+        // window.location.href = '/login'; 
         return Promise.reject(refreshError);
       }
     }
